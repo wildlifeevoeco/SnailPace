@@ -22,7 +22,7 @@ utm22T <- "+proj=utm +zone=22 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 crs22 <- sp::CRS("+init=epsg:32621")
 
 # selecting just the parts of the data that I need, you'll probably need to include your other things like temp and precip
-DT.prep <- dat %>% dplyr::select(x = "xUTM", y = "yUTM", t = 'datetime', snail = 'Snail', temp = "Temperature", precip = "Precipitation") 
+DT.prep <- dat %>% dplyr::select(x = "xUTM", y = "yUTM", t = 'datetime', snail = 'Snail', temp = "Temperature", precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
 # prepping structure for amt (they really like tidyvers, and it's kind of annoyingly dependent on it)
 # nesting data by id
@@ -38,11 +38,15 @@ dat_all <- dat_all %>%
 dat_all %>% mutate(sr = lapply(trk, summarize_sampling_rate)) %>%
   dplyr::select(snail, sr) %>% unnest(cols = c(sr))
 
+dat_all <- setDT(dat_all)
 
 #### layers ####
 # load proximity rasters
 edge <- raster(paste0(raw, 'edgedist.tif'), )
-plot(edge)
+brickedge1 <- raster(paste0(raw, 'brickedge1.tif'), )
+brickedge2 <- raster(paste0(raw, 'brickedge2.tif'), )
+brickedge3 <- raster(paste0(raw, 'brickedge3.tif'), )
+
 #### making steps from track and extracting covariates ####
 ssa <- dat_all %>%
   mutate(steps = map(trk, function(x) {
@@ -50,6 +54,9 @@ ssa <- dat_all %>%
       amt::filter_min_n_burst(min_n = 3) %>%
       amt::steps_by_burst() %>% amt::random_steps(n=10) %>%
       amt::extract_covariates(edge, where = "both")  %>% # both indicates you want the covariate at the start and end of the step
+      amt::extract_covariates(brickedge1, where = "both") %>%
+      amt::extract_covariates(brickedge2, where = "both") %>%
+      amt::extract_covariates(brickedge3, where = "both") %>%
       amt::time_of_day(t, where = 'start') %>%  # calc day/night ToD, only for start of the step
       #you propbably won't need to do the land_start/_end renaming since you don't have any categorical rasters, but just in case some go on the brick, and you want to know if they're on the brick or not?
       mutate( log_sl = log(sl_), # adding log transformed SL *DO THIS*
@@ -61,6 +68,6 @@ ssa.all <- ssa %>% dplyr::select(snail, steps) %>% unnest(cols = c(steps))
 
 
 # Save extracted data
-saveRDS(ssa.all, '~/Honours stuff/Snails/Data/derived/ssaAll.Rds')#, overwrite=T)
+#saveRDS(ssa.all, '~/Honours stuff/Snails/Data/derived/ssaAllTreats.Rds')#, overwrite=T)
 
 #XXX<-merge(ssa.all, DT.prep[,.(snail, t, temp, precip)], by.x=c('snail','t2_'), by.y= c('snail', 't'), all.x=T)

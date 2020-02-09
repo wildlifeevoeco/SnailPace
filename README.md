@@ -1,12 +1,12 @@
-Snail iSSA
+Snail iSSA 
+Emily Denief
 ----
-
-Emily Denief  
 Last updated: 02/07/2020
+.......................................
 
 
-### R Scripts  
-
+R Scripts
+-------
 1.1 - Creating a raster for the enclosures
 1.2 - Creating a proximity raster for the enclosure and the brick treatments
 
