@@ -35,7 +35,7 @@ dat_all <- dat_all %>%
     amt::make_track(d, x, y, t, crs = sp::CRS("+init=epsg:32621")) 
   }))  
 #dat.p14a <- amt::make_track(dat.p14a, x, y, t, crs = sp::CRS("+init=epsg:32621")) 
-
+  
 #summary of track sampling rate for each individual
 dat_all %>% mutate(sr = lapply(trk, summarize_sampling_rate)) %>%
   dplyr::select(snail, sr) %>% unnest(cols = c(sr))
@@ -61,32 +61,32 @@ brickedge3 <- raster(paste0(raw, 'brickedge3.tif'), )
 #   x %>%  amt::random_steps(n=10)# %>%
 # }))
 #      
-# amt::extract_covariates(edge, where = "both")  %>% # both indicates you want the covariate at the start and end of the step
-#   amt::extract_covariates(brickedge1, where = "both") %>%
-#   amt::extract_covariates(brickedge2, where = "both") %>%
-#   amt::extract_covariates(brickedge3, where = "both") %>%
-#   # amt::time_of_day(t, where = 'start') %>%  # calc day/night ToD, only for start of the step
-#   #you propbably won't need to do the land_start/_end renaming since you don't have any categorical rasters, but just in case some go on the brick, and you want to know if they're on the brick or not?
-#   mutate( log_sl = log(sl_), # adding log transformed SL *DO THIS*
-#           cos_ta = cos(ta_)) # adding cos transformed TA *DO THIS*
-# 
+    # amt::extract_covariates(edge, where = "both")  %>% # both indicates you want the covariate at the start and end of the step
+    #   amt::extract_covariates(brickedge1, where = "both") %>%
+    #   amt::extract_covariates(brickedge2, where = "both") %>%
+    #   amt::extract_covariates(brickedge3, where = "both") %>%
+    #   # amt::time_of_day(t, where = 'start') %>%  # calc day/night ToD, only for start of the step
+    #   #you propbably won't need to do the land_start/_end renaming since you don't have any categorical rasters, but just in case some go on the brick, and you want to know if they're on the brick or not?
+    #   mutate( log_sl = log(sl_), # adding log transformed SL *DO THIS*
+    #           cos_ta = cos(ta_)) # adding cos transformed TA *DO THIS*
+    # 
 
 track <- dat_all %>%
   mutate(steps = map(trk, function(x) {
     x %>% amt::track_resample(rate = minutes(30), tolerance = minutes(10)) %>%
-      amt::filter_min_n_burst(min_n = 3) %>%
-      amt::steps_by_burst() %>% 
-      mutate(sl_ = sl_ + 1)
+       amt::filter_min_n_burst(min_n = 3) %>%
+       amt::steps_by_burst() %>% 
+    mutate(sl_ = sl_ + 1)
   }))
-
+      
 
 lapply(track$steps, function(x){
   x %>% amt::random_steps(n=10)
-  amt::extract_covariates(edge, where = "both")  %>% # both indicates you want the covariate at the start and end of the step
+    amt::extract_covariates(edge, where = "both")  %>% # both indicates you want the covariate at the start and end of the step
     amt::extract_covariates(brickedge1, where = "both") %>%
     amt::extract_covariates(brickedge2, where = "both") %>%
     amt::extract_covariates(brickedge3, where = "both") 
-})
+  })
 
 
 
@@ -98,10 +98,10 @@ ssa <- dat_all %>%
       amt::extract_covariates(brickedge1, where = "both") %>%
       amt::extract_covariates(brickedge2, where = "both") %>%
       amt::extract_covariates(brickedge3, where = "both") %>%
-      # amt::time_of_day(t, where = 'start') %>%  # calc day/night ToD, only for start of the step
-      #you propbably won't need to do the land_start/_end renaming since you don't have any categorical rasters, but just in case some go on the brick, and you want to know if they're on the brick or not?
-      mutate( log_sl = log(sl_), # adding log transformed SL *DO THIS*
-              cos_ta = cos(ta_)) # adding cos transformed TA *DO THIS*
+     # amt::time_of_day(t, where = 'start') %>%  # calc day/night ToD, only for start of the step
+     #you propbably won't need to do the land_start/_end renaming since you don't have any categorical rasters, but just in case some go on the brick, and you want to know if they're on the brick or not?
+     mutate( log_sl = log(sl_), # adding log transformed SL *DO THIS*
+         cos_ta = cos(ta_)) # adding cos transformed TA *DO THIS*
   }))
 
 
@@ -178,8 +178,109 @@ ssa <- dat_all %>%
 # unnest the data
 ssa.all <- ssa %>% dplyr::select(snail, steps) %>% unnest(cols = c(steps))
 
+track_unnest <- track %>% dplyr::select(snail, steps) %>% unnest(cols = c(steps))
 
 # Save extracted data
 #saveRDS(ssa.all, '~/Honours stuff/Snails/Data/derived/ssaAllTreats.Rds')#, overwrite=T)
 
 #XXX<-merge(ssa.all, DT.prep[,.(snail, t, temp, precip)], by.x=c('snail','t2_'), by.y= c('snail', 't'), all.x=T)
+
+
+sum.sl<-setDT(track_unnest)[,.(stepn=uniqueN(t1_), nas=sum(is.na(sl_)), mean=mean(sl_, na.rm=T), min = min(sl_, na.rm=T), max=max(sl_, na.rm=T), median = median(sl_, na.rm=T)), by= .(snail)]
+sum.sl[,'diff'] <- sum.sl$stepn-sum.sl$nas
+
+
+
+### 30 steps ###
+
+snail.30 <- sum.sl[diff>=30]
+dat.30 <- dat[Snail %chin% snail.30$snail]
+
+dat.30$datetime <- paste(dat.30$Date, dat.30$Time)
+# making sure my newly created datetime is the right str
+dat.30$datetime <- as.POSIXct(dat.30$datetime, tz = 'UTC', "%Y-%m-%d %H:%M") 
+
+
+# selecting just the parts of the data that I need, you'll probably need to include your other things like temp and precip
+DT.prep.30 <- dat.30 %>% dplyr::select(x = "xUTM", y = "yUTM", t = 'datetime', snail = 'Snail', temp = "Temperature",
+                                 precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
+
+# prepping structure for amt (they really like tidyvers, and it's kind of annoyingly dependent on it)
+# nesting data by id
+dat_all.30 <- DT.prep.30 %>% group_by(snail) %>% nest()
+#dat.p14a <-DT.prep [snail=="P14a"]
+#making the track
+dat_all.30 <- dat_all.30 %>%
+  mutate(trk = map(data, function(d) {
+    amt::make_track(d, x, y, t, crs = sp::CRS("+init=epsg:32621")) 
+  }))  
+#dat.p14a <- amt::make_track(dat.p14a, x, y, t, crs = sp::CRS("+init=epsg:32621")) 
+
+#summary of track sampling rate for each individual
+dat_all.30 %>% mutate(sr = lapply(trk, summarize_sampling_rate)) %>%
+  dplyr::select(snail, sr) %>% unnest(cols = c(sr))
+
+# dat_all <- dat_all %>% mutate(steps = map(trk, function(x) {
+#   x %>% amt::track_resample(rate = minutes(30), tolerance = minutes(10)) %>%
+#     amt::filter_min_n_burst(min_n = 3) %>%
+#     amt::steps_by_burst() 
+#   }))
+
+#summarize_sampling_rate(dat.p14a)
+#### layers ####
+# load proximity rasters
+edge <- raster(paste0(raw, 'edgedist.tif'), )
+brickedge1 <- raster(paste0(raw, 'brickedge1.tif'), )
+brickedge2 <- raster(paste0(raw, 'brickedge2.tif'), )
+brickedge3 <- raster(paste0(raw, 'brickedge3.tif'), )
+
+
+# dat_all$steps
+#### making steps from track and extracting covariates ####
+# ssa <- mutate(steps = map(steps, function(x){
+#   x %>%  amt::random_steps(n=10)# %>%
+# }))
+#      
+# amt::extract_covariates(edge, where = "both")  %>% # both indicates you want the covariate at the start and end of the step
+#   amt::extract_covariates(brickedge1, where = "both") %>%
+#   amt::extract_covariates(brickedge2, where = "both") %>%
+#   amt::extract_covariates(brickedge3, where = "both") %>%
+#   # amt::time_of_day(t, where = 'start') %>%  # calc day/night ToD, only for start of the step
+#   #you propbably won't need to do the land_start/_end renaming since you don't have any categorical rasters, but just in case some go on the brick, and you want to know if they're on the brick or not?
+#   mutate( log_sl = log(sl_), # adding log transformed SL *DO THIS*
+#           cos_ta = cos(ta_)) # adding cos transformed TA *DO THIS*
+# 
+
+track.30 <- dat_all.30 %>%
+  mutate(steps = map(trk, function(x) {
+    x %>% amt::track_resample(rate = minutes(30), tolerance = minutes(10)) %>%
+      amt::filter_min_n_burst(min_n = 3) %>%
+      amt::steps_by_burst() %>% 
+      mutate(sl_ = sl_ + 1)
+  }))
+
+
+ssa <-lapply(track.30$steps, function(x){
+  x %>% amt::random_steps(n=10)%>% 
+  amt::extract_covariates(edge, where = "both")  %>% # both indicates you want the covariate at the start and end of the step
+    amt::extract_covariates(brickedge1, where = "both") %>%
+    amt::extract_covariates(brickedge2, where = "both") %>%
+    amt::extract_covariates(brickedge3, where = "both") 
+})
+
+
+ssa.30 <- track.30 %>%
+  mutate(randsteps = map(steps, function(x) {   
+    x %>% amt::random_steps(n=10) %>%
+      amt::extract_covariates(edge, where = "both")  %>% # both indicates you want the covariate at the start and end of the step
+      amt::extract_covariates(brickedge1, where = "both") %>%
+      amt::extract_covariates(brickedge2, where = "both") %>%
+      amt::extract_covariates(brickedge3, where = "both") %>%
+      # amt::time_of_day(t, where = 'start') %>%  # calc day/night ToD, only for start of the step
+      #you propbably won't need to do the land_start/_end renaming since you don't have any categorical rasters, but just in case some go on the brick, and you want to know if they're on the brick or not?
+      mutate( log_sl = log(sl_), # adding log transformed SL *DO THIS*
+              cos_ta = cos(ta_)) # adding cos transformed TA *DO THIS*
+  }))
+
+ssa.30.unnest <- ssa.30 %>% dplyr::select(snail, randsteps) %>% unnest(cols = c(randsteps))
+saveRDS(ssa.30.unnest, '~/Honours stuff/Snails/Data/derived/ssa30.Rds')
