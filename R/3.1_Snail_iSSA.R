@@ -39,11 +39,11 @@ saveRDS(coreOUT, '~/snails/Data/derived/CoreModel.Rds')
 
 #### P1 ====
 
-Core <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_end, 
-                 brickedge1_end, brickedge2_end, brickedge3_end, strata1) {
+P1Model<- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_end, 
+                 brickdist_end, Stage, strata1) {
   # Make the model
-  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + Precipitation:SL + edgedist_end +
-                    brickedge1_end + brickedge2_end + brickedge3_end + strata(strata1))
+  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + Precipitation:SL + edgedist_end:Stage +
+                    brickdist_end:Stage + SL:Stage + TA:Stage + strata(strata1))
   
   sum.model <- summary(model)$coefficients
   # Transpose the coef of the model and cast as data.table
@@ -56,14 +56,21 @@ Core <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_end,
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-coreOUT.p1<- dat[,Core(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitation, log(edgedist_end + 1),
-                       log(brickedge1_end + 1), log(brickedge2_end + 1), log(brickedge3_end + 1), 
-                       step_id_), by = .(snail)]
+badsnails <- c("P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "P23a", "P23a", "P23b", "O14a", "O24a",
+               "O24b", "P14a", "P24a", 'P24b')
+P1ModelOut<- dat[!(snail %in% badsnails),
+    {
+      print(.BY[[1]])
+      P1Model(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitation, log(edgedist_end + 1),
+           log(brickdist_end + 1), Stage, step_id_)
+    },
+    by = .(snail, ghostbricks)]
+
 saveRDS(coreOUT.p1, '~/snails/Data/derived/P1Model.Rds')
 
 #### P2 ====
 
-Core <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_end, brickedge1_end, 
+P2Model <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_end, brickedge1_end, 
                  brickedge2_end, brickedge3_end, Treatment, strata1) {
   # Make the model
   model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + Precipitation:SL + edgedist_end:Treatment +
