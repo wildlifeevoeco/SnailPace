@@ -7,8 +7,8 @@ lapply(libs, require, character.only = TRUE)
 ### Input data ----
 raw <- '~/snails/Data/raw/'
 derived <- '~/snails/Data/derived/'
-dat <- readRDS('~/snails/Data/derived/ssaAll_snails2019.Rds')
-
+dat <- readRDS('~/snails/Data/derived/ssa30ghosts.Rds')
+dat <- dat[Stage!="Acc"]
 #### CORE ====
 
 Core <- function(y, SL, TA, ToD, Temp, Precipitation, strata1) {
@@ -27,7 +27,13 @@ Core <- function(y, SL, TA, ToD, Temp, Precipitation, strata1) {
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-coreOUT<- dat[,Core(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitation, step_id_), by = .(snail)]
+listbricks <- c("C", "1", "2", "4")
+coreOUT<- dat[snail != 'P11a' & ghostbricks %in% listbricks,
+              {
+                print(.BY[[1]])
+                Core(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitation, step_id_)
+              },
+              by = snail]
 
 saveRDS(coreOUT, '~/snails/Data/derived/CoreModel.Rds')
 
