@@ -60,25 +60,22 @@ saveRDS(ssa.snails2019, '~/snails/Data/derived/ssaAll_snails2019.Rds')
 
 data <- readRDS('~/snails/Data/derived/ssaAll_snails2019.Rds')
 
-data$Treatment <- ifelse(data$Treatment=="4", "3", data$Treatment)
 treat = "1"
-
+data$Treatment <- ifelse(data$Treatment=="4", "3", data$Treatment)
 
 
 bricktreatments <- function(data, treat){
   data.sub <- data[Treatment==treat]
   
-  brick=paste("brickedge", treat, sep = '')
+  brick <- paste("brickedge", treat, sep="")
   
-  data.sub[,"brickdist_start"] <- ifelse(data.sub$Stage=='A', as.data.frame(data.sub)[, (paste(brick, "start", sep = '_'))], NA)
-  data.sub[,"brickdist_end"] <- ifelse(data.sub$Stage=='A', as.data.frame(data.sub)[, (paste(brick, "end", sep = '_'))], NA)
+  data.sub[,"brickdist_start"] <- as.data.frame(data.sub)[,paste(brick, "start", sep="_")]
+  data.sub[,"brickdist_end"] <- as.data.frame(data.sub)[,paste(brick, "end", sep="_")]
   data.sub[,"ghostbricks"] <- treat
   
   output <- data.sub[,.(burst_, step_id_, case_, snail,  x1_, y1_, x2_, y2_, t1_, t2_, dt_, sl_, log_sl, ta_, cos_ta, ToD_start,
                         Temperature, Precipitation,edgedist_start, edgedist_end, brickdist_start, brickdist_end, ghostbricks, Treatment, Stage)]
   return(output)}
-
-
 
 treat1 <- bricktreatments(data, "1")
 treat2 <- bricktreatments(data, "2")
@@ -86,6 +83,7 @@ treat3 <- bricktreatments(data, "3")
 
 controltreats <- function(data){
   data.sub <- data[Treatment=="C"]
+ 
   
   data.c <- data.sub
   data.c[,"brickdist_start"] <- NA
@@ -93,18 +91,21 @@ controltreats <- function(data){
   data.c[,"ghostbricks"] <- "C"
   
   data.g1 <- data.sub
-  data.g1[,"brickdist_start"] <- ifelse(data.sub$Stage=='A', as.data.frame(data.sub)[, (paste(brick, "start", sep = '_'))], NA)
-  data.g1[,"brickdist_end"] <- ifelse(data.sub$Stage=='A', as.data.frame(data.sub)[, (paste(brick, "end", sep = '_'))], NA)
+  brick.g1 <-"brickedge1"
+  data.g1[,"brickdist_start"] <- as.data.frame(data.sub)[,paste(brick.g1, "start", sep="_")]
+  data.g1[,"brickdist_end"] <- as.data.frame(data.sub)[,paste(brick.g1, "end", sep="_")]
   data.g1[,"ghostbricks"] <- "g1"
   
   data.g2 <- data.sub
-  data.g2[,"brickdist_start"] <- ifelse(data.sub$Stage=='A', as.data.frame(data.sub)[, (paste(brick, "start", sep = '_'))], NA)
-  data.g2[,"brickdist_end"] <- ifelse(data.sub$Stage=='A', as.data.frame(data.sub)[, (paste(brick, "end", sep = '_'))], NA)
+  brick.g2 <-"brickedge2"
+  data.g2[,"brickdist_start"] <- as.data.frame(data.sub)[,paste(brick.g2, "start", sep="_")]
+  data.g2[,"brickdist_end"] <- as.data.frame(data.sub)[,paste(brick.g2, "end", sep="_")]
   data.g2[,"ghostbricks"] <- "g2"
   
   data.g3 <- data.sub
-  data.g3[,"brickdist_start"] <- ifelse(data.sub$Stage=='A', as.data.frame(data.sub)[, (paste(brick, "start", sep = '_'))], NA)
-  data.g3[,"brickdist_end"] <- ifelse(data.sub$Stage=='A', as.data.frame(data.sub)[, (paste(brick, "end", sep = '_'))], NA)
+  brick.g3 <-"brickedge3"
+  data.g3[,"brickdist_start"] <- as.data.frame(data.sub)[,paste(brick.g3, "start", sep="_")]
+  data.g3[,"brickdist_end"] <- as.data.frame(data.sub)[,paste(brick.g3, "end", sep="_")]
   data.g3[,"ghostbricks"] <- "g3"
   
   data.merge <- rbind(data.c, data.g1, data.g2, data.g3)
