@@ -107,5 +107,8 @@ ssa.30 <- track.30 %>%
   }))
 
 ssa.30.unnest <- ssa.30 %>% dplyr::select(snail, randsteps) %>% unnest(cols = c(randsteps))
-saveRDS(ssa.30.unnest, '~/snails/Data/derived/ssa30.Rds')
+
+
+
+#saveRDS(ssa.30.unnest, '~/snails/Data/derived/ssa30.Rds')
 

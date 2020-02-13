@@ -9,7 +9,7 @@ raw <- '~/snails/Data/raw/'
 derived <- '~/snails/Data/derived/'
 dat <- readRDS('~/snails/Data/derived/ssaAll_snails2019.Rds')
 
-### CORE ###
+#### CORE ====
 
 Core <- function(y, SL, TA, ToD, Temp, Precipitation, strata1) {
   # Make the model
@@ -31,7 +31,7 @@ coreOUT<- dat[,Core(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitation
 
 saveRDS(coreOUT, '~/snails/Data/derived/CoreModel.Rds')
 
-### P1 ###
+#### P1 ====
 
 Core <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_end, 
                  brickedge1_end, brickedge2_end, brickedge3_end, strata1) {
@@ -55,7 +55,7 @@ coreOUT.p1<- dat[,Core(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitat
                        step_id_), by = .(snail)]
 saveRDS(coreOUT.p1, '~/snails/Data/derived/P1Model.Rds')
 
-### P2 ###
+#### P2 ====
 
 Core <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_end, brickedge1_end, 
                  brickedge2_end, brickedge3_end, Treatment, strata1) {
@@ -82,7 +82,7 @@ coreOUT.p2<- dat[,Core(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitat
 
 saveRDS(coreOUT.p2, '~/snails/Data/derived/P2Model.Rds')
 
-### P3 ###
+#### P3 ====
 
 Core <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_start, brickedge1_start, 
                  brickedge2_start, brickedge3_start, strata1) {
@@ -107,7 +107,7 @@ coreOUT.p3<- dat[,Core(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitat
                        step_id_), by = .(snail)]
 saveRDS(coreOUT.p3, '~/snails/Data/derived/P3Model.Rds')
 
-### P4 ###
+#### P4 ====
 
 Core <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_start, brickedge1_start, 
                  brickedge2_start, brickedge3_start, Treatment, strata1) {

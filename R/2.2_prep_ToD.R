@@ -57,3 +57,56 @@ ssa.snails2019 <- setDT(merged.snails)[,.(burst_, step_id_, case_, snail,  x1_, 
 
 
 saveRDS(ssa.snails2019, '~/snails/Data/derived/ssaAll_snails2019.Rds')
+
+data <- readRDS('~/snails/Data/derived/ssaAll_snails2019.Rds')
+
+treat = "1"
+
+bricktreatments <- function(data, treat){
+  data.sub <- data[Treatment==treat]
+  
+  data.sub[,"brickdist_start"] <- data.sub$brickedge1_start
+  data.sub[,"brickdist_end"] <- data.sub$brickedge1_end
+  data.sub[,"ghostbricks"] <- treat
+  
+  output <- data.sub[,.(burst_, step_id_, case_, snail,  x1_, y1_, x2_, y2_, t1_, t2_, dt_, sl_, log_sl, ta_, cos_ta, ToD_start,
+                        Temperature, Precipitation,edgedist_start, edgedist_end, brickdist_start, brickdist_end, ghostbricks, Treatment, Stage)]
+  return(output)}
+
+treat1 <- bricktreatments(data, "1")
+treat2 <- bricktreatments(data, "2")
+treat3 <- bricktreatments(data, "4")
+
+controltreats <- function(data){
+  data.sub <- data[Treatment=="C"]
+  
+  data.c <- data.sub
+  data.c[,"brickdist_start"] <- NA
+  data.c[,"brickdist_end"] <- NA
+  data.c[,"ghostbricks"] <- "C"
+  
+  data.g1 <- data.sub
+  data.g1[,"brickdist_start"] <- data.sub$brickedge1_start
+  data.g1[,"brickdist_end"] <- data.sub$brickedge1_end
+  data.g1[,"ghostbricks"] <- "g1"
+  
+  data.g2 <- data.sub
+  data.g2[,"brickdist_start"] <- data.sub$brickedge2_start
+  data.g2[,"brickdist_end"] <- data.sub$brickedge2_end
+  data.g2[,"ghostbricks"] <- "g2"
+  
+  data.g3 <- data.sub
+  data.g3[,"brickdist_start"] <- data.sub$brickedge3_start
+  data.g3[,"brickdist_end"] <- data.sub$brickedge3_end
+  data.g3[,"ghostbricks"] <- "g3"
+  
+  data.merge <- rbind(data.c, data.g1, data.g2, data.g3)
+  
+  output <- data.merge[,.(burst_, step_id_, case_, snail,  x1_, y1_, x2_, y2_, t1_, t2_, dt_, sl_, log_sl, ta_, cos_ta, ToD_start,
+                          Temperature, Precipitation,edgedist_start, edgedist_end, brickdist_start, brickdist_end, ghostbricks, Treatment, Stage)]
+  return(output)}
+
+control <- controltreats(data)
+
+ssa.30ghosts <- rbind(treat1, treat2, treat3, control)
+saveRDS(ssa.30ghosts, '~/snails/Data/derived/ssa30ghosts.Rds')
