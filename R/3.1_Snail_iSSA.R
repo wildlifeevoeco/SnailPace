@@ -56,16 +56,6 @@ P1Model<- function(y, SL, TA, ToD, Temp, edgedist_end,
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-badsnails <- c("P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "P23a", "P23b", "O14a", "O24a",
-               "O24b", "P14a", "P24a", 'P24b'
-              )
-P1ModelOut<- dat[!(snail %in% badsnails),
-    {
-      print(.BY[[1]])
-      P1Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1),
-           log(brickdist_end + 1), Stage, step_id_)
-    },
-    by = .(snail, ghostbricks)]
 
 badsnails <- c("P24b")
 P1.g3.Out<- dat[!(snail %in% badsnails)&ghostbricks=='g3',
@@ -101,13 +91,15 @@ P1.treats.Out<- dat[!(snail %in% badsnails)&Treatment!='C',
                 by = .(snail)]
 P1ModelOut <- rbind(P1.g1.Out, P1.g2.Out, P1.g3.Out, P1.treats.Out)
 
-saveRDS(P1ModelOut, '~/snails/Data/derived/P1Model.Rds')
+#saveRDS(P1ModelOut, '~/snails/Data/derived/P1Model.Rds')
 
 #### P2 ====
 
-P2Model <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_end, brickdist_end, Treatment, Stage, strata1) {
+#All snails are bad snails??? 
+
+P2Model <- function(y, SL, TA, ToD, Temp, edgedist_end, brickdist_end, Treatment, Stage, strata1) {
   # Make the model
-  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + Precipitation:SL + edgedist_end:Treatment:Stage +
+  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_end:Treatment:Stage +
                   brickdist_end:Treatment:Stage +
                   strata(strata1))
   
@@ -122,25 +114,54 @@ P2Model <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_end, brickdist
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-badsnails <- "O11a"
 
-P2ModelOut<- dat[!(snail %in% badsnails), ghostbricks!="C",
-                 {
-                   print(.BY[[1]])
-                  P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitation, log(edgedist_end + 1), 
-                           log(brickdist_end + 1), Treatment, Stage, step_id_)
-                 },
-                 by = .(snail, ghostbricks)]
+badsnails <- c("O14a", "O24a", "O24b", "P14a", "P24a", "P24b")
+P2.g3.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g3",
+                {
+                  print(.BY[[1]])
+                  P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
+                          log(brickdist_end + 1), Treatment, Stage, step_id_)
+                },
+                by = .(snail)]
+badsnails <- c("O14a", "O24a", "O24b", "P14a", "P24a", "P24b")
+P2.g2.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g2",
+                {
+                  print(.BY[[1]])
+                  P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
+                          log(brickdist_end + 1), Treatment, Stage, step_id_)
+                },
+                by = .(snail)]
+
+badsnails <- c("O14a", "O24a", "O24b", "P14a", "P24a", "P24b")
+P2.g1.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g1",
+                {
+                  print(.BY[[1]])
+                  P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
+                          log(brickdist_end + 1), Treatment, Stage, step_id_)
+                },
+                by = .(snail)]
+
+badsnails <- c("O11a", "O11b", "O31a", "P11a", "P21a", "P31a", "O12b", "O22a", "O22b", "P12a", "P12b",
+               "P22a", "P22b", "O13a")
+P2.treats.Out<- dat[!(snail %in% badsnails) & Treatment!="C",
+                     {
+                       print(.BY[[1]])
+                       P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
+                               log(brickdist_end + 1), Treatment, Stage, step_id_)
+                     },
+                     by = .(snail)]
+P2ModelOut <- rbind(P2.g1.Out, P2.g2.Out, P2.g3.Out, P2.treats.Out)
+
   
 
-saveRDS(coreOUT.p2, '~/snails/Data/derived/P2Model.Rds')
+saveRDS(P2ModelOut, '~/snails/Data/derived/P2Model.Rds')
 
 #### P3 ====
 
-P3Model <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_start, brickdist_start,
+P3Model <- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start,
                     Treatment, Stage, strata1) {
   # Make the model
-  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + Precipitation:SL + edgedist_start:SL + edgedist_start:TA +
+  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_start:SL + edgedist_start:TA +
                     brickdist_start:SL:Stage + brickdist_start:TA:Stage + SL:Stage + TA:Stage + strata(strata1))
   
   sum.model <- summary(model)$coefficients
@@ -154,17 +175,40 @@ P3Model <- function(y, SL, TA, ToD, Temp, Precipitation, edgedist_start, brickdi
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-badsnails <- c("P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "P23a", "P23b", "O14a", "O24a",
-               "O24b", "P14a", "P24a", 'P24b'
-)
-P3ModelOut<- dat[!(snail %in% badsnails)& ghostbricks!="C",
-    {
-      print(.BY[[1]])
-      P3Model(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitation, log(edgedist_start + 1), 
-              log(brickdist_start + 1), Treatment, Stage, step_id_)
-    },
-    by = .(snail, ghostbricks)]
+P3.g3.Out<- dat[ghostbricks=="g3",
+                {
+                  print(.BY[[1]])
+                  P3Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
+                          log(brickdist_start + 1), Treatment, Stage, step_id_)
+                },
+                by = .(snail)]
 
+P3.g2.Out<- dat[ghostbricks=="g2",
+                {
+                  print(.BY[[1]])
+                  P3Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
+                          log(brickdist_start + 1), Treatment, Stage, step_id_)
+                },
+                by = .(snail)]
+
+P3.g1.Out<- dat[ghostbricks=="g1",
+                {
+                  print(.BY[[1]])
+                  P3Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
+                          log(brickdist_start + 1), Treatment, Stage, step_id_)
+                },
+                by = .(snail)]
+
+badsnails <- c("P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b")
+P3.treats.Out<- dat[!(snail %in% badsnails) & Treatment!="C",
+                  {
+                    print(.BY[[1]])
+                    P3Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
+                            log(brickdist_end + 1), Treatment, Stage, step_id_)
+                  },
+                  by = .(snail)]
+
+P3ModelOut <- rbind(P3.g1.Out, P3.g2.Out, P3.g3.Out, P3.treats.Out)
 saveRDS(P3ModelOut, '~/snails/Data/derived/P3Model.Rds')
 
 #### P4 ====
