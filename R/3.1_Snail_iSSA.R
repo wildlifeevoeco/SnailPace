@@ -267,11 +267,11 @@ P4.g1.Out<- dat[ghostbricks=="g1",
                 },
                 by = .(snail)]
 
-P4.treats.Out<- dat[!(snail %in% badsnails) & Treatment!="C",
+P4.treat1.Out<- dat[Treatment=="1",
                    {
                      print(.BY[[1]])
                      P4Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
-                             log(brickdist_start + 1), Treatment, step_id_)
+                             log(brickdist_start + 1), step_id_)
                    },
                    by = .(snail)]
 
