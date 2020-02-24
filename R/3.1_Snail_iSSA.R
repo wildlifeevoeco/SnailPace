@@ -157,9 +157,16 @@ P2.treat2.Out<- dat[!(snail %in% badsnails) & Treatment=="2",
                     },
                     by = .(snail)]
 
-P2ModelOut <- rbind(P2.g1.Out, P2.g2.Out, P2.g3.Out, P2.treats.Out)
+badsnails <- c("P23b")
+P2.treat3.Out<- dat[!(snail %in% badsnails) & Treatment=="3",
+                    {
+                      print(.BY[[1]])
+                      P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
+                              log(brickdist_end + 1), Stage, step_id_)
+                    },
+                    by = .(snail)]
 
-  
+P2ModelOut <- rbind(P2.g1.Out, P2.g2.Out, P2.g3.Out, P2.treat1.Out, P2.treat2.Out, P2.treat3.Out)
 
 saveRDS(P2ModelOut, '~/snails/Data/derived/P2Model.Rds')
 
