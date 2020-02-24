@@ -292,6 +292,6 @@ P4.treat3.Out<- dat[Treatment=="3",
                     },
                     by = .(snail)]
 
-P4ModelOut <- rbind(P4.g1.Out, P4.g2.Out, P4.g3.Out, P4.treats.Out)
+P4ModelOut <- rbind(P4.g1.Out, P4.g2.Out, P4.g3.Out, P4.treat1.Out, P4.treat2.Out, P4.treat3.Out)
 
-#saveRDS(P4ModelOut, '~/snails/Data/derived/P4Model.Rds')
+saveRDS(P4ModelOut, '~/snails/Data/derived/P4Model.Rds')
