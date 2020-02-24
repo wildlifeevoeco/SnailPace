@@ -148,6 +148,15 @@ P2.treat1.Out<- dat[!(snail %in% badsnails) & Treatment=="1",
                     },
                     by = .(snail)]
 
+badsnails <- c("O12b", "P12b", "P22b")
+P2.treat2.Out<- dat[!(snail %in% badsnails) & Treatment=="2",
+                    {
+                      print(.BY[[1]])
+                      P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
+                              log(brickdist_end + 1), Stage, step_id_)
+                    },
+                    by = .(snail)]
+
 P2ModelOut <- rbind(P2.g1.Out, P2.g2.Out, P2.g3.Out, P2.treats.Out)
 
   
