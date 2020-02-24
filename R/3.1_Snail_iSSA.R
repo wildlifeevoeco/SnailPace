@@ -139,15 +139,15 @@ P2.g1.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g1",
                 },
                 by = .(snail)]
 
-badsnails <- c("O11a", "O11b", "O31a", "P11a", "P21a", "P31a", "O12b", "O22a", "O22b", "P12a", "P12b",
-               "P22a", "P22b", "O13a")
-P2.treats.Out<- dat[!(snail %in% badsnails) & Treatment!="C",
-                     {
-                       print(.BY[[1]])
-                       P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
-                               log(brickdist_end + 1), Treatment, Stage, step_id_)
-                     },
-                     by = .(snail)]
+badsnails <- c("P11a", "P21a")
+P2.treat1.Out<- dat[!(snail %in% badsnails) & Treatment=="1",
+                    {
+                      print(.BY[[1]])
+                      P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
+                              log(brickdist_end + 1), Stage, step_id_)
+                    },
+                    by = .(snail)]
+
 P2ModelOut <- rbind(P2.g1.Out, P2.g2.Out, P2.g3.Out, P2.treats.Out)
 
   
