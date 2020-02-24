@@ -227,12 +227,10 @@ P3ModelOut <- rbind(P3.g1.Out, P3.g2.Out, P3.g3.Out, P3.treats.Out)
 
 #### P4 ====
 
-P4Model<- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start, 
-                  Treatment, strata1) {
+P4Model<- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start, strata1) {
   # Make the model
-  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_start:SL:Treatment +
-                    edgedist_start:TA:Treatment + brickdist_start:SL:Treatment + brickdist_start:TA:Treatment +
-                    strata(strata1))
+  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_start:SL +
+                    edgedist_start:TA + brickdist_start:SL + brickdist_start:TA + strata(strata1))
   
   sum.model <- summary(model)$coefficients
   # Transpose the coef of the model and cast as data.table
@@ -245,28 +243,27 @@ P4Model<- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start,
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-badsnails <- c("O11a")
-P4.g3.Out<- dat[!(snail %in% badsnails) & Treatment=="g3",
+P4.g3.Out<- dat[ghostbricks=="g3",
                     {
                       print(.BY[[1]])
                       P4Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
-                              log(brickdist_start + 1), Treatment, step_id_)
+                              log(brickdist_start + 1), step_id_)
                     },
                     by = .(snail)]
 
-P4.g2.Out<- dat[!(snail %in% badsnails) & Treatment=="g2",
+P4.g2.Out<- dat[ghostbricks=="g2",
                 {
                   print(.BY[[1]])
                   P4Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
-                          log(brickdist_start + 1), Treatment, step_id_)
+                          log(brickdist_start + 1), step_id_)
                 },
                 by = .(snail)]
 
-P4.g1.Out<- dat[!(snail %in% badsnails) & Treatment=="g1",
+P4.g1.Out<- dat[ghostbricks=="g1",
                 {
                   print(.BY[[1]])
                   P4Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
-                          log(brickdist_start + 1), Treatment, step_id_)
+                          log(brickdist_start + 1), step_id_)
                 },
                 by = .(snail)]
 
