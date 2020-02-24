@@ -284,6 +284,14 @@ P4.treat2.Out<- dat[!(snail %in% badsnails) & Treatment=="2",
                     },
                     by = .(snail)]
 
+P4.treat3.Out<- dat[Treatment=="3",
+                    {
+                      print(.BY[[1]])
+                      P4Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
+                              log(brickdist_start + 1), step_id_)
+                    },
+                    by = .(snail)]
+
 P4ModelOut <- rbind(P4.g1.Out, P4.g2.Out, P4.g3.Out, P4.treats.Out)
 
 #saveRDS(P4ModelOut, '~/snails/Data/derived/P4Model.Rds')
