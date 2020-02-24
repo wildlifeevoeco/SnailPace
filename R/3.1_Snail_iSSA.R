@@ -95,13 +95,10 @@ P1ModelOut <- rbind(P1.g1.Out, P1.g2.Out, P1.g3.Out, P1.treats.Out)
 
 #### P2 ====
 
-# All snails are bad snails??? Same issue with P4. Doesn't like interaction terms with "Treatment"?
-
-P2Model <- function(y, SL, TA, ToD, Temp, edgedist_end, brickdist_end, Treatment, Stage, strata1) {
+P2Model <- function(y, SL, TA, ToD, Temp, edgedist_end, brickdist_end, Stage, strata1) {
   # Make the model
-  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_end:Treatment:Stage +
-                  brickdist_end:Treatment:Stage +
-                  strata(strata1))
+  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_end:Stage +
+                  brickdist_end:Stage + strata(strata1))
   
   sum.model <- summary(model)$coefficients
   # Transpose the coef of the model and cast as data.table
@@ -115,29 +112,30 @@ P2Model <- function(y, SL, TA, ToD, Temp, edgedist_end, brickdist_end, Treatment
 }
 
 
-badsnails <- c("O14a", "O24a", "O24b", "P14a", "P24a", "P24b")
+badsnails <- c("P24b")
 P2.g3.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g3",
                 {
                   print(.BY[[1]])
                   P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
-                          log(brickdist_end + 1), Treatment, Stage, step_id_)
+                          log(brickdist_end + 1), Stage, step_id_)
                 },
                 by = .(snail)]
-badsnails <- c("O14a", "O24a", "O24b", "P14a", "P24a", "P24b")
+
+badsnails <- c("P24b")
 P2.g2.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g2",
                 {
                   print(.BY[[1]])
                   P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
-                          log(brickdist_end + 1), Treatment, Stage, step_id_)
+                          log(brickdist_end + 1), Stage, step_id_)
                 },
                 by = .(snail)]
 
-badsnails <- c("O14a", "O24a", "O24b", "P14a", "P24a", "P24b")
+badsnails <- c("P24b")
 P2.g1.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g1",
                 {
                   print(.BY[[1]])
                   P2Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1), 
-                          log(brickdist_end + 1), Treatment, Stage, step_id_)
+                          log(brickdist_end + 1), Stage, step_id_)
                 },
                 by = .(snail)]
 
