@@ -98,7 +98,7 @@ P1ModelOut <- rbind(P1.g1.Out, P1.g2.Out, P1.g3.Out, P1.treats.Out)
 P2Model <- function(y, SL, TA, ToD, Temp, edgedist_end, brickdist_end, Stage, strata1) {
   # Make the model
   model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_end:Stage +
-                  brickdist_end:Stage + strata(strata1))
+                  brickdist_end:Stage ++ SL:Stage + TA:Stage + strata(strata1))
   
   sum.model <- summary(model)$coefficients
   # Transpose the coef of the model and cast as data.table
@@ -148,7 +148,7 @@ P2.treat1.Out<- dat[!(snail %in% badsnails) & Treatment=="1",
                     },
                     by = .(snail)]
 
-badsnails <- c("O12b", "P12b", "P22b")
+badsnails <- c("O12b", "O22b", "P12b", "P22b")
 P2.treat2.Out<- dat[!(snail %in% badsnails) & Treatment=="2",
                     {
                       print(.BY[[1]])
@@ -157,7 +157,7 @@ P2.treat2.Out<- dat[!(snail %in% badsnails) & Treatment=="2",
                     },
                     by = .(snail)]
 
-badsnails <- c("P23b")
+badsnails <- c("P23b", "P23a")
 P2.treat3.Out<- dat[!(snail %in% badsnails) & Treatment=="3",
                     {
                       print(.BY[[1]])
