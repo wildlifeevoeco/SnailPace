@@ -210,7 +210,77 @@ treatcbetas
 
 ##Combined treat 2 and control
 figuretreat2 <- ggarrange(treat2betas, treatcbetas,
-                          labels = c("Treatment 1", "Control"),
+                          labels = c("Treatment 2", "Control"),
                           ncol = 1, nrow = 2)
 
 figuretreat2
+
+### TREATMENT 3 FIGURES ----
+
+treat3coef <-ba.coef[Treatment=="3", value, by = .(stage.ct)]
+
+
+# TREAT 3
+cbPalette = c("red", "blue")
+
+treat3betas <- ggplot(treat3coef, aes(stage.ct, (value))) +
+  geom_boxplot(aes(fill = stage.ct),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = stage.ct),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  ylab('beta') +
+  #ggtitle("c) change between control and case") +
+  scale_fill_manual(values = cbPalette) +
+  scale_color_manual(values = cbPalette)# + ylim(-2,2)
+
+treat3betas
+
+#CONTROL
+
+cbPalette = c("red", "blue")
+treatcbetas <- ggplot(treatccoef, aes(stage.ct, (value))) +
+  geom_boxplot(aes(fill = stage.ct),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = stage.ct),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  ylab('beta') +
+  #ggtitle("c) change between control and case") +
+  scale_fill_manual(values = cbPalette) +
+  scale_color_manual(values = cbPalette)# + ylim(-2,2)
+
+treatcbetas
+
+##Combined treat 2 and control
+figuretreat3 <- ggarrange(treat3betas, treatcbetas,
+                          labels = c("Treatment 3", "Control"),
+                          ncol = 1, nrow = 2)
+
+figuretreat3
