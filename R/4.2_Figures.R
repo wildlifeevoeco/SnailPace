@@ -1,7 +1,7 @@
 #### Figures ====
 
 ### Packages ----
-libs <- c('ggplot2','data.table', 'dplyr', 'tidyr')
+libs <- c('ggplot2','ggpubr','data.table', 'dplyr', 'tidyr')
 lapply(libs, require, character.only = TRUE)
 
 ### Input data ----
@@ -36,7 +36,7 @@ ba.coef <- all.coef[variable %like% "Stage"]
 ba.coef$Treatment <- ifelse(ba.coef$Treatment=="4", "C", ba.coef$Treatment)
 
 # format of data needs to be a column of the covariates (here = term), a column of the values (here = delta), and a column of groupings (in my case COD)
-
+### ALL TREATS ====
 cbPalette = c("red", "blue", "purple", "green")
 
 beta.variables <- ggplot(ba.coef, aes(variable, (value) , fill = Treatment)) +
@@ -107,9 +107,11 @@ treat1betas <- ggplot(treat1coef, aes(stage.ct, (value))) +
   scale_fill_manual(values = cbPalette) +
   scale_color_manual(values = cbPalette)# + ylim(-2,2)
 
-cbPalette = c("red", "blue")
+treat1betas
 
 #CONTROL
+
+cbPalette = c("red", "blue")
 treatcbetas <- ggplot(treatccoef, aes(stage.ct, (value))) +
   geom_boxplot(aes(fill = stage.ct),# notch = TRUE, notchwidth = 0.7,
                outlier.color = NA, lwd = 0.6,
@@ -136,7 +138,79 @@ treatcbetas <- ggplot(treatccoef, aes(stage.ct, (value))) +
  
 treatcbetas
 
+##Combined treat 1 and control
+figuretreat1 <- ggarrange(treat1betas, treatcbetas,
+                    labels = c("Treatment 1", "Control"),
+                    ncol = 1, nrow = 2)
+
+figuretreat1
+
+### TREATMENT 2 FIGURES ----
+
+treat2coef <-ba.coef[Treatment=="2", value, by = .(stage.ct)]
 
 
+# TREAT 2
+cbPalette = c("red", "blue")
 
+treat2betas <- ggplot(treat2coef, aes(stage.ct, (value))) +
+  geom_boxplot(aes(fill = stage.ct),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = stage.ct),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  ylab('beta') +
+  #ggtitle("c) change between control and case") +
+  scale_fill_manual(values = cbPalette) +
+  scale_color_manual(values = cbPalette)# + ylim(-2,2)
 
+treat2betas
+
+#CONTROL
+
+cbPalette = c("red", "blue")
+treatcbetas <- ggplot(treatccoef, aes(stage.ct, (value))) +
+  geom_boxplot(aes(fill = stage.ct),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = stage.ct),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  ylab('beta') +
+  #ggtitle("c) change between control and case") +
+  scale_fill_manual(values = cbPalette) +
+  scale_color_manual(values = cbPalette)# + ylim(-2,2)
+
+treatcbetas
+
+##Combined treat 2 and control
+figuretreat2 <- ggarrange(treat2betas, treatcbetas,
+                          labels = c("Treatment 1", "Control"),
+                          ncol = 1, nrow = 2)
+
+figuretreat2
