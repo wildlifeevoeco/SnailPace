@@ -1,4 +1,4 @@
-#### Figures ===
+#### Figures ====
 
 ### Packages ----
 libs <- c('ggplot2','data.table', 'dplyr', 'tidyr')
@@ -12,6 +12,8 @@ P1Model <- readRDS('~/snails/Data/derived/P1Model.Rds')
 P2Model <- readRDS('~/snails/Data/derived/P2Model.Rds')
 P3Model <- readRDS('~/snails/Data/derived/P3Model.Rds')
 P4Model <- readRDS('~/snails/Data/derived/P4Model.Rds')
+
+### Combine models ----
 
 Core.m <- melt(CoreModel)
 P1.m <- melt(P1Model)
@@ -61,5 +63,20 @@ beta.variables <- ggplot(ba.coef, aes(variable, value, fill = Treatment)) +
 
 beta.variables
 
-unique(all.coef$variable)
+### Extract stage variable ----
+ba.coef$variable2 <- as.character(ba.coef$variable)
+
+#Select position 1 letter after "Stage". Not working...
+stage <- gsub('(.*)([A-Z]-{1})[Stage].*','\\2', ba.coef$variable2) 
+stage
+
+#This one works but only when variable ends in stage
+stage <- gsub('^(.*)[Stage]','\\2', ba.coef$variable2)
+stage
+
+
+
+
+
+
  
