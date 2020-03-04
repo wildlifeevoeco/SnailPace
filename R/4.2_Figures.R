@@ -105,7 +105,8 @@ treat1betas <- ggplot(treat1coef, aes(stage.ct, (value))) +
   ylab('beta') +
   #ggtitle("c) change between control and case") +
   scale_fill_manual(values = cbPalette) +
-  scale_color_manual(values = cbPalette)# + ylim(-2,2)
+  scale_color_manual(values = cbPalette) + 
+  ylim(-15,15)
 
 treat1betas
 
@@ -134,13 +135,14 @@ treatcbetas <- ggplot(treatccoef, aes(stage.ct, (value))) +
   ylab('beta') +
   #ggtitle("c) change between control and case") +
   scale_fill_manual(values = cbPalette) +
-  scale_color_manual(values = cbPalette)# + ylim(-2,2)
+  scale_color_manual(values = cbPalette) + 
+  ylim(-15,15)
  
 treatcbetas
 
 ##Combined treat 1 and control
 figuretreat1 <- ggarrange(treat1betas, treatcbetas,
-                    labels = c("Treatment 1", "Control"),
+                    labels = c("Treatment 1", "Control"), # fix placement of these
                     ncol = 1, nrow = 2)
 
 figuretreat1
@@ -175,7 +177,8 @@ treat2betas <- ggplot(treat2coef, aes(stage.ct, (value))) +
   ylab('beta') +
   #ggtitle("c) change between control and case") +
   scale_fill_manual(values = cbPalette) +
-  scale_color_manual(values = cbPalette)# + ylim(-2,2)
+  scale_color_manual(values = cbPalette) +
+  ylim(-15,15)
 
 treat2betas
 
@@ -204,7 +207,8 @@ treatcbetas <- ggplot(treatccoef, aes(stage.ct, (value))) +
   ylab('beta') +
   #ggtitle("c) change between control and case") +
   scale_fill_manual(values = cbPalette) +
-  scale_color_manual(values = cbPalette)# + ylim(-2,2)
+  scale_color_manual(values = cbPalette) + 
+  ylim(-15,15)
 
 treatcbetas
 
@@ -245,7 +249,8 @@ treat3betas <- ggplot(treat3coef, aes(stage.ct, (value))) +
   ylab('beta') +
   #ggtitle("c) change between control and case") +
   scale_fill_manual(values = cbPalette) +
-  scale_color_manual(values = cbPalette)# + ylim(-2,2)
+  scale_color_manual(values = cbPalette) + 
+  ylim(-15,15)
 
 treat3betas
 
@@ -274,11 +279,12 @@ treatcbetas <- ggplot(treatccoef, aes(stage.ct, (value))) +
   ylab('beta') +
   #ggtitle("c) change between control and case") +
   scale_fill_manual(values = cbPalette) +
-  scale_color_manual(values = cbPalette)# + ylim(-2,2)
+  scale_color_manual(values = cbPalette) + 
+  ylim(-15,15)
 
 treatcbetas
 
-##Combined treat 2 and control
+##Combined treat 3 and control
 figuretreat3 <- ggarrange(treat3betas, treatcbetas,
                           labels = c("Treatment 3", "Control"),
                           ncol = 1, nrow = 2)
