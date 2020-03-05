@@ -9,7 +9,7 @@ raw <- '~/snails/Data/raw/'
 derived <- '~/snails/Data/derived/'
 dat <- readRDS('~/snails/Data/derived/ssa30ghosts.Rds')
 dat <- dat[Stage!="Acc"]
-#dat$Stage <- factor(dat$Stage, levels = c("B","A"))
+dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 
 #### CORE ====
 
@@ -83,7 +83,7 @@ P1.g1.Out<- dat[!(snail %in% badsnails)&ghostbricks=='g1',
                           log(brickdist_end + 1), Stage, step_id_)
                 },
                 by = .(snail)]
-badsnails <- c("P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "P23a", "P23b", "O11a")
+badsnails <- c("P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "P23a", "P23b", "O11a", "O13a")
 P1.treats.Out<- dat[!(snail %in% badsnails)&Treatment!='C',
                 {
                   print(.BY[[1]])
