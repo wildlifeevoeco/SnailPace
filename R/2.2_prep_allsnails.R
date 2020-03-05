@@ -72,7 +72,7 @@ DT.prep.30 <- dat.30 %>% dplyr::select(x = "xUTM", y = "yUTM", t = 'datetime', s
                                        precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
 # nesting data by id
-dat_all.30 <- DT.prep.30 %>% group_by(snail) %>% nest()
+dat_all.30 <- DT.prep.good %>% group_by(snail) %>% nest()
 
 #making the track
 dat_all.30 <- dat_all.30 %>%
@@ -109,11 +109,11 @@ ssa.30 <- track.30 %>%
 
 ssa.30.unnest <- ssa.30 %>% dplyr::select(snail, randsteps) %>% unnest(cols = c(randsteps))
 
-merged.snails <-merge(ssa.30.unnest, DT.prep.30,
-                      by.x=c('snail','t1_', 'x1_', 'y1_'), by.y= c('snail', 't', 'x','y'))
+merged.snails <-merge(ssa.30.unnest, DT.prep.good,
+                      by.x=c('snail','t2_'), by.y= c('snail', 't'))
 
 
-#saveRDS(ssa.30.unnest, '~/snails/Data/derived/ssa30.Rds')
+saveRDS(ssa.30.unnest, '~/snails/Data/derived/ssa30.Rds')
 
 ### finding and removing duplicates
 DT.prep.30[,.(len=length(t), unique=uniqueN(t)), by=.(snail)]
