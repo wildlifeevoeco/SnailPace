@@ -60,6 +60,14 @@ saveRDS(ssa.snails2019, '~/snails/Data/derived/ssaAll_snails2019.Rds')
 
 data <- readRDS('~/snails/Data/derived/ssaAll_snails2019.Rds')
 
+data <- data %>% 
+         rename(
+            Temperature = temp,
+            Precipitation = precip,
+            Stage = stage,
+            Treatment = treatment
+             )
+
 treat = "1"
 data$Treatment <- ifelse(data$Treatment=="4", "3", data$Treatment)
 
