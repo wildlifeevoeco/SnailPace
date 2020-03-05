@@ -63,8 +63,8 @@ sum.sl[,'diff'] <- sum.sl$stepn-sum.sl$nas
 snail.30 <- sum.sl[diff>=30]
 dat.30 <- dat[Snail %chin% snail.30$snail]
 
-# dat.30$datetime <- paste(dat.30$Date, dat.30$Time)
-# dat.30$datetime <- as.POSIXct(dat.30$datetime, tz = 'UTC', "%Y-%m-%d %H:%M") 
+dat.30$datetime <- paste(dat.30$Date, dat.30$Time)
+dat.30$datetime <- as.POSIXct(dat.30$datetime, tz = 'UTC', "%Y-%m-%d %H:%M") 
 
 
 # selecting just the parts of the data that I need, you'll probably need to include your other things like temp and precip
