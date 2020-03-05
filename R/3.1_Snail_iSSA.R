@@ -9,6 +9,8 @@ raw <- '~/snails/Data/raw/'
 derived <- '~/snails/Data/derived/'
 dat <- readRDS('~/snails/Data/derived/ssa30ghosts.Rds')
 dat <- dat[Stage!="Acc"]
+#dat$Stage <- factor(dat$Stage, levels = c("B","A"))
+
 #### CORE ====
 
 Core <- function(y, SL, TA, ToD, Temp, Precipitation, strata1) {
