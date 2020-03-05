@@ -248,7 +248,8 @@ P4Model<- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start, Stage,
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-P4.g3.Out<- dat[ghostbricks=="g3",
+badsnails <- c("P24b")
+P4.g3.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g3",
                     {
                       print(.BY[[1]])
                       P4Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
@@ -256,7 +257,8 @@ P4.g3.Out<- dat[ghostbricks=="g3",
                     },
                     by = .(snail)]
 
-P4.g2.Out<- dat[ghostbricks=="g2",
+badsnails <- c("P24b")
+P4.g2.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g2",
                 {
                   print(.BY[[1]])
                   P4Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
@@ -264,7 +266,8 @@ P4.g2.Out<- dat[ghostbricks=="g2",
                 },
                 by = .(snail)]
 
-P4.g1.Out<- dat[ghostbricks=="g1",
+badsnails <- c("P24b")
+P4.g1.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g1",
                 {
                   print(.BY[[1]])
                   P4Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
@@ -281,7 +284,7 @@ P4.treat1.Out<- dat[!(snail %in% badsnails) & Treatment=="1",
                    },
                    by = .(snail)]
 
-badsnails <- c("P12b", "O12b", "P22b")
+badsnails <- c("P12b", "O12b", "P22b", "O22b")
 P4.treat2.Out<- dat[!(snail %in% badsnails) & Treatment=="2",
                     {
                       print(.BY[[1]])
@@ -301,4 +304,4 @@ P4.treat3.Out<- dat[!(snail %in% badsnails) & Treatment=="3",
 
 P4ModelOut <- rbind(P4.g1.Out, P4.g2.Out, P4.g3.Out, P4.treat1.Out, P4.treat2.Out, P4.treat3.Out)
 
-saveRDS(P4ModelOut, '~/snails/Data/derived/P4Model.Rds')
+#saveRDS(P4ModelOut, '~/snails/Data/derived/P4Model.Rds')
