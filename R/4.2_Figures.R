@@ -1,7 +1,7 @@
 #### Figures ====
 
 ### Packages ----
-libs <- c('ggplot2','ggpubr','data.table', 'dplyr', 'tidyr')
+libs <- c('ggplot2','ggpubr','data.table', 'dplyr', 'tidyr', 'tidyverse')
 lapply(libs, require, character.only = TRUE)
 
 ### Input data ----
@@ -31,7 +31,7 @@ all.m <- rbind(Core.m, P1.m, P2.m, P3.m, P4.m)
 
 all.coef <- all.m[term=='coef' & variable!="AIC"]
 
-ba.coef <- all.coef[variable %like% "Stage"]
+ba.coef <- all.coef[variable %like% "Stage" & !(variable %like% "StageAcc") ]
 
 ba.coef$Treatment <- ifelse(ba.coef$Treatment=="4", "C", ba.coef$Treatment)
 
@@ -71,8 +71,38 @@ ba.coef[,"ba"] <- ifelse(ba.coef$variable %like% "StageA", "A", "B")
 ## New variable of treatment/control and stage combined
 ba.coef[,"stage.ct"] <- paste(ba.coef$Treatment, ba.coef$ba, sep = "")
 
+
+stopwords <- c(":StageA:", ":StageB:", "StageA:", ":StageA", "StageB:", ":StageB")
+
+ba.coef[,"variable2"] <- str_remove_all((ba.coef$variable), "StageA")
+ba.coef[,"variable3"] <- str_remove_all((ba.coef$variable2), "StageB")
+ba.coef[,"variable4"] <- str_remove_all((ba.coef$variable3), ":")
+
+ba.coef <- ba.coef[,.(snail, term, value, Treatment, ba, stage.ct, variable=variable4)]
+
+## Rename variables
+
+ba.coef.names <- unique(ba.coef$variable)
+
+ba.coef.betas.names <- c("log_sl", "cos_ta",
+                              "land_end_adjforest", "land_end_adjopen", "land_end_adjwet", "log(1 + roadDist_end)",
+                              "log(1 + distance2)", "log(1 + packDistadj_end)",
+                              "log(ttd1 + 1):log_sl", "log(ttd1 + 1):cos_ta",
+                              "log(ttd1 + 1):land_end_adjforest", "log(ttd1 + 1):land_end_adjopen", "log(ttd1 + 1):land_end_adjwet", "log(ttd1 + 1):log(1 + roadDist_end)",
+                              "log(ttd1 + 1):log(1 + distance2)", "log(ttd1 + 1):log(1 + packDistadj_end)")
+
+everyone.all.indiv.betas <- everyone.all.indiv[term %chin% everyone.all.betas.names]
+# everyone.betas <- c("log_sl", "cos_ta", "land_end_adjforest", "land_end_adjopen", "land_end_adjwet", "log(1 + roadDist_end)",
+#                 "log(1 + distance2)", "log(1 + packDistadj_end)")
+
+everyone.all.indiv.betas$term <- factor(everyone.all.indiv.betas$term, levels = everyone.all.betas.names, labels = c("log_sl", "cos_ta",'forest', "open", "wet", "roadDist",
+                                                                                                                     "nnDist", "boundaryDist",
+                                                                                                                     "log_sl-ttd", "cos_ta-ttd", "forest-ttd", "open-ttd", "wet-ttd", "roadDist-ttd",
+                                                                                                                     "nnDist-ttd", "boundaryDist-ttd"))
+
 saveRDS(ba.coef, '~/snails/Data/derived/ba-coef.Rds')
 
+### Read in ba.coef ----
 ba.coef <- readRDS('~/snails/Data/derived/ba-coef.Rds')
 
 ### TREATMENT 1 FIGURES ----
