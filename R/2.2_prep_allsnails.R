@@ -71,6 +71,22 @@ dat.30 <- dat[Snail %chin% snail.30$snail]
 DT.prep.30 <- dat.30 %>% dplyr::select(x = "xUTM", y = "yUTM", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                        precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
+### finding and removing duplicates
+DT.prep.30[,.(len=length(t), unique=uniqueN(t)), by=.(snail)]
+
+duplicated(dat[Trial==2, .(Time), by=.(Snail)])
+
+t2snails <- dat[Trial==2, unique(Snail)]
+
+t2<-DT.prep.30[snail %in% t2snails]
+
+t2[(duplicated(t)),.(t), by=.(snail)]
+
+badsnails <- t2[, .N, by = .(snail, t)][N > 1]
+
+DT.prep.good <- DT.prep.30[-c(4379, 4811, 5243, 5675, 6107, 6539, 6971, 7403, 7835, 8267, 8699, 9131),]
+
+
 # nesting data by id
 dat_all.30 <- DT.prep.good %>% group_by(snail) %>% nest()
 
@@ -113,20 +129,5 @@ merged.snails <-merge(ssa.30.unnest, DT.prep.good,
                       by.x=c('snail','t2_'), by.y= c('snail', 't'))
 
 
-saveRDS(ssa.30.unnest, '~/snails/Data/derived/ssa30.Rds')
+saveRDS(merged.snails, '~/snails/Data/derived/ssa30.Rds')
 
-### finding and removing duplicates
-DT.prep.30[,.(len=length(t), unique=uniqueN(t)), by=.(snail)]
-
-duplicated(dat[Trial==2, .(Time), by=.(Snail)])
-
-t2snails <- dat[Trial==2, unique(Snail)]
-
-t2<-DT.prep.30[snail %in% t2snails]
-
-t2[(duplicated(t)),.(t), by=.(snail)]
-
-badsnails <- t2[, .N, by = .(snail, t)][N > 1]
-
-DT.prep.good <- DT.prep.30[-c(4379, 4811, 5243, 5675, 6107, 6539, 6971, 7403, 7835, 8267, 8699, 9131),]
-           
