@@ -37,7 +37,7 @@ coreOUT<- dat[snail != 'P11a' & ghostbricks %in% listbricks,
               },
               by = snail]
 
-saveRDS(coreOUT, '~/snails/Data/derived/CoreModel.Rds')
+#saveRDS(coreOUT, '~/snails/Data/derived/CoreModel.Rds')
 
 #### P1 ====
 
@@ -141,7 +141,7 @@ P2.g1.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g1",
                 },
                 by = .(snail)]
 
-badsnails <- c("P11a", "P21a")
+badsnails <- c("P11a", "P21a", "O11a")
 P2.treat1.Out<- dat[!(snail %in% badsnails) & Treatment=="1",
                     {
                       print(.BY[[1]])
@@ -170,7 +170,7 @@ P2.treat3.Out<- dat[!(snail %in% badsnails) & Treatment=="3",
 
 P2ModelOut <- rbind(P2.g1.Out, P2.g2.Out, P2.g3.Out, P2.treat1.Out, P2.treat2.Out, P2.treat3.Out)
 
-saveRDS(P2ModelOut, '~/snails/Data/derived/P2Model.Rds')
+#saveRDS(P2ModelOut, '~/snails/Data/derived/P2Model.Rds')
 
 #### P3 ====
 
