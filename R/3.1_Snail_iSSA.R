@@ -8,7 +8,7 @@ lapply(libs, require, character.only = TRUE)
 raw <- '~/snails/Data/raw/'
 derived <- '~/snails/Data/derived/'
 dat <- readRDS('~/snails/Data/derived/ssa30ghosts.Rds')
-dat <- dat[Stage!="Acc"]
+#dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 
 #### CORE ====
@@ -159,7 +159,7 @@ P2.treat2.Out<- dat[!(snail %in% badsnails) & Treatment=="2",
                     },
                     by = .(snail)]
 
-badsnails <- c("P23b", "P23a")
+badsnails <- c("O13a","P23b", "P23a")
 P2.treat3.Out<- dat[!(snail %in% badsnails) & Treatment=="3",
                     {
                       print(.BY[[1]])
