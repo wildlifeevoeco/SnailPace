@@ -191,7 +191,8 @@ P3Model <- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start,
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-P3.g3.Out<- dat[ghostbricks=="g3",
+badsnails <- c("P24b")
+P3.g3.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g3",
                 {
                   print(.BY[[1]])
                   P3Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
@@ -199,7 +200,8 @@ P3.g3.Out<- dat[ghostbricks=="g3",
                 },
                 by = .(snail)]
 
-P3.g2.Out<- dat[ghostbricks=="g2",
+badsnails <- c("P24b")
+P3.g2.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g2",
                 {
                   print(.BY[[1]])
                   P3Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
@@ -207,7 +209,8 @@ P3.g2.Out<- dat[ghostbricks=="g2",
                 },
                 by = .(snail)]
 
-P3.g1.Out<- dat[ghostbricks=="g1",
+badsnails <- c("P24b")
+P3.g1.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g1",
                 {
                   print(.BY[[1]])
                   P3Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_start + 1), 
