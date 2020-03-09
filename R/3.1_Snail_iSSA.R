@@ -29,13 +29,17 @@ Core <- function(y, SL, TA, ToD, Temp, Precipitation, strata1) {
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-listbricks <- c("C", "1", "2", "4")
+listbricks <- c("C", "1", "2", "3")
 coreOUT<- dat[snail != 'P11a' & ghostbricks %in% listbricks,
               {
                 print(.BY[[1]])
                 Core(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitation, step_id_)
               },
               by = snail]
+
+coreOUT[,"nbricks"] <- substr(coreOUT$snail, 3, 3)
+coreOUT[,"nbricks"] <- ifelse(coreOUT$nbricks=="4", "0", coreOUT$nbricks)
+coreOUT[,"Disturbance"] <- ifelse(coreOUT$nbricks=="0", "Control", "Disturbed")
 
 #saveRDS(coreOUT, '~/snails/Data/derived/CoreModel.Rds')
 
