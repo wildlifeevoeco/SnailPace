@@ -382,3 +382,107 @@ p2.brick3
 p2.treat3 <- p2.control3/p2.brick3 + plot_annotation('P2 - Treatment 3 (4 bricks)')
 p2.treat3
 
+
+####   P3 FIGURES   ----
+
+## Create P1 coefficients
+
+p3.coef <- P3.m[variable %like% "Stage" & !(variable %like% "StageAcc") ]
+
+p3.coef[,"Stage"] <- ifelse(p3.coef$variable %like% "StageA", "After", "Before")
+p3.coef[,"Stage"] <- factor(p3.coef$Stage, levels = c("Before", "After"))
+p3.coef$Treatment <- ifelse(p3.coef$Treatment=="4", "C", p3.coef$Treatment)
+
+## Extract variables from string
+p3.coef[,"variable2"] <- str_remove_all((p3.coef$variable), "StageA")
+p3.coef[,"variable3"] <- str_remove_all((p3.coef$variable2), "StageB")
+p3.coef[,"variable4"] <- str_remove_all((p3.coef$variable3), ":")
+
+## Rename variables
+
+p3.coef$variable4 <- ifelse(p3.coef$variable4=="SL", "log Step Length", p3.coef$variable4)
+p3.coef$variable4 <- ifelse(p3.coef$variable4=="TA", "cos Turn Angle", p3.coef$variable4)
+p3.coef$variable4 <- ifelse(p3.coef$variable4=="SLedgedist_start", "log Step Length:Edge Distance (start)", p3.coef$variable4)
+p3.coef$variable4 <- ifelse(p3.coef$variable4=="TAedgedist_start", "cos Turn Angle:Edge Distance (start)", p3.coef$variable4)
+p3.coef$variable4 <- ifelse(p3.coef$variable4=="SLbrickdist_start", "log Step Length:Brick Distance (start)", p3.coef$variable4)
+p3.coef$variable4 <- ifelse(p3.coef$variable4=="TAbrickdist_start", "cos Turn Angle:Brick Distance (start)", p3.coef$variable4)
+
+uniquevar <- as.data.table(unique(p3.coef$variable4))
+
+p3.coef[,"variable4"] <- factor(p3.coef$variable4, levels = c("log Step Length", "cos Turn Angle", "log Step Length:Edge Distance (start)",
+                                                              "cos Turn Angle:Edge Distance (start)","log Step Length:Brick Distance (start)",
+                                                              "cos Turn Angle:Brick Distance (start)"))
+
+p3.coef <- p3.coef[,.(snail, term, value, Disturbance, Stage, variable=variable4, nbricks)]
+
+### PLOT FOR ALL TREATMENTS ###
+
+## CONTROL ##
+#Used control 2 but look into this!!
+
+cbPalette = c("red", "blue")
+p3.control2 <- ggplot(p3.coef[Disturbance=="Control" & nbricks=="2"], aes(variable, (value))) +
+  geom_boxplot(aes(fill = Stage),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = Stage),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 18)) +
+  ylab('beta') +
+  ggtitle("a) Control") +
+  #scale_fill_manual(values = cbPalette) +
+  #scale_color_manual(values = cbPalette) + 
+  ylim(-10,20)
+
+p3.control2
+
+## DISTURBED ##
+
+#Disturbances
+
+cbPalette = c("red", "blue")
+p3.disturbed <- ggplot(p3.coef[Disturbance=="Disturbed"], aes(variable, (value))) +
+  geom_boxplot(aes(fill = Stage),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = Stage),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 18)) +
+  ylab('beta') +
+  ggtitle("b) Disturbed") +
+  # scale_fill_manual(values = cbPalette) +
+  # scale_color_manual(values = cbPalette) + 
+  ylim(-10,20)
+
+p3.disturbed
+
+## COMBINED PLOTS ## 
+
+p3.figure <- p3.control2/p3.disturbed + plot_annotation('P3')
+p3.figure
