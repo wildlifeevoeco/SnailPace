@@ -251,8 +251,19 @@ P3.treats.Out<- dat[!(snail %in% badsnails) & Treatment!="C",
                   },
                   by = .(snail)]
 
+P3.g1.Out[,"nbricks"] <- 1
+P3.g2.Out[,"nbricks"] <- 2
+P3.g3.Out[,"nbricks"] <- 3
+P3.treats.Out[,"nbricks"] <- substr(P3.treats.Out$snail, 3, 3)
+
+P3.g1.Out[,"Disturbance"] <- "Control"
+P3.g2.Out[,"Disturbance"] <- "Control"
+P3.g3.Out[,"Disturbance"] <- "Control"
+P3.treats.Out[,"Disturbance"] <- "Disturbed"
+
+
 P3ModelOut <- rbind(P3.g1.Out, P3.g2.Out, P3.g3.Out, P3.treats.Out)
-#saveRDS(P3ModelOut, '~/snails/Data/derived/P3Model.Rds')
+saveRDS(P3ModelOut, '~/snails/Data/derived/P3Model.Rds')
 
 #### P4 ====
 
