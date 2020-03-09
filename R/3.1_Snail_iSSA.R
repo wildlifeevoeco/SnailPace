@@ -91,6 +91,16 @@ P1.treats.Out<- dat[!(snail %in% badsnails)&Treatment!='C',
                           log(brickdist_end + 1), Stage, step_id_)
                 },
                 by = .(snail)]
+P1.g1.Out[,"nbricks"] <- 1
+P1.g2.Out[,"nbricks"] <- 2
+P1.g3.Out[,"nbricks"] <- 3
+P1.treats.Out[,"nbricks"] <- substr(P1.treats.Out$snail, 3, 3)
+
+P1.g1.Out[,"Disturbance"] <- "Control"
+P1.g2.Out[,"Disturbance"] <- "Control"
+P1.g3.Out[,"Disturbance"] <- "Control"
+P1.treats.Out[,"Disturbance"] <- "Disturbed"
+
 P1ModelOut <- rbind(P1.g1.Out, P1.g2.Out, P1.g3.Out, P1.treats.Out)
 
 #saveRDS(P1ModelOut, '~/snails/Data/derived/P1Model.Rds')
@@ -100,7 +110,7 @@ P1ModelOut <- rbind(P1.g1.Out, P1.g2.Out, P1.g3.Out, P1.treats.Out)
 P2Model <- function(y, SL, TA, ToD, Temp, edgedist_end, brickdist_end, Stage, strata1) {
   # Make the model
   model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_end:Stage +
-                  brickdist_end:Stage ++ SL:Stage + TA:Stage + strata(strata1))
+                  brickdist_end:Stage + SL:Stage + TA:Stage + strata(strata1))
   
   sum.model <- summary(model)$coefficients
   # Transpose the coef of the model and cast as data.table
@@ -167,6 +177,20 @@ P2.treat3.Out<- dat[!(snail %in% badsnails) & Treatment=="3",
                               log(brickdist_end + 1), Stage, step_id_)
                     },
                     by = .(snail)]
+
+P2.g1.Out[,"nbricks"] <- 1
+P2.g2.Out[,"nbricks"] <- 2
+P2.g3.Out[,"nbricks"] <- 3
+P2.treat1.Out[,"nbricks"] <- 1
+P2.treat2.Out[,"nbricks"] <- 2
+P2.treat3.Out[,"nbricks"] <- 3
+
+P2.g1.Out[,"Disturbance"] <- "Control"
+P2.g2.Out[,"Disturbance"] <- "Control"
+P2.g3.Out[,"Disturbance"] <- "Control"
+P2.treat1.Out[,"Disturbance"] <- "Disturbed"
+P2.treat2.Out[,"Disturbance"] <- "Disturbed"
+P2.treat3.Out[,"Disturbance"] <- "Disturbed"
 
 P2ModelOut <- rbind(P2.g1.Out, P2.g2.Out, P2.g3.Out, P2.treat1.Out, P2.treat2.Out, P2.treat3.Out)
 
