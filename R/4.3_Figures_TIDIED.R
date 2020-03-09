@@ -55,9 +55,30 @@ ba.coef <- ba.coef[,.(snail, term, value, Treatment, ba, stage.ct, variable=vari
 
 #saveRDS(ba.coef, '~/snails/Data/derived/ba-coef.Rds')
 
----------------
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 
-####  P1 FIGURES ----
+####   P1 FIGURES   ----
 
+## Create P1 coefficients
+p1.coef <- P1.m[variable %like% "Stage" & !(variable %like% "StageAcc") ]
 
+p1.coef[,"ba"] <- ifelse(p1.coef$variable %like% "StageA", "A", "B")
+p1.coef[,"ba"] <- factor(p1.coef$ba, levels = c("B", "A"))
+p1.coef$Treatment <- ifelse(p1.coef$Treatment=="4", "C", p1.coef$Treatment)
+
+## New variable of treatment/control and stage combined
+p1.coef[,"stage.ct"] <- paste(p1.coef$Disturbance, p1.coef$ba, sep = "")
+
+## Extract variables from string
+p1.coef[,"variable2"] <- str_remove_all((p1.coef$variable), "StageA")
+p1.coef[,"variable3"] <- str_remove_all((p1.coef$variable2), "StageB")
+p1.coef[,"variable4"] <- str_remove_all((p1.coef$variable3), ":")
+
+## Rename variables
+p1.coef$variable4 <- ifelse(p1.coef$variable4=="edgedist_end", "Edge Distance (end)", p1.coef$variable4)
+p1.coef$variable4 <- ifelse(p1.coef$variable4=="brickdist_end", "Brick Distance (end)", p1.coef$variable4)
+p1.coef$variable4 <- ifelse(p1.coef$variable4=="SL", "log Step Length", p1.coef$variable4)
+p1.coef$variable4 <- ifelse(p1.coef$variable4=="TA", "cos Turn Angle", p1.coef$variable4)
+
+p1.coef <- p1.coef[,.(snail, term, value, Disturbance, ba, variable=variable4, nbricks)]
 
