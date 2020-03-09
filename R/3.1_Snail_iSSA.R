@@ -205,7 +205,7 @@ P2ModelOut <- rbind(P2.g1.Out, P2.g2.Out, P2.g3.Out, P2.treat1.Out, P2.treat2.Ou
 P3Model <- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start,
                     Treatment, Stage, strata1) {
   # Make the model
-  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_start:SL + edgedist_start:TA +
+  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_start:SL:Stage + edgedist_start:TA:Stage +
                     brickdist_start:SL:Stage + brickdist_start:TA:Stage + SL:Stage + TA:Stage + strata(strata1))
   
   sum.model <- summary(model)$coefficients
@@ -219,7 +219,7 @@ P3Model <- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start,
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-badsnails <- c("P24b")
+badsnails <- c("P24b", "O24a")
 P3.g3.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g3",
                 {
                   print(.BY[[1]])
@@ -228,7 +228,7 @@ P3.g3.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g3",
                 },
                 by = .(snail)]
 
-badsnails <- c("P24b")
+badsnails <- c("P24b", "O24a")
 P3.g2.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g2",
                 {
                   print(.BY[[1]])
@@ -237,7 +237,7 @@ P3.g2.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g2",
                 },
                 by = .(snail)]
 
-badsnails <- c("P24b")
+badsnails <- c("P24b", "O24a")
 P3.g1.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g1",
                 {
                   print(.BY[[1]])
@@ -246,7 +246,7 @@ P3.g1.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g1",
                 },
                 by = .(snail)]
 
-badsnails <- c("P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b")
+badsnails <- c("P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b", "O22a")
 P3.treats.Out<- dat[!(snail %in% badsnails) & Treatment!="C",
                   {
                     print(.BY[[1]])
@@ -267,7 +267,7 @@ P3.treats.Out[,"Disturbance"] <- "Disturbed"
 
 
 P3ModelOut <- rbind(P3.g1.Out, P3.g2.Out, P3.g3.Out, P3.treats.Out)
-saveRDS(P3ModelOut, '~/snails/Data/derived/P3Model.Rds')
+#saveRDS(P3ModelOut, '~/snails/Data/derived/P3Model.Rds')
 
 #### P4 ====
 
