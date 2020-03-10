@@ -53,9 +53,53 @@ ba.coef[,"variable4"] <- str_remove_all((ba.coef$variable3), ":")
 
 ba.coef <- ba.coef[,.(snail, term, value, Treatment, ba, stage.ct, variable=variable4, nbricks, Disturbance)]
 
-#saveRDS(ba.coef, '~/snails/Data/derived/ba-coef.Rds')
-
 #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+####   CORE MODEL   ----
+
+## Create core coefficients
+core.coef <- Core.m[!(variable %like% "AIC")]
+
+## Rename variables
+core.coef$variable <- ifelse(core.coef$variable=="SL", "log Step Length", core.coef$variable)
+core.coef$variable <- ifelse(core.coef$variable=="2", "cos Turn Angle", core.coef$variable)
+core.coef$variable <- ifelse(core.coef$variable=="3", "log Step Length:Time of Day", core.coef$variable)
+core.coef$variable <- ifelse(core.coef$variable=="4", "log Step Length:Temperature", core.coef$variable)
+core.coef$variable <- ifelse(core.coef$variable=="5", "log Step Length:Precipitation", core.coef$variable)
+core.coef[,"variable"] <- factor(core.coef$variable, levels = c("log Step Length", "cos Turn Angle", "log Step Length:Time of Day",
+                                                                  "log Step Length:Temperature", "log Step Length:Precipitation"))
+core.coef <- core.coef[,.(snail, term, value, Disturbance, variable, nbricks)]
+
+### PLOT FOR ALL TREATMENTS ###
+
+cbPalette = c("red", "blue")
+core.fig <- ggplot(core.coef, aes(variable, (value))) +
+  geom_boxplot(aes(fill = Disturbance),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = Disturbance),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 18)) +
+  ylab('beta') +
+  ggtitle("Core Model") +
+  #scale_fill_manual(values = cbPalette) +
+  #scale_color_manual(values = cbPalette) + 
+  ylim(-10,35)
+
+core.fig
 
 ####   P1 FIGURES   ----
 
@@ -385,7 +429,7 @@ p2.treat3
 
 ####   P3 FIGURES   ----
 
-## Create P1 coefficients
+## Create P3 coefficients
 
 p3.coef <- P3.m[variable %like% "Stage" & !(variable %like% "StageAcc") ]
 
@@ -486,3 +530,244 @@ p3.disturbed
 
 p3.figure <- p3.control2/p3.disturbed + plot_annotation('P3')
 p3.figure
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+
+####   P4 FIGURES   ----
+
+## Create P1 coefficients
+p4.coef <- P4.m[variable %like% "Stage" & !(variable %like% "StageAcc") ]
+
+p4.coef[,"Stage"] <- ifelse(p4.coef$variable %like% "StageA", "After", "Before")
+p4.coef[,"Stage"] <- factor(p4.coef$Stage, levels = c("Before", "After"))
+p4.coef$Treatment <- ifelse(p4.coef$Treatment=="4", "C", p4.coef$Treatment)
+
+## Extract variables from string
+p4.coef[,"variable2"] <- str_remove_all((p4.coef$variable), "StageA")
+p4.coef[,"variable3"] <- str_remove_all((p4.coef$variable2), "StageB")
+p4.coef[,"variable4"] <- str_remove_all((p4.coef$variable3), ":")
+
+## Rename variables
+p4.coef$variable4 <- ifelse(p4.coef$variable4=="SLedgedist_start", "log Step Length:Edge Distance (start)", p4.coef$variable4)
+p4.coef$variable4 <- ifelse(p4.coef$variable4=="TAedgedist_start", "cos Turn Angle:Edge Distance (start)", p4.coef$variable4)
+p4.coef$variable4 <- ifelse(p4.coef$variable4=="SLbrickdist_start", "log Step Length:Brick Distance (start)", p4.coef$variable4)
+p4.coef$variable4 <- ifelse(p4.coef$variable4=="TAbrickdist_start", "cos Turn Angle:Brick Distance (start)", p4.coef$variable4)
+p4.coef$variable4 <- ifelse(p4.coef$variable4=="SL", "log Step Length", p4.coef$variable4)
+p4.coef$variable4 <- ifelse(p4.coef$variable4=="TA", "cos Turn Angle", p4.coef$variable4)
+p4.coef[,"variable4"] <- factor(p4.coef$variable4, levels = c("log Step Length", "cos Turn Angle", "log Step Length:Edge Distance (start)",
+                                                              "cos Turn Angle:Edge Distance (start)", "log Step Length:Brick Distance (start)",
+                                                              "cos Turn Angle:Brick Distance (start)"))
+p4.coef <- p4.coef[,.(snail, term, value, Disturbance, Stage, variable=variable4, nbricks)]
+
+### PLOT TREATMENT 1 ###
+
+## CONTROL 1 ##
+
+cbPalette = c("red", "blue")
+p4.control1 <- ggplot(p4.coef[Disturbance=="Control" & nbricks=="1"], aes(variable, (value))) +
+  geom_boxplot(aes(fill = Stage),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = Stage),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 18)) +
+  ylab('beta') +
+  ggtitle("a) Control") +
+  #scale_fill_manual(values = cbPalette) +
+  #scale_color_manual(values = cbPalette) + 
+  ylim(-10,20)
+
+p4.control1
+
+## DISTURBED 1##
+
+#Disturbances
+
+cbPalette = c("red", "blue")
+p4.brick1 <- ggplot(p4.coef[Disturbance=="Disturbed" & nbricks=="1"], aes(variable, (value))) +
+  geom_boxplot(aes(fill = Stage),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = Stage),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 18)) +
+  ylab('beta') +
+  ggtitle("b) Disturbed") +
+  # scale_fill_manual(values = cbPalette) +
+  # scale_color_manual(values = cbPalette) + 
+  ylim(-10,20)
+
+p4.brick1
+
+## COMBINED PLOTS ## 
+
+p4.treat1 <- p4.control1/p4.brick1 + plot_annotation('P4 - Treatment 1 (1 brick)')
+p4.treat1
+
+### PLOT TREATMENT 2 ###
+
+## CONTROL 2##
+
+cbPalette = c("red", "blue")
+p4.control2 <- ggplot(p4.coef[Disturbance=="Control" & nbricks=="2"], aes(variable, (value))) +
+  geom_boxplot(aes(fill = Stage),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = Stage),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 18)) +
+  ylab('beta') +
+  ggtitle("a) Control") +
+  #scale_fill_manual(values = cbPalette) +
+  #scale_color_manual(values = cbPalette) + 
+  ylim(-10,20)
+
+p4.control2
+
+## DISTURBED ##
+
+#Disturbances
+
+cbPalette = c("red", "blue")
+p4.brick2 <- ggplot(p4.coef[Disturbance=="Disturbed" & nbricks=="2"], aes(variable, (value))) +
+  geom_boxplot(aes(fill = Stage),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = Stage),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 18)) +
+  ylab('beta') +
+  ggtitle("b) Disturbed") +
+  # scale_fill_manual(values = cbPalette) +
+  # scale_color_manual(values = cbPalette) + 
+  ylim(-10,20)
+
+p4.brick2
+
+## COMBINED PLOTS ## 
+
+p4.treat2 <- p4.control2/p4.brick2 + plot_annotation('P4 - Treatment 2 (2 bricks)')
+p4.treat2
+
+### PLOT TREATMENT 3 ###
+
+## CONTROL 3##
+
+cbPalette = c("red", "blue")
+p4.control3 <- ggplot(p4.coef[Disturbance=="Control" & nbricks=="3"], aes(variable, (value))) +
+  geom_boxplot(aes(fill = Stage),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = Stage),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 18)) +
+  ylab('beta') +
+  ggtitle("a) Control") +
+  #scale_fill_manual(values = cbPalette) +
+  #scale_color_manual(values = cbPalette) + 
+  ylim(-10,20)
+
+p4.control3
+
+## DISTURBED ##
+
+#Disturbances
+
+cbPalette = c("red", "blue")
+p4.brick3 <- ggplot(p4.coef[Disturbance=="Disturbed" & nbricks=="3"], aes(variable, (value))) +
+  geom_boxplot(aes(fill = Stage),# notch = TRUE, notchwidth = 0.7,
+               outlier.color = NA, lwd = 0.6,
+               alpha = 0.25) +
+  geom_jitter(aes(color = Stage),
+              position = position_jitterdodge(.35),
+              size = 2, alpha = 0.4) +
+  #ggtitle('Interaction with community identity') +
+  geom_hline(aes(yintercept = 0), lty = 2) +
+  theme(#legend.position = 'none',
+    axis.title = element_text(size = 16, color = 'black'),
+    axis.text = element_text(size = 14, color = 'black'),
+    plot.title=element_text(size = 16, hjust=0),
+    axis.line = element_line(colour = "black"),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    strip.background = element_rect(colour="black", size = 1, fill = "white"),
+    strip.text = element_text(size = 14)) +
+  xlab('') +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 18)) +
+  ylab('beta') +
+  ggtitle("b) Disturbed") +
+  # scale_fill_manual(values = cbPalette) +
+  # scale_color_manual(values = cbPalette) + 
+  ylim(-10,20)
+
+p4.brick3
+
+## COMBINED PLOTS ## 
+
+p4.treat3 <- p4.control3/p4.brick3 + plot_annotation('P4 - Treatment 3 (4 bricks)')
+p4.treat3
