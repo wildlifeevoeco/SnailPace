@@ -97,7 +97,7 @@ core.fig <- ggplot(core.coef, aes(variable, (value))) +
   ggtitle("Core Model") +
   #scale_fill_manual(values = cbPalette) +
   #scale_color_manual(values = cbPalette) + 
-  ylim(-10,35)
+  ylim(-10,10)
 
 core.fig
 
