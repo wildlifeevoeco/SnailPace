@@ -273,8 +273,8 @@ P3ModelOut <- rbind(P3.g1.Out, P3.g2.Out, P3.g3.Out, P3.treats.Out)
 
 P4Model<- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start, Stage, strata1) {
   # Make the model
-  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_start:SL +
-                    edgedist_start:TA + brickdist_start:SL + brickdist_start:TA + SL:Stage + TA:Stage + strata(strata1))
+  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_start:SL:Stage +
+                    edgedist_start:TA:Stage + brickdist_start:SL:Stage + brickdist_start:TA:Stage + SL:Stage + TA:Stage + strata(strata1))
   
   sum.model <- summary(model)$coefficients
   # Transpose the coef of the model and cast as data.table
@@ -287,7 +287,7 @@ P4Model<- function(y, SL, TA, ToD, Temp, edgedist_start, brickdist_start, Stage,
   return(data.table(term, coefOut, AIC=AIC(model)))
 }
 
-badsnails <- c("P24b")
+badsnails <- c("P24b", "O24a")
 P4.g3.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g3",
                     {
                       print(.BY[[1]])
@@ -296,7 +296,7 @@ P4.g3.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g3",
                     },
                     by = .(snail)]
 
-badsnails <- c("P24b")
+badsnails <- c("P24b", "O24a")
 P4.g2.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g2",
                 {
                   print(.BY[[1]])
@@ -305,7 +305,7 @@ P4.g2.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g2",
                 },
                 by = .(snail)]
 
-badsnails <- c("P24b")
+badsnails <- c("P24b", "O24a")
 P4.g1.Out<- dat[!(snail %in% badsnails) & ghostbricks=="g1",
                 {
                   print(.BY[[1]])
@@ -323,7 +323,7 @@ P4.treat1.Out<- dat[!(snail %in% badsnails) & Treatment=="1",
                    },
                    by = .(snail)]
 
-badsnails <- c("P12b", "O12b", "P22b", "O22b")
+badsnails <- c("P12b", "O12b", "P22b", "O22b", "O22a")
 P4.treat2.Out<- dat[!(snail %in% badsnails) & Treatment=="2",
                     {
                       print(.BY[[1]])
@@ -332,7 +332,7 @@ P4.treat2.Out<- dat[!(snail %in% badsnails) & Treatment=="2",
                     },
                     by = .(snail)]
 
-badsnails <- c("O13a", "P23b")
+badsnails <- c("O13a", "P23b", "P13a")
 P4.treat3.Out<- dat[!(snail %in% badsnails) & Treatment=="3",
                     {
                       print(.BY[[1]])
