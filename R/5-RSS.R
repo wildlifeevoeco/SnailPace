@@ -53,7 +53,7 @@ core_models <-
         ), 
       by = snail]
 
-core_models[, list_predict(mod, newdat), by = snail]
+core_models[, h2:=list_predict(mod, newdat), by = snail]
 
 
 
