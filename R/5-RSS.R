@@ -32,7 +32,10 @@ list_newdata <- function(DT) {
   )
 }
 
-
+list_predict <- function(mod, ND) {
+  mapply(function(m, n) predict(m, newdata = n),
+         m = mod, n = ND)
+}
 
 #### CORE ====
 listbricks <- c("C", "1", "2", "3")
