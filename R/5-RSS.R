@@ -13,66 +13,34 @@ dat <- readRDS('Data/derived/ssa30ghosts.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 
-#### CORE ====
+# list of all snails
+snails <- unique(dat$snail)
 
-Core <- function(y, SL, TA, ToD, Temp, Precipitation, strata1) {
-  # Make the model
-  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + Precipitation:SL +
-                    strata(strata1), model = T)
-
-  return(model)
+# function for model list
+list_models <- function(resp, expl, DT) {
+  list(list(clogit(reformulate(expl, resp),
+                   model = T, data = DT)))
 }
 
-snails <- unique(dat$snail)
+
+#### CORE ====
 listbricks <- c("C", "1", "2", "3")
 
-core <- function(ids, DT, y, SL, TA, ToD, Temp, Precipitation, strata1){
-  lapply(ids, function(i) {
-   # unique(
-      DT[ghostbricks %in% listbricks & snail == i,
-        .(model = clogit(y ~ SL + TA + ToD:SL +Temp:SL + Precipitation:SL +
-                            strata(strata1), model = T))]
-   # )
-  })
-  }
-
-core <- function(ids, DT){
-  lapply(ids, function(i) {
-    # unique(
-    DT[ghostbricks %in% listbricks & snail == i,
-       .(model = clogit(case_ ~ log_sl + cos_ta + ToD_start:log_sl +
-                          Temperature:log_sl + Precipitation:log_sl +
-                          strata(step_id_), model = T))]
-    # )
-  })
-}
-core <- function(ids, DT, y, SL, TA, ToD, Temp, Precipitation, strata1){
-  
-      DT[ghostbricks %in% listbricks & snail %in% ids,
-         .(model = clogit(y ~ SL + TA + ToD:SL +Temp:SL + Precipitation:SL +
-                             strata(strata1), model = T)
-            ), by= .(snail)]
-    
-  }
-
-test <- dat[ghostbricks %in% listbricks & snail %in% coreSnails,
-   .(model = clogit(case_ ~ log_sl + cos_ta + ToD_start:log_sl +Temperature:log_sl + Precipitation:log_sl +
-                      strata(step_id_), model = T)
-   ), by= .(snail)]
-
+# list of snails core runs for
 coreSnails <- snails[!(snails %in% c('P11a'))]
-coreMods <- core(coreSnails, dat, 'case_', 'log_sl', 'cos_ta', 'ToD_start', 
-                 'Temperature', 'Precipitation', 'step_id_')
-coreMods <- core(coreSnails, dat)
 
-summary(coreMods[[1]])
-coreMods<- dat[snail %in% coreSnails & ghostbricks %in% listbricks,
-                Core(case_, log_sl, cos_ta, ToD_start, Temperature, Precipitation, step_id_),
-              by = .(snail)]
+# list of core models by snail
+core <- dat[ghostbricks %in% listbricks & snail %in% coreSnails,
+  .(mod=list_models('case_', 'log_sl + cos_ta + ToD_start:log_sl +
+                          Temperature:log_sl + Precipitation:log_sl +
+                          strata(step_id_)', .SD)), by=.(snail)]
 
-coreOUT[,"nbricks"] <- substr(coreOUT$snail, 3, 3)
-coreOUT[,"nbricks"] <- ifelse(coreOUT$nbricks=="4", "0", coreOUT$nbricks)
-coreOUT[,"Disturbance"] <- ifelse(coreOUT$nbricks=="0", "Control", "Disturbed")
+
+
+
+core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
+core_models[,"nbricks"] <- ifelse(core_models$nbricks=="4", "0", core_models$nbricks)
+core_models[,"Disturbance"] <- ifelse(core_models$nbricks=="0", "Control", "Disturbed")
 
 #saveRDS(coreOUT, '~/snails/Data/derived/CoreModel.Rds')
 
