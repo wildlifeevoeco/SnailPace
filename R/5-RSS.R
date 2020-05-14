@@ -18,13 +18,21 @@ snails <- unique(dat$snail)
 
 # function for model list
 list_models <- function(resp, expl, DT) {
-  list(list(clogit(reformulate(expl, resp),
-                   model = T, data = DT)))
+  list(clogit(reformulate(expl, resp),
+                   model = T, data = DT))
 }
 
-list_predict <- function(mod, ND) {
-  list(lapply(predict(mod, newdata = ND)))
+list_newdata <- function(DT) {
+  list(
+    DT[, .(log_sl = mean(log_sl),
+           cos_ta = mean(cos_ta),
+           ToD_start = factor('day', levels = levels(ToD_start)),
+           Temperature = mean(Temperature),
+           Precipitation = factor('no', levels = levels(Precipitation)))]
+  )
 }
+
+
 
 #### CORE ====
 listbricks <- c("C", "1", "2", "3")
