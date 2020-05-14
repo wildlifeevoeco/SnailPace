@@ -63,6 +63,32 @@ setup[!(bad), mod :=
       by = .(snail, model)]
 
 
+# Setup new data
+setup[!(bad) & model == 'core', newdat := 
+        list(list(dat[ghostbricks %in% unlist(lsbricks) & snail == .BY[[1]],
+                      .(log_sl = mean(log_sl),
+                        cos_ta = mean(cos_ta),
+                        ToD_start = factor('day', levels = levels(ToD_start)),
+                        Temperature = mean(Temperature),
+                        Precipitation = factor('no', levels = levels(Precipitation)),
+                        step_id_ = step_id_[1])])),
+      by = snail]
+
+setup[!(bad) & model == 'core', newdat := 
+        list(list(dat[ghostbricks %in% unlist(lsbricks) & snail == .BY[[1]],
+                      .(log_sl = mean(log_sl),
+                        cos_ta = mean(cos_ta),
+                        ToD_start = factor('day', levels = levels(ToD_start)),
+                        Temperature = mean(Temperature),
+                        Precipitation = factor('no', levels = levels(Precipitation)),
+                        step_id_ = step_id_[1])])),
+      by = snail]
+
+
+# Predict
+setup[, pred := list_predict()]
+
+
 # list of snails core runs for
 coreSnails <- snails[!(snails %in% c('P11a'))]
 
