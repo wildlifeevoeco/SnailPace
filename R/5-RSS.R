@@ -51,6 +51,15 @@ p1bad <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b",
 setup[model == 'core' & snail %in% corebad, bad := TRUE]
 setup[model == 'p1bad' & snail %in% p1bad, bad := TRUE]
 
+setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
+setup[model == 'p1bad', lsbricks := list('C')]
+
+
+setup[!(bad),
+      list_models(response, explanatory,
+                  dat[ghostbricks %in% listbricks & snail == .BY[[1]]]), 
+      snail]
+
 
 # list of snails core runs for
 coreSnails <- snails[!(snails %in% c('P11a'))]
