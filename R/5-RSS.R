@@ -47,16 +47,15 @@ core_models <-
           .SD),
         newdat = list(data.table(
           .SD[, .(log_sl = mean(log_sl),
-                    cos_ta = mean(cos_ta),
-                    ToD_start = factor('day', levels = levels(ToD_start)),
-                    Temperature = mean(Temperature),
-                    Precipitation = factor('no', levels = levels(Precipitation)),
-                    step_id_ = 2)]
-        ))
+                  cos_ta = mean(cos_ta),
+                  ToD_start = factor('day', levels = levels(ToD_start)),
+                  Temperature = mean(Temperature),
+                  Precipitation = factor('no', levels = levels(Precipitation)),
+                  step_id_ = unique(step_id_)[2])]))
         ), 
       by = snail]
 
-core_models[, h2:=list_predict(mod, newdat), by = snail]
+core_models[, pred := list_predict(mod, newdat), by = snail]
 
 
 
