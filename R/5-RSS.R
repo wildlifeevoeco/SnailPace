@@ -12,6 +12,8 @@ derived <- 'Data/derived/'
 dat <- readRDS('Data/derived/ssa30ghosts.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
+dat$ToD_start <- as.factor(dat$ToD_start)
+dat$Precipitation <- as.factor(dat$Precipitation)
 
 # list of all snails
 snails <- unique(dat$snail)
@@ -23,12 +25,13 @@ list_models <- function(resp, expl, DT) {
 }
 
 list_predict <- function(mod, ND) {
-  mapply(function(m, n) predict(m, newdata = n, type = 'lp', reference = 'sample'),
+  mapply(function(m, n) predict(m, newdata = n, type = 'lp'),
          m = mod, n = ND)
 }
 
 #### CORE ====
 listbricks <- c("C", "1", "2", "3")
+
 
 # list of snails core runs for
 coreSnails <- snails[!(snails %in% c('P11a'))]
@@ -48,7 +51,7 @@ core_models <-
                     ToD_start = factor('day', levels = levels(ToD_start)),
                     Temperature = mean(Temperature),
                     Precipitation = factor('no', levels = levels(Precipitation)),
-                  step_id_ = NA)]
+                    step_id_ = 2)]
         ))
         ), 
       by = snail]
