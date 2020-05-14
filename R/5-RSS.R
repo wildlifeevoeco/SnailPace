@@ -23,7 +23,7 @@ list_models <- function(resp, expl, DT) {
 }
 
 list_predict <- function(mod, ND) {
-  mapply(function(m, n) predict(m, newdata = n),
+  mapply(function(m, n) predict.coxph(m, newdata = n, type = 'lp', reference = 'sample'),
          m = mod, n = ND)
 }
 
@@ -47,7 +47,8 @@ core_models <-
                     cos_ta = mean(cos_ta),
                     ToD_start = factor('day', levels = levels(ToD_start)),
                     Temperature = mean(Temperature),
-                    Precipitation = factor('no', levels = levels(Precipitation)))]
+                    Precipitation = factor('no', levels = levels(Precipitation)),
+                  step_id_ = NA)]
         ))
         ), 
       by = snail]
