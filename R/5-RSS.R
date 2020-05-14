@@ -30,38 +30,28 @@ list_predict <- function(mod, ND) {
 }
 
 #### CORE ====
-# Setup model names, explanatory and response variables
-#  replicate by number of unique snails
-usnails <- unique(dat$snail)
-nsnails <- length(usnails)
+# Setup model name, explanatory and response variables
 setup <- data.table(
-  model = rep(c('core', 'p1'), each = nsnails),
-  snail = usnails,
-  response = rep(c('case_', 'case_'), each = nsnails),
-  explanatory = rep(c('log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + Precipitation:log_sl + strata(step_id_)',
-                      'log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + log(edgedist_end + 1):Stage + log(brickdist_end + 1):Stage + log_sl:Stage + cos_ta:Stage + strata(step_id_)'),
-                    each = nsnails)
+  model = 'core',
+  snail = unique(dat$snail),
+  response = 'case_',
+  explanatory = 'log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + Precipitation:log_sl + strata(step_id_)'
 )
 
 # Which individuals should be dropped?
 corebad <- 'P11a'
-p1bad <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
-           "P22b", "P23a", "P23b", "O11a", "O13a")
 setup[model == 'core', bad := snail %in% corebad]
-setup[model == 'p1', bad := snail %in% p1bad]
+
 
 # Which bricks do we want to keep?
-ubricks <- unique(dat$ghostbricks)
 setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
-setup[model == 'p1', lsbricks := list(c("1", "2", "3", "g1", "g2", "g3"))]
 
 # Run only on *good* individual
 setup[!(bad), mod :=
         list_models(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
-      by = .(snail, model)]
-
+      by = snail]
 
 # Setup new data
 setup[!(bad) & model == 'core', newdat := 
