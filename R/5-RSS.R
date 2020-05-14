@@ -22,6 +22,9 @@ list_models <- function(resp, expl, DT) {
                    model = T, data = DT)))
 }
 
+list_predict <- function(mod, ND) {
+  list(list(predict(mod, newdata = ND)))
+}
 
 #### CORE ====
 listbricks <- c("C", "1", "2", "3")
@@ -30,11 +33,17 @@ listbricks <- c("C", "1", "2", "3")
 coreSnails <- snails[!(snails %in% c('P11a'))]
 
 # list of core models by snail
-core <- dat[ghostbricks %in% listbricks & snail %in% coreSnails,
+core_models <- dat[ghostbricks %in% listbricks & snail %in% coreSnails,
   .(mod=list_models('case_', 'log_sl + cos_ta + ToD_start:log_sl +
                           Temperature:log_sl + Precipitation:log_sl +
                           strata(step_id_)', .SD)), by=.(snail)]
 
+core_h2 <- dat[ghostbricks %in% listbricks & snail %in% coreSnails,
+               .(log_sl = mean(log_sl), cos_ta = mean(cos_ta), ToD_start = factor('day', levels = levels(ToD_start)),
+                 Temperature = mean(Temperature), Precipitation = factor('no', levels = levels(Precipitation))),
+               by = .(snail)]
+
+core_models[,h2=list_predict(mod = mod, ND = core_h2), by = .(snail)]
 
 
 
@@ -57,37 +66,28 @@ P1Model<- function(y, SL, TA, ToD, Temp, edgedist_end,
 
 
 badsnails <- c("P24b")
-P1.g3.Mod <- dat[!(snail %in% badsnails)&ghostbricks=='g3',
-                {
-                  print(.BY[[1]])
-                  P1Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1),
-                          log(brickdist_end + 1), Stage, step_id_)
-                },
-                by = .(snail)]
 
-P1.g2.Out<- dat[!(snail %in% badsnails)&ghostbricks=='g2',
-                {
-                  print(.BY[[1]])
-                  P1Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1),
-                          log(brickdist_end + 1), Stage, step_id_)
-                },
-                by = .(snail)]
+# list of snails core runs for
+p1Snails <- snails[!(snails %in% c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "P23a", "P23b", "O11a", "O13a"))]
 
-P1.g1.Out<- dat[!(snail %in% badsnails)&ghostbricks=='g1',
-                {
-                  print(.BY[[1]])
-                  P1Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1),
-                          log(brickdist_end + 1), Stage, step_id_)
-                },
-                by = .(snail)]
-badsnails <- c("P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "P23a", "P23b", "O11a", "O13a")
-P1.treats.Out<- dat[!(snail %in% badsnails)&Treatment!='C',
-                    {
-                      print(.BY[[1]])
-                      P1Model(case_, log_sl, cos_ta, ToD_start, Temperature, log(edgedist_end + 1),
-                              log(brickdist_end + 1), Stage, step_id_)
-                    },
-                    by = .(snail)]
+
+# list of core models by snail
+p1_models <- dat[ghostbricks != 'C' & snail %in% p1Snails,
+                   .(mod=list_models('case_', 'log_sl + cos_ta + ToD_start:log_sl +
+                          Temperature:log_sl + log(edgedist_end + 1):Stage +
+                    log(brickdist_end + 1):Stage + log_sl:Stage + cos_ta:Stage +
+                          strata(step_id_)', .SD)), by=.(ghostbricks, snail)]
+
+p1_h2 <- dat[ghostbricks != 'C' & snail %in% p1Snails,
+               .(log_sl = mean(log_sl), cos_ta = mean(cos_ta), ToD_start = factor('day', levels = levels(ToD_start)),
+                 Temperature = mean(Temperature), Stage = factor('Acc', levels = levels(Stage)), 
+                 edgedist_end = mean(edgedist_end), brickdist_end = mean(brickdist_end)),
+               by = .(ghostbricks, snail)]
+
+p1_models[,h2:=list_predict(mod = mod, ND = p1_h2)]
+
+
+
 P1.g1.Out[,"nbricks"] <- 1
 P1.g2.Out[,"nbricks"] <- 2
 P1.g3.Out[,"nbricks"] <- 3
