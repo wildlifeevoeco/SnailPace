@@ -33,14 +33,22 @@ listbricks <- c("C", "1", "2", "3")
 coreSnails <- snails[!(snails %in% c('P11a'))]
 
 # list of core models by snail
-core_models <- dat[ghostbricks %in% listbricks & snail %in% coreSnails,
-  .(mod=list_models('case_', 'log_sl + cos_ta + ToD_start:log_sl +
+core_models <- 
+  dat[ghostbricks %in% listbricks & snail %in% coreSnails,
+      .(mod = list_models(
+          'case_',
+          'log_sl + cos_ta + ToD_start:log_sl +
                           Temperature:log_sl + Precipitation:log_sl +
-                          strata(step_id_)', .SD)), by=.(snail)]
+                          strata(step_id_)',
+          .SD)), 
+      by = .(snail)]
 
 core_h2 <- dat[ghostbricks %in% listbricks & snail %in% coreSnails,
-               .(log_sl = mean(log_sl), cos_ta = mean(cos_ta), ToD_start = factor('day', levels = levels(ToD_start)),
-                 Temperature = mean(Temperature), Precipitation = factor('no', levels = levels(Precipitation))),
+               .(log_sl = mean(log_sl),
+                 cos_ta = mean(cos_ta),
+                 ToD_start = factor('day', levels = levels(ToD_start)),
+                 Temperature = mean(Temperature),
+                 Precipitation = factor('no', levels = levels(Precipitation))),
                by = .(snail)]
 
 core_models[,h2=list_predict(mod = mod, ND = core_h2), by = .(snail)]
