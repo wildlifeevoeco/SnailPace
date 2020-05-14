@@ -51,7 +51,7 @@ core_models <-
                   ToD_start = factor('day', levels = levels(ToD_start)),
                   Temperature = mean(Temperature),
                   Precipitation = factor('no', levels = levels(Precipitation)),
-                  step_id_ = unique(step_id_)[2])]))
+                  step_id_ = step_id_[1])]))
         ), 
       by = snail]
 
