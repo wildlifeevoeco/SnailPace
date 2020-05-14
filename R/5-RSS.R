@@ -107,8 +107,8 @@ setup[!(bad) & n != 0, newdat :=
                         ToD_start = factor('day', levels = levels(ToD_start)),
                         Temperature = mean(Temperature),
                         Stage = factor('Acc', levels = levels(Stage)),
-                        edgedist_end = mean(edgedist_end),
-                        brickdist_end = mean(brickdist_end),
+                        edgedist_end = mean(edgedist_end, na.rm = TRUE),
+                        brickdist_end = mean(brickdist_end, na.rm = TRUE),
                         step_id_ = step_id_[1])])),
       by = .(snail, brick)]
 
