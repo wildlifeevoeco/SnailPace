@@ -45,8 +45,8 @@ setup <- data.table(
 corebad <- 'P11a'
 p1bad <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
            "P22b", "P23a", "P23b", "O11a", "O13a")
-setup[, bad := fifelse(model == 'core' & snail %in% corebad, TRUE, FALSE)]
-setup[, bad := fifelse(model == 'p1bad' & snail %in% p1bad, TRUE, FALSE)]
+setup[model == 'core', bad := snail %in% corebad]
+setup[model == 'p1', bad := snail %in% p1bad]
 
 setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 setup[model == 'p1', lsbricks := list('C')]
