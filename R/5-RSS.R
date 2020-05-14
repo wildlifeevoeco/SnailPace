@@ -30,12 +30,18 @@ list_predict <- function(mod, ND) {
 }
 
 #### CORE ====
-listbricks <- c("C", "1", "2", "3")
-
 usnails <- unique(dat$snail)
+nsnails <- length(usnails)
 setup <- data.table(
-  model = rep(c('core', 'p1'), each = length(usnails)),
-  snail = usnails
+  model = rep(c('core', 'p1'), each = nsnails),
+  snail = usnails,
+  response = rep(c('case_', 'case_'), each = nsnails),
+  explanatory = rep(c('log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + Precipitation:log_sl + strata(step_id_)',
+                      'log_sl + cos_ta + ToD_start:log_sl +
+                          Temperature:log_sl + log(edgedist_end + 1):Stage +
+                    log(brickdist_end + 1):Stage + log_sl:Stage + cos_ta:Stage +
+                          strata(step_id_)'),
+                    each = nsnails)
 )
 
 
