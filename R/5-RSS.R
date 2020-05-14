@@ -3,7 +3,8 @@
 # started 13 May 2020
 
 ### Packages ----
-libs <- c('data.table', 'dplyr', 'amt', 'lubridate', 'tidyr', 'ggplot2','survival','forcats')
+libs <- c('data.table', 'dplyr', 'amt', 'lubridate', 
+          'tidyr', 'ggplot2','survival','forcats')
 lapply(libs, require, character.only = TRUE)
 
 ### Input data ----
@@ -63,20 +64,72 @@ setup[!(bad) & model == 'core', newdat :=
                         Precipitation = factor('no', levels = levels(Precipitation)),
                         step_id_ = step_id_[1])])),
       by = snail]
+ 
 
-setup[!(bad) & model == 'core', newdat := 
-        list(list(dat[ghostbricks %in% unlist(lsbricks) & snail == .BY[[1]],
+# Predict
+setup[!(bad), pred := list_predict(mod, newdat), by = snail]
+core <- copy(setup)
+
+
+## P1 
+# Setup model name, explanatory and response variables
+# Cross join individuals and bricks of interest
+setup <- CJ(
+  snail = unique(dat$snail),
+  brick = c("1", "2", "3", "g1", "g2", "g3"),
+  model = 'p1',
+  response = 'case_',
+  explanatory = 'log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + log(edgedist_end + 1):Stage + log(brickdist_end + 1):Stage + log_sl:Stage + cos_ta:Stage + strata(step_id_)'
+)
+
+
+# Which individuals should be dropped?
+p1bad <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
+           "P22b", "P23a", "P23b", "O11a", "O13a")
+setup[model == 'p1', bad := snail %in% p1bad]
+
+
+# Run only on *good* individual and those with > 0 rows
+setup[!(bad), n := 
+      dat[ghostbricks == .BY[[2]] & snail == .BY[[1]], .N],
+      by = .(snail, brick)]
+
+setup[!(bad) & n != 0, mod := 
+        list_models(response, explanatory,
+                    dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
+      by = .(snail, brick)]
+
+# Setup new data
+setup[!(bad) & n != 0, newdat :=
+        list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
                       .(log_sl = mean(log_sl),
                         cos_ta = mean(cos_ta),
                         ToD_start = factor('day', levels = levels(ToD_start)),
                         Temperature = mean(Temperature),
-                        Precipitation = factor('no', levels = levels(Precipitation)),
+                        Stage = factor('Acc', levels = levels(Stage)),
+                        edgedist_end = mean(edgedist_end),
+                        brickdist_end = mean(brickdist_end),
                         step_id_ = step_id_[1])])),
-      by = snail]
-
+      by = .(snail, brick)]
 
 # Predict
-setup[, pred := list_predict()]
+setup[!(bad) & n != 0, list_predict(mod, newdat), 
+      by = .(snail, brick)]
+
+p1 <- copy(setup)
+
+#####
+
+
+
+
+dat[ghostbricks != 'C' & snail %in% p1Snails,
+    .(log_sl = mean(log_sl), cos_ta = mean(cos_ta), ToD_start = factor('day', levels = levels(ToD_start)),
+      Temperature = mean(Temperature), Stage = factor('Acc', levels = levels(Stage)), 
+      edgedist_end = mean(edgedist_end), brickdist_end = mean(brickdist_end)),
+    by = .(ghostbricks, snail)]
+
+
 
 
 # list of snails core runs for
