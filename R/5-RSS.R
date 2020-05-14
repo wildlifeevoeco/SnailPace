@@ -22,16 +22,6 @@ list_models <- function(resp, expl, DT) {
                    model = T, data = DT))
 }
 
-list_newdata <- function(DT) {
-  list(
-    DT[, .(log_sl = mean(log_sl),
-           cos_ta = mean(cos_ta),
-           ToD_start = factor('day', levels = levels(ToD_start)),
-           Temperature = mean(Temperature),
-           Precipitation = factor('no', levels = levels(Precipitation)))]
-  )
-}
-
 list_predict <- function(mod, ND) {
   mapply(function(m, n) predict(m, newdata = n),
          m = mod, n = ND)
@@ -64,17 +54,6 @@ core_models <-
 
 core_models[, list_predict(mod, newdat), by = snail]
 
-core_models[, newdat := list_newdata(.SD),
-            by = snail]
-core_h2 <- dat[ghostbricks %in% listbricks & snail %in% coreSnails,
-               .(log_sl = mean(log_sl),
-                 cos_ta = mean(cos_ta),
-                 ToD_start = factor('day', levels = levels(ToD_start)),
-                 Temperature = mean(Temperature),
-                 Precipitation = factor('no', levels = levels(Precipitation))),
-               by = .(snail)]
-
-core_models[, h2 = list_predict(mod = mod, ND = core_h2), by = .(snail)]
 
 
 
