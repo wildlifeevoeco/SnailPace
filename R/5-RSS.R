@@ -55,7 +55,7 @@ core_models <-
         ), 
       by = snail]
 
-core_models[, pred := list_predict(mod, newdat), by = snail]
+core_models[, h2 := list_predict(mod, newdat), by = snail]
 
 
 
@@ -73,6 +73,25 @@ p1Snails <- snails[!(snails %in% c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b
 
 
 # list of core models by snail
+p1_models <- 
+  dat[ghostbricks != 'C' & snail %in% p1Snails,
+      .(mod = list_models(
+        'case_',
+        'log_sl + cos_ta + ToD_start:log_sl +
+                          Temperature:log_sl + log(edgedist_end + 1):Stage +
+                    log(brickdist_end + 1):Stage + log_sl:Stage + cos_ta:Stage +
+                          strata(step_id_)',
+        .SD),
+        newdat = list(data.table(
+          .SD[, .(log_sl = mean(log_sl),
+                  cos_ta = mean(cos_ta),
+                  ToD_start = factor('day', levels = levels(ToD_start)),
+                  Temperature = mean(Temperature),
+                  Precipitation = factor('no', levels = levels(Precipitation)),
+                  step_id_ = unique(step_id_)[2])]))
+      ), 
+      by = snail]
+
 p1_models <- dat[ghostbricks != 'C' & snail %in% p1Snails,
                    .(mod=list_models('case_', 'log_sl + cos_ta + ToD_start:log_sl +
                           Temperature:log_sl + log(edgedist_end + 1):Stage +
@@ -84,6 +103,12 @@ p1_h2 <- dat[ghostbricks != 'C' & snail %in% p1Snails,
                  Temperature = mean(Temperature), Stage = factor('Acc', levels = levels(Stage)), 
                  edgedist_end = mean(edgedist_end), brickdist_end = mean(brickdist_end)),
                by = .(ghostbricks, snail)]
+
+p1_edge_h1 <- dat[ghostbricks != 'C' & snail %in% p1Snails,
+             .(log_sl = mean(log_sl), cos_ta = mean(cos_ta), ToD_start = factor('day', levels = levels(ToD_start)),
+               Temperature = mean(Temperature), Stage = factor('Acc', levels = levels(Stage)), 
+               edgedist_end = seq(0, max(edgedist_end, na.rm = T), length.out = 100), brickdist_end = mean(brickdist_end)),
+             by = .(ghostbricks, snail)]
 
 p1_models[,h2:=list_predict(mod = mod, ND = p1_h2)]
 
