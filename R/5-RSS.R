@@ -23,7 +23,7 @@ list_models <- function(resp, expl, DT) {
 }
 
 list_predict <- function(mod, ND) {
-  mapply(function(m, n) predict.coxph(m, newdata = n, type = 'lp', reference = 'sample'),
+  mapply(function(m, n) predict(m, newdata = n, type = 'lp', reference = 'sample'),
          m = mod, n = ND)
 }
 
