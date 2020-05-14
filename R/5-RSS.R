@@ -66,18 +66,6 @@ core_models[,"Disturbance"] <- ifelse(core_models$nbricks=="0", "Control", "Dist
 
 #### P1 ====
 
-P1Model<- function(y, SL, TA, ToD, Temp, edgedist_end, 
-                   brickdist_end, Stage, strata1) {
-  # Make the model
-  model <- clogit(y ~ SL + TA + ToD:SL +Temp:SL + edgedist_end:Stage +
-                    brickdist_end:Stage + SL:Stage + TA:Stage + strata(strata1), model=T)
-  
-  return(model)
-}
-
-
-badsnails <- c("P24b")
-
 # list of snails core runs for
 p1Snails <- snails[!(snails %in% c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "P23a", "P23b", "O11a", "O13a"))]
 
