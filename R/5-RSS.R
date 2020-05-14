@@ -32,6 +32,19 @@ list_predict <- function(mod, ND) {
 #### CORE ====
 listbricks <- c("C", "1", "2", "3")
 
+usnails <- unique(dat$snail)
+setup <- data.table(
+  model = rep(c('core', 'p1'), each = length(usnails)),
+  snail = usnails
+)
+
+
+corebad <- 'P11a'
+p1bad <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
+           "P22b", "P23a", "P23b", "O11a", "O13a")
+setup[model == 'core' & snail %in% corebad, bad := TRUE]
+setup[model == 'p1bad' & snail %in% p1bad, bad := TRUE]
+
 
 # list of snails core runs for
 coreSnails <- snails[!(snails %in% c('P11a'))]
