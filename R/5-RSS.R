@@ -20,8 +20,8 @@ snails <- unique(dat$snail)
 
 # function for model list
 list_models <- function(resp, expl, DT) {
-  list(clogit(reformulate(expl, resp),
-                   model = T, data = DT))
+  list(list(clogit(reformulate(expl, resp),
+              model = T, data = DT)))
 }
 
 list_predict <- function(mod, ND) {
@@ -48,13 +48,15 @@ p1bad <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b",
 setup[model == 'core', bad := snail %in% corebad]
 setup[model == 'p1', bad := snail %in% p1bad]
 
+ubricks <- unique(dat$ghostbricks)
 setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
-setup[model == 'p1', lsbricks := list('C')]
+setup[model == 'p1', lsbricks := list(c("1", "2", "3", "g1", "g2", "g3"))]
 
 
-setup[!(bad), mod := 
-        # list_models(response, explanatory,
-                    dat[ghostbricks %in% lsbricks & snail == .BY[[1]], .N],#),
+setup[!(bad), mod :=
+        list_models(response, explanatory,
+                    dat[ghostbricks %in% unlist(lsbricks) &
+                          snail == .BY[[1]]]),
       by = .(snail, model)]
 
 
