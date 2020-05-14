@@ -30,6 +30,8 @@ list_predict <- function(mod, ND) {
 }
 
 #### CORE ====
+# Setup model names, explanatory and response variables
+#  replicate by number of unique snails
 usnails <- unique(dat$snail)
 nsnails <- length(usnails)
 setup <- data.table(
@@ -41,18 +43,19 @@ setup <- data.table(
                     each = nsnails)
 )
 
-
+# Which individuals should be dropped?
 corebad <- 'P11a'
 p1bad <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
            "P22b", "P23a", "P23b", "O11a", "O13a")
 setup[model == 'core', bad := snail %in% corebad]
 setup[model == 'p1', bad := snail %in% p1bad]
 
+# Which bricks do we want to keep?
 ubricks <- unique(dat$ghostbricks)
 setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 setup[model == 'p1', lsbricks := list(c("1", "2", "3", "g1", "g2", "g3"))]
 
-
+# Run only on *good* individual
 setup[!(bad), mod :=
         list_models(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
