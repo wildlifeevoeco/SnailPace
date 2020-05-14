@@ -23,7 +23,7 @@ list_models <- function(resp, expl, DT) {
 }
 
 list_predict <- function(mod, ND) {
-  list(list(predict(mod, newdata = ND)))
+  list(lapply(predict(mod, newdata = ND)))
 }
 
 #### CORE ====
