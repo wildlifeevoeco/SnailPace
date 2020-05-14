@@ -53,9 +53,9 @@ setup[model == 'p1', lsbricks := list('C')]
 
 
 setup[!(bad), mod := 
-        list_models(response, explanatory,
-                    dat[ghostbricks %in% listbricks & snail == .BY[[1]]]),
-      by = snail]
+        # list_models(response, explanatory,
+                    dat[ghostbricks %in% lsbricks & snail == .BY[[1]], .N],#),
+      by = .(snail, model)]
 
 
 # list of snails core runs for
