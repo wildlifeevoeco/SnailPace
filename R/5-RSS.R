@@ -100,15 +100,81 @@ setup[!(bad) & n != 0, mod :=
       by = .(snail, brick)]
 
 # Setup new data
-setup[!(bad) & n != 0, newdat :=
+# h2 before
+setup[!(bad) & n != 0, h2Bdat :=
         list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
                       .(log_sl = mean(log_sl),
                         cos_ta = mean(cos_ta),
                         ToD_start = factor('day', levels = levels(ToD_start)),
                         Temperature = mean(Temperature),
-                        Stage = factor('Acc', levels = levels(Stage)),
+                        Stage = factor('B', levels = 1:2, labels = c('B', 'A')),
                         edgedist_end = mean(edgedist_end, na.rm = TRUE),
                         brickdist_end = mean(brickdist_end, na.rm = TRUE),
+                        step_id_ = step_id_[1])])),
+      by = .(snail, brick)]
+
+# h2 After
+setup[!(bad) & n != 0, h2Adat :=
+        list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
+                      .(log_sl = mean(log_sl),
+                        cos_ta = mean(cos_ta),
+                        ToD_start = factor('day', levels = levels(ToD_start)),
+                        Temperature = mean(Temperature),
+                        Stage = factor('A', levels = 1:2, labels = c('A', 'B')),
+                        edgedist_end = mean(edgedist_end, na.rm = TRUE),
+                        brickdist_end = mean(brickdist_end, na.rm = TRUE),
+                        step_id_ = step_id_[1])])),
+      by = .(snail, brick)]
+
+# h1 before edge
+setup[!(bad) & n != 0, h1Bedgedat :=
+        list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
+                      .(log_sl = mean(log_sl),
+                        cos_ta = mean(cos_ta),
+                        ToD_start = factor('day', levels = levels(ToD_start)),
+                        Temperature = mean(Temperature),
+                        Stage = factor('B', levels = 1:2, labels = c('B', 'A')),
+                        edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100),
+                        brickdist_end = mean(brickdist_end, na.rm = TRUE),
+                        step_id_ = step_id_[1])])),
+      by = .(snail, brick)]
+
+# h1 after edge
+setup[!(bad) & n != 0, h1Aedgedat :=
+        list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
+                      .(log_sl = mean(log_sl),
+                        cos_ta = mean(cos_ta),
+                        ToD_start = factor('day', levels = levels(ToD_start)),
+                        Temperature = mean(Temperature),
+                        Stage = factor('A', levels = 1:2, labels = c('A', 'B')),
+                        edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100),
+                        brickdist_end = mean(brickdist_end, na.rm = TRUE),
+                        step_id_ = step_id_[1])])),
+      by = .(snail, brick)]
+
+# h1 before brick
+setup[!(bad) & n != 0, h1Bbrickdat :=
+        list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
+                      .(log_sl = mean(log_sl),
+                        cos_ta = mean(cos_ta),
+                        ToD_start = factor('day', levels = levels(ToD_start)),
+                        Temperature = mean(Temperature),
+                        Stage = factor('B', levels = 1:2, labels = c('B', 'A')),
+                        edgedist_end = mean(edgedist_end, na.rm = TRUE),
+                        brickdist_end = seq(0, max(brickdist_end, na.rm = TRUE), length.out = 100),
+                        step_id_ = step_id_[1])])),
+      by = .(snail, brick)]
+
+# h1 after edge
+setup[!(bad) & n != 0, h1Abrickdat :=
+        list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
+                      .(log_sl = mean(log_sl),
+                        cos_ta = mean(cos_ta),
+                        ToD_start = factor('day', levels = levels(ToD_start)),
+                        Temperature = mean(Temperature),
+                        Stage = factor('A', levels = 1:2, labels = c('A', 'B')),
+                        edgedist_end = mean(edgedist_end, na.rm = TRUE),
+                        brickdist_end = seq(0, max(brickdist_end, na.rm = TRUE), length.out = 100),
                         step_id_ = step_id_[1])])),
       by = .(snail, brick)]
 
