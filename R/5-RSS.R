@@ -107,7 +107,7 @@ setup[!(bad) & n != 0, h2Bdat :=
                         cos_ta = mean(cos_ta),
                         ToD_start = factor('day', levels = levels(ToD_start)),
                         Temperature = mean(Temperature),
-                        Stage = factor('B', levels = 1:2, labels = c('B', 'A')),
+                        Stage = factor('B', levels = levels(Stage)),
                         edgedist_end = mean(edgedist_end, na.rm = TRUE),
                         brickdist_end = mean(brickdist_end, na.rm = TRUE),
                         step_id_ = step_id_[1])])),
@@ -120,7 +120,7 @@ setup[!(bad) & n != 0, h2Adat :=
                         cos_ta = mean(cos_ta),
                         ToD_start = factor('day', levels = levels(ToD_start)),
                         Temperature = mean(Temperature),
-                        Stage = factor('A', levels = 1:2, labels = c('A', 'B')),
+                        Stage = factor('A', levels = levels(Stage)),
                         edgedist_end = mean(edgedist_end, na.rm = TRUE),
                         brickdist_end = mean(brickdist_end, na.rm = TRUE),
                         step_id_ = step_id_[1])])),
@@ -133,7 +133,7 @@ setup[!(bad) & n != 0, h1Bedgedat :=
                         cos_ta = mean(cos_ta),
                         ToD_start = factor('day', levels = levels(ToD_start)),
                         Temperature = mean(Temperature),
-                        Stage = factor('B', levels = 1:2, labels = c('B', 'A')),
+                        Stage = factor('B', levels = levels(Stage)),
                         edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100),
                         brickdist_end = mean(brickdist_end, na.rm = TRUE),
                         step_id_ = step_id_[1])])),
@@ -146,7 +146,7 @@ setup[!(bad) & n != 0, h1Aedgedat :=
                         cos_ta = mean(cos_ta),
                         ToD_start = factor('day', levels = levels(ToD_start)),
                         Temperature = mean(Temperature),
-                        Stage = factor('A', levels = 1:2, labels = c('A', 'B')),
+                        Stage = factor('A', levels = levels(Stage)),
                         edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100),
                         brickdist_end = mean(brickdist_end, na.rm = TRUE),
                         step_id_ = step_id_[1])])),
@@ -159,7 +159,7 @@ setup[!(bad) & n != 0, h1Bbrickdat :=
                         cos_ta = mean(cos_ta),
                         ToD_start = factor('day', levels = levels(ToD_start)),
                         Temperature = mean(Temperature),
-                        Stage = factor('B', levels = 1:2, labels = c('B', 'A')),
+                        Stage = factor('B', levels = levels(Stage)),
                         edgedist_end = mean(edgedist_end, na.rm = TRUE),
                         brickdist_end = seq(0, max(brickdist_end, na.rm = TRUE), length.out = 100),
                         step_id_ = step_id_[1])])),
@@ -172,15 +172,28 @@ setup[!(bad) & n != 0, h1Abrickdat :=
                         cos_ta = mean(cos_ta),
                         ToD_start = factor('day', levels = levels(ToD_start)),
                         Temperature = mean(Temperature),
-                        Stage = factor('A', levels = 1:2, labels = c('A', 'B')),
+                        Stage = factor('A', levels = levels(Stage)),
                         edgedist_end = mean(edgedist_end, na.rm = TRUE),
                         brickdist_end = seq(0, max(brickdist_end, na.rm = TRUE), length.out = 100),
                         step_id_ = step_id_[1])])),
       by = .(snail, brick)]
 
 # Predict
-setup[!(bad) & n != 0, list_predict(mod, newdat), 
+setup[!(bad) & n != 0, h2B := list_predict(mod, h2Bdat),
       by = .(snail, brick)]
+setup[!(bad) & n != 0, h2A := list_predict(mod, h2Adat),
+      by = .(snail, brick)]
+
+setup[!(bad) & n != 0, h1Bedge := list(list(list_predict(mod, h1Bedgedat))),
+      by = .(snail, brick)]
+setup[!(bad) & n != 0, h1Aedge := list(list(list_predict(mod, h1Aedgedat))),
+      by = .(snail, brick)]
+setup[!(bad) & n != 0, h1Bbrick := list(list(list_predict(mod, h1Bbrickdat))),
+      by = .(snail, brick)]
+setup[!(bad) & n != 0, h1Abrick := list(list(list_predict(mod, h1Abrickdat))),
+      by = .(snail, brick)]
+
+
 
 p1 <- copy(setup)
 
