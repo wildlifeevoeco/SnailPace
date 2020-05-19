@@ -223,7 +223,17 @@ rss[, rssBbrick := dif_list(h1Bbrick, h2B),
 rss[, rssAbrick := dif_list(h1Abrick, h2A),
     by = .(snail, brick)]
 
-p1 <- copy(setup)
+rss.long <- rss[, .(rss = unlist(rssBedge), x = unlist(xBedge), var = 'edgedist', BA = 'before', model = 'p1'),
+    by = .(snail, brick)]
+rss.long <- rbind(rss.long, rss[, .(rss = unlist(rssAedge), x = unlist(xAedge), var = 'edgedist', BA = 'after', model = 'p1'),
+                                by = .(snail, brick)])
+rss.long <- rbind(rss.long, rss[, .(rss = unlist(rssBbrick), x = unlist(xBbrick), var = 'brickdist', BA = 'before', model = 'p1'),
+                                by = .(snail, brick)])
+rss.long <- rbind(rss.long, rss[, .(rss = unlist(rssAbrick), x = unlist(xAbrick), var = 'brickdist', BA = 'after', model = 'p1'),
+                                by = .(snail, brick)])
+
+  
+p1 <- copy(rss.long)
 
 #####
 
