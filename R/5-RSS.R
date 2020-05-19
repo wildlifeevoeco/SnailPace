@@ -186,14 +186,27 @@ setup[!(bad) & n != 0, h2A := list_predict(mod, h2Adat),
 
 setup[!(bad) & n != 0, h1Bedge := list(list(list_predict(mod, h1Bedgedat))),
       by = .(snail, brick)]
+setup[!(bad) & n != 0, xBedge := list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
+                                               .(edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100))])),
+      by = .(snail, brick)]
 setup[!(bad) & n != 0, h1Aedge := list(list(list_predict(mod, h1Aedgedat))),
+      by = .(snail, brick)]
+setup[!(bad) & n != 0, xAedge := list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
+                                               .(edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100))])),
       by = .(snail, brick)]
 setup[!(bad) & n != 0, h1Bbrick := list(list(list_predict(mod, h1Bbrickdat))),
       by = .(snail, brick)]
+setup[!(bad) & n != 0, xBbrick := list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
+                                               .(brickdist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100))])),
+      by = .(snail, brick)]
 setup[!(bad) & n != 0, h1Abrick := list(list(list_predict(mod, h1Abrickdat))),
       by = .(snail, brick)]
+setup[!(bad) & n != 0, xAbrick := list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
+                                                .(brickdist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100))])),
+      by = .(snail, brick)]
 
-rss <- setup[!(bad) & n > 0,.(snail, brick, h1Bedge, h1Aedge, h1Bbrick, h1Abrick, h2B, h2A)]
+rss <- setup[!(bad) & n > 0,.(snail, brick, h1Bedge, h1Aedge, h1Bbrick, h1Abrick, h2B, h2A, 
+                              xBedge, xAedge, xBbrick, xAbrick)]
 
 #' @param ls list column
 #' @param val constant value
@@ -203,6 +216,12 @@ dif_list <- function(ls, val) {
 
 rss[, rssBedge := dif_list(h1Bedge, h2B),
       by = .(snail, brick)]
+rss[, rssAedge := dif_list(h1Aedge, h2A),
+    by = .(snail, brick)]
+rss[, rssBbrick := dif_list(h1Bbrick, h2B),
+    by = .(snail, brick)]
+rss[, rssAbrick := dif_list(h1Abrick, h2A),
+    by = .(snail, brick)]
 
 p1 <- copy(setup)
 
