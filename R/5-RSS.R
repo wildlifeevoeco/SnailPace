@@ -195,7 +195,7 @@ setup[!(bad) & n != 0, h1Abrick := list(list(list_predict(mod, h1Abrickdat))),
 
 rss <- setup[!(bad) & n > 0,.(snail, brick, h1Bedge, h1Aedge, h1Bbrick, h1Abrick, h2B, h2A)]
 
-setup[!(bad) & n > 0, rssBedge := list(list(h1Bedge -h2B)),
+rss[, rssBedge := list(list(h1Bedge -h2B)),
       by = .(snail, brick)]
 
 p1 <- copy(setup)
