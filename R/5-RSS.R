@@ -19,6 +19,8 @@ dat$Precipitation <- as.factor(dat$Precipitation)
 # list of all snails
 snails <- unique(dat$snail)
 
+
+### FUNCTIONS ----
 # function for model list
 list_models <- function(resp, expl, DT) {
   list(list(clogit(reformulate(expl, resp),
@@ -28,6 +30,12 @@ list_models <- function(resp, expl, DT) {
 list_predict <- function(mod, ND) {
   mapply(function(m, n) predict(m, newdata = n, type = 'lp'),
          m = mod, n = ND)
+}
+
+#' @param ls list column
+#' @param val constant value
+dif_list <- function(ls, val) {
+  list(lapply(ls, function(l) l - val))
 }
 
 #### CORE ====
@@ -71,7 +79,14 @@ setup[!(bad), pred := list_predict(mod, newdat), by = snail]
 core <- copy(setup)
 
 
-## P1 
+# core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
+# core_models[,"nbricks"] <- ifelse(core_models$nbricks=="4", "0", core_models$nbricks)
+# core_models[,"Disturbance"] <- ifelse(core_models$nbricks=="0", "Control", "Disturbed")
+
+#saveRDS(coreOUT, '~/snails/Data/derived/CoreModel.Rds')
+
+
+### P1 ----
 # Setup model name, explanatory and response variables
 # Cross join individuals and bricks of interest
 setup <- CJ(
@@ -208,11 +223,6 @@ setup[!(bad) & n != 0, xAbrick := list(list(dat[ghostbricks == .BY[[2]] & snail 
 rss <- setup[!(bad) & n > 0,.(snail, brick, h1Bedge, h1Aedge, h1Bbrick, h1Abrick, h2B, h2A, 
                               xBedge, xAedge, xBbrick, xAbrick)]
 
-#' @param ls list column
-#' @param val constant value
-dif_list <- function(ls, val) {
-  list(lapply(ls, function(l) l - val))
-}
 
 rss[, rssBedge := dif_list(h1Bedge, h2B),
       by = .(snail, brick)]
@@ -235,112 +245,18 @@ rss.long <- rbind(rss.long, rss[, .(rss = unlist(rssAbrick), x = unlist(xAbrick)
   
 p1 <- copy(rss.long)
 
-#####
 
-
-
-
-dat[ghostbricks != 'C' & snail %in% p1Snails,
-    .(log_sl = mean(log_sl), cos_ta = mean(cos_ta), ToD_start = factor('day', levels = levels(ToD_start)),
-      Temperature = mean(Temperature), Stage = factor('Acc', levels = levels(Stage)), 
-      edgedist_end = mean(edgedist_end), brickdist_end = mean(brickdist_end)),
-    by = .(ghostbricks, snail)]
-
-
-
-
-# list of snails core runs for
-coreSnails <- snails[!(snails %in% c('P11a'))]
-
-# list of core models by snail
-core_models <- 
-  dat[ghostbricks %in% listbricks & snail %in% coreSnails,
-      .(mod = list_models(
-          'case_',
-          'log_sl + cos_ta + ToD_start:log_sl +
-                          Temperature:log_sl + Precipitation:log_sl +
-                          strata(step_id_)',
-          .SD),
-        newdat = list(data.table(
-          .SD[, .(log_sl = mean(log_sl),
-                  cos_ta = mean(cos_ta),
-                  ToD_start = factor('day', levels = levels(ToD_start)),
-                  Temperature = mean(Temperature),
-                  Precipitation = factor('no', levels = levels(Precipitation)),
-                  step_id_ = step_id_[1])]))
-        ), 
-      by = snail]
-
-core_models[, h2 := list_predict(mod, newdat), by = snail]
-
-
-
-
-core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
-core_models[,"nbricks"] <- ifelse(core_models$nbricks=="4", "0", core_models$nbricks)
-core_models[,"Disturbance"] <- ifelse(core_models$nbricks=="0", "Control", "Disturbed")
-
-#saveRDS(coreOUT, '~/snails/Data/derived/CoreModel.Rds')
-
-#### P1 ====
-
-# list of snails core runs for
-p1Snails <- snails[!(snails %in% c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "P23a", "P23b", "O11a", "O13a"))]
-
-
-# list of core models by snail
-p1_models <- 
-  dat[ghostbricks != 'C' & snail %in% p1Snails,
-      .(mod = list_models(
-        'case_',
-        'log_sl + cos_ta + ToD_start:log_sl +
-                          Temperature:log_sl + log(edgedist_end + 1):Stage +
-                    log(brickdist_end + 1):Stage + log_sl:Stage + cos_ta:Stage +
-                          strata(step_id_)',
-        .SD),
-        newdat = list(data.table(
-          .SD[, .(log_sl = mean(log_sl),
-                  cos_ta = mean(cos_ta),
-                  ToD_start = factor('day', levels = levels(ToD_start)),
-                  Temperature = mean(Temperature),
-                  Precipitation = factor('no', levels = levels(Precipitation)),
-                  step_id_ = unique(step_id_)[2])]))
-      ), 
-      by = snail]
-
-p1_models <- dat[ghostbricks != 'C' & snail %in% p1Snails,
-                   .(mod=list_models('case_', 'log_sl + cos_ta + ToD_start:log_sl +
-                          Temperature:log_sl + log(edgedist_end + 1):Stage +
-                    log(brickdist_end + 1):Stage + log_sl:Stage + cos_ta:Stage +
-                          strata(step_id_)', .SD)), by=.(ghostbricks, snail)]
-
-p1_h2 <- dat[ghostbricks != 'C' & snail %in% p1Snails,
-               .(log_sl = mean(log_sl), cos_ta = mean(cos_ta), ToD_start = factor('day', levels = levels(ToD_start)),
-                 Temperature = mean(Temperature), Stage = factor('Acc', levels = levels(Stage)), 
-                 edgedist_end = mean(edgedist_end), brickdist_end = mean(brickdist_end)),
-               by = .(ghostbricks, snail)]
-
-p1_edge_h1 <- dat[ghostbricks != 'C' & snail %in% p1Snails,
-             .(log_sl = mean(log_sl), cos_ta = mean(cos_ta), ToD_start = factor('day', levels = levels(ToD_start)),
-               Temperature = mean(Temperature), Stage = factor('Acc', levels = levels(Stage)), 
-               edgedist_end = seq(0, max(edgedist_end, na.rm = T), length.out = 100), brickdist_end = mean(brickdist_end)),
-             by = .(ghostbricks, snail)]
-
-p1_models[,h2:=list_predict(mod = mod, ND = p1_h2)]
-
-
-
-P1.g1.Out[,"nbricks"] <- 1
-P1.g2.Out[,"nbricks"] <- 2
-P1.g3.Out[,"nbricks"] <- 3
-P1.treats.Out[,"nbricks"] <- substr(P1.treats.Out$snail, 3, 3)
-
-P1.g1.Out[,"Disturbance"] <- "Control"
-P1.g2.Out[,"Disturbance"] <- "Control"
-P1.g3.Out[,"Disturbance"] <- "Control"
-P1.treats.Out[,"Disturbance"] <- "Disturbed"
-
-P1ModelOut <- rbind(P1.g1.Out, P1.g2.Out, P1.g3.Out, P1.treats.Out)
+# P1.g1.Out[,"nbricks"] <- 1
+# P1.g2.Out[,"nbricks"] <- 2
+# P1.g3.Out[,"nbricks"] <- 3
+# P1.treats.Out[,"nbricks"] <- substr(P1.treats.Out$snail, 3, 3)
+# 
+# P1.g1.Out[,"Disturbance"] <- "Control"
+# P1.g2.Out[,"Disturbance"] <- "Control"
+# P1.g3.Out[,"Disturbance"] <- "Control"
+# P1.treats.Out[,"Disturbance"] <- "Disturbed"
+# 
+# P1ModelOut <- rbind(P1.g1.Out, P1.g2.Out, P1.g3.Out, P1.treats.Out)
 
 #saveRDS(P1ModelOut, '~/snails/Data/derived/P1Model.Rds')
 
