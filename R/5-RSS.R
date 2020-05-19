@@ -201,7 +201,7 @@ dif_list <- function(ls, val) {
   list(lapply(ls, function(l) l - val))
 }
 
-rss[, rssBedge := list(lapply(h1Bedge, function(x) data.table(xmin = x - h2B, h2B, h1Bedge = x)[1:5])),#dif_list(h1Bedge, h2B),
+rss[, rssBedge := dif_list(h1Bedge, h2B),
       by = .(snail, brick)]
 
 p1 <- copy(setup)
