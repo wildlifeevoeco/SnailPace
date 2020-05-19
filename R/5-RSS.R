@@ -195,11 +195,13 @@ setup[!(bad) & n != 0, h1Abrick := list(list(list_predict(mod, h1Abrickdat))),
 
 rss <- setup[!(bad) & n > 0,.(snail, brick, h1Bedge, h1Aedge, h1Bbrick, h1Abrick, h2B, h2A)]
 
-dif_list <- function(x, y) {
-  mapply(function(x, y) x - y)
+#' @param ls list column
+#' @param val constant value
+dif_list <- function(ls, val) {
+  list(lapply(ls, function(l) l - val))
 }
 
-rss[, dif_list(h1Bedge, h2B),
+rss[, rssBedge := list(lapply(h1Bedge, function(x) data.table(xmin = x - h2B, h2B, h1Bedge = x)[1:5])),#dif_list(h1Bedge, h2B),
       by = .(snail, brick)]
 
 p1 <- copy(setup)
