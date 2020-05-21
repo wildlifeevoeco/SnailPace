@@ -11,6 +11,7 @@ lapply(libs, require, character.only = TRUE)
 raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 dat <- readRDS('Data/derived/ssa30ghosts.Rds')
+moveParams <- readRDS('Data/derived/moveParams.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 dat$ToD_start <- as.factor(dat$ToD_start)
@@ -37,6 +38,11 @@ list_predict <- function(mod, ND) {
 dif_list <- function(ls, val) {
   list(lapply(ls, function(l) l - val))
 }
+
+calc_coef <- function(model) {
+  list(lapply(model, coef))
+}
+
 
 #### CORE ====
 # Setup model name, explanatory and response variables
@@ -113,6 +119,13 @@ setup[!(bad) & n != 0, mod :=
         list_models(response, explanatory,
                     dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
       by = .(snail, brick)]
+
+setup[!(bad) & n != 0, coef := calc_coef(mod),
+      by = .(snail, brick)]
+
+setup[!(bad) & n != 0, variable := names(calc_coef(mod)),
+      by = .(snail, brick)]
+
 
 # Setup new data
 # h2 before
@@ -251,8 +264,10 @@ rss.long <- rbind(rss.long, rss[, .(rss = unlist(rssAbrick), x = unlist(xAbrick)
                                 by = .(snail, brick)])
 
   
-p1 <- copy(rss.long)
+p1.rss <- copy(rss.long)
 
+
+move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(names(coef)), model = 'p1'), by = .(snail, brick)]
 
 # P1.g1.Out[,"nbricks"] <- 1
 # P1.g2.Out[,"nbricks"] <- 2
@@ -373,7 +388,7 @@ p1.brick.after <- ggplot(data=p1[var == 'brickdist'& BA=='after'& brick != 'g1' 
 p1.brick.before|p1.brick.after
 
 
-## p2 graphs
+### p2 graphs ---
 
 p2.edge.before <- ggplot(data=p1[var == 'edgedist'& BA=='before'], 
                          aes(x, rss, colour=brick)) +
