@@ -43,6 +43,10 @@ calc_coef <- function(model) {
   list(lapply(model, coef))
 }
 
+calc_coef_names <- function(model) {
+  list(lapply(model, function(m) names(coef(m))))
+}
+
 
 #### CORE ====
 # Setup model name, explanatory and response variables
@@ -120,18 +124,12 @@ setup[!(bad) & n != 0, mod :=
                     dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
       by = .(snail, brick)]
 
-calc_coef <- function(model) {
-  list(lapply(model, coef))
-}
 
 setup[!(bad) & n != 0, coef := calc_coef(mod),
       by = .(snail, brick)]
 
-calc_coef_names <- function(model) {
-  list(lapply(model, function(m) names(coef(m))))
-}
 
-setup[!(bad) & n != 0, variable := calc_coef_names(mod),
+setup[!(bad) & n != 0, var := calc_coef_names(mod),
       by = .(snail, brick)]
 
 
@@ -275,7 +273,10 @@ rss.long <- rbind(rss.long, rss[, .(rss = unlist(rssAbrick), x = unlist(xAbrick)
 p1.rss <- copy(rss.long)
 
 
-move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(names(coef)), model = 'p1'), by = .(snail, brick)]
+move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = 'p1'), by = .(snail, brick)]
+move <- merge(move, moveParams, by = 'snail', all.x = T)
+
+p1.move <- copy(move)
 
 # P1.g1.Out[,"nbricks"] <- 1
 # P1.g2.Out[,"nbricks"] <- 2
