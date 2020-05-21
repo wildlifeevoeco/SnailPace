@@ -5,8 +5,8 @@ libs <- c('data.table', 'dplyr', 'amt', 'raster', 'tidyr', 'ggplot2') # you migh
 lapply(libs, require, character.only = TRUE)
 
 ### Input data ----
-raw <- '~/snails/Data/raw/' # folder I store raw data here
-derived <- '~/snails/Data/derived/' #this is the folder where I'll put my new data after I extract the covariates, as we'll be doing here
+raw <- 'Data/raw/' # folder I store raw data here
+derived <- 'Data/derived/' #this is the folder where I'll put my new data after I extract the covariates, as we'll be doing here
 
 ### data ----
 dat <- fread(paste0(raw, 'SnailDataUTM.csv')) #my data
@@ -23,6 +23,9 @@ crs22 <- sp::CRS("+init=epsg:32621")
 # selecting just the parts of the data that I need, you'll probably need to include your other things like temp and precip
 DT.prep <- dat %>% dplyr::select(x = "xUTM", y = "yUTM", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
+
+
+
 
 # nesting data by id
 dat_all <- DT.prep %>% group_by(snail) %>% nest()
@@ -87,6 +90,48 @@ badsnails <- t2[, .N, by = .(snail, t)][N > 1]
 DT.prep.good <- DT.prep.30[-c(4379, 4811, 5243, 5675, 6107, 6539, 6971, 7403, 7835, 8267, 8699, 9131),]
 
 
+# getting SL and TA distributions
+SLdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
+  #print(ID)
+  #create track from dataset
+  trk <- track(x.col, y.col, date.col, ID, crs) %>%
+    #function turns locs into steps
+    steps()
+  #remove any steps that span more than 2hr
+  trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='mins')
+  trk <- subset(trk, trk$dt_ > 29.9 & trk$dt_ < 30.1, drop = T)
+  #generate random steps
+  trk %>%
+    random_steps() %>%
+    sl_distr_params()
+}
+
+TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
+  #print(ID)
+  #create track from dataset
+  trk <- track(x.col, y.col, date.col, ID, crs) %>%
+    #function turns locs into steps
+    steps()
+  #remove any steps that span more than 2hr
+  trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='mins')
+  trk <- subset(trk, trk$dt_ > 29.9 & trk$dt_ < 30.1, drop = T)
+  #generate random steps
+  trk %>%
+    random_steps() %>%
+    ta_distr_params()
+}
+
+#run function by ID
+slParams <- DT.prep.good[, SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
+                                sl_distr = "gamma", ta_distr = "vonmises"),
+                  by = snail]
+
+taParams <- DT.prep.good[, TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
+                                   sl_distr = "gamma", ta_distr = "vonmises"),
+                         by = snail]
+
+Params <- merge(slParams, taParams[,.(snail,kappa)], by = 'snail')
+
 # nesting data by id
 dat_all.30 <- DT.prep.good %>% group_by(snail) %>% nest()
 
@@ -130,4 +175,6 @@ merged.snails <-merge(ssa.30.unnest, DT.prep.good,
 
 
 saveRDS(merged.snails, '~/snails/Data/derived/ssa30.Rds')
+
+saveRDS(Params, 'Data/derived/moveParams.Rds')
 
