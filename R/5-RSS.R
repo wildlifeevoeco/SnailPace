@@ -120,10 +120,18 @@ setup[!(bad) & n != 0, mod :=
                     dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
       by = .(snail, brick)]
 
+calc_coef <- function(model) {
+  list(lapply(model, coef))
+}
+
 setup[!(bad) & n != 0, coef := calc_coef(mod),
       by = .(snail, brick)]
 
-setup[!(bad) & n != 0, variable := names(calc_coef(mod)),
+calc_coef_names <- function(model) {
+  list(lapply(model, function(m) names(coef(m))))
+}
+
+setup[!(bad) & n != 0, variable := calc_coef_names(mod),
       by = .(snail, brick)]
 
 
