@@ -4,7 +4,7 @@
 
 ### Packages ----
 libs <- c('data.table', 'dplyr', 'amt', 'lubridate', 
-          'tidyr', 'ggplot2','survival','forcats')
+          'tidyr', 'ggplot2','survival','forcats', 'patchwork')
 lapply(libs, require, character.only = TRUE)
 
 ### Input data ----
@@ -104,7 +104,7 @@ p1bad <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b",
 setup[model == 'p1', bad := snail %in% p1bad]
 
 
-# Run only on *good* individual and those with > 0 rows
+# Run only on *good* individuals and those with > 0 rows
 setup[!(bad), n := 
       dat[ghostbricks == .BY[[2]] & snail == .BY[[1]], .N],
       by = .(snail, brick)]
@@ -278,7 +278,7 @@ p1.edge.before <- ggplot(data=p1[var == 'edgedist'& BA=='before' & brick != 'g1'
   geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1[var == 'edgedist'& BA=='before'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  # geom_smooth(size = 1.5, aes(fill = disturbance), method = 'loess') +
+ geom_smooth(size = 1.5, aes(fill = disturbance), method = 'glm', se = F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -301,7 +301,7 @@ p1.edge.after <- ggplot(data=p1[var == 'edgedist'& BA=='after'& brick != 'g1' & 
                         aes(x, rss, colour=disturbance)) +
   geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  geom_smooth(size = 1.5, aes(fill = disturbance), method = 'loess') +
+  geom_smooth(size = 1.5, aes(fill = disturbance), method = 'glm', se = F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -327,7 +327,7 @@ p1.brick.before <- ggplot(data=p1[var == 'brickdist'& BA=='before' & brick != 'g
                          aes(x, rss, colour=disturbance)) +
   geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  geom_smooth(size = 1.5, aes(fill = disturbance), method = 'loess') +
+  geom_smooth(size = 1.5, aes(fill = disturbance), method = 'glm', se = F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -349,9 +349,9 @@ p1.brick.before <- ggplot(data=p1[var == 'brickdist'& BA=='before' & brick != 'g
 p1.brick.after <- ggplot(data=p1[var == 'brickdist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
                         aes(x, rss, colour=disturbance)) +
   geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1[var == 'brickdist'& BA=='after'],aes(step,mean.rss, group = disturbance), size = 1) +
+  #geom_line(data=p1[var == 'brickdist'& BA=='after'],aes(step,mean.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  # geom_smooth(size = 1.5, aes(fill = disturbance), method = 'loess') +
+   geom_smooth(size = 1.5, aes(fill = disturbance), method = 'glm', se = F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -378,7 +378,7 @@ p1.brick.before|p1.brick.after
 p2.edge.before <- ggplot(data=p1[var == 'edgedist'& BA=='before'], 
                          aes(x, rss, colour=brick)) +
   geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1[var == 'edgedist'& BA=='before'],aes(step,mean.rss, group = brick), size = 1) +
+  geom_line(data=p1[var == 'edgedist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
   # geom_smooth(size = 1.5, aes(fill = brick), method = 'loess') +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
@@ -402,7 +402,7 @@ p2.edge.before <- ggplot(data=p1[var == 'edgedist'& BA=='before'],
 p2.edge.after <- ggplot(data=p1[var == 'edgedist'& BA=='after'], 
                         aes(x, rss, colour=brick)) +
   geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1[var == 'edgedist'& BA=='after'],aes(step,mean.rss, group = brick), size = 1) +
+  geom_line(data=p1[var == 'edgedist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
   # geom_smooth(size = 1.5, aes(fill = brick), method = 'loess') +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
@@ -429,7 +429,7 @@ p2.edge.before|p2.edge.after
 p2.brick.before <- ggplot(data=p1[var == 'brickdist'& BA=='before'], 
                           aes(x, rss, colour=brick)) +
   geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1[var == 'brickdist'& BA=='before'],aes(step,mean.rss, group = brick), size = 1) +
+  geom_line(data=p1[var == 'brickdist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
   #geom_smooth(size = 1.5, aes(fill = brick), method = 'loess') +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
@@ -453,7 +453,7 @@ p2.brick.before <- ggplot(data=p1[var == 'brickdist'& BA=='before'],
 p2.brick.after <- ggplot(data=p1[var == 'brickdist'& BA=='after'], 
                          aes(x, rss, colour=brick)) +
   geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1[var == 'brickdist'& BA=='after'],aes(step,mean.rss, group = brick), size = 1) +
+  geom_line(data=p1[var == 'brickdist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
   # geom_smooth(size = 1.5, aes(fill = brick), method = 'loess') +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
