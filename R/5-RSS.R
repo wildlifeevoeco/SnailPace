@@ -729,4 +729,7 @@ speed.brick.before|speed.brick.after
 direction.edge.before|direction.edge.after
 direction.brick.before|direction.brick.after
 
+dat[,.(min = min(sl_, na.rm = T), max = max(sl_, na.rm = T), mean = mean(sl_, na.rm = T)), by = .(snail)]
+dat[,.(min = min(ta_, na.rm = T), max = max(ta_, na.rm = T), mean = mean(ta_, na.rm = T)), by = .(snail)]
+
 
