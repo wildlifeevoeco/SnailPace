@@ -396,6 +396,8 @@ p1.rss.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'& brick 
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
+#### P1 graphs ----
+p1.rss.edge.before|p1.rss.edge.after
 p1.rss.brick.before|p1.rss.brick.after
 
 
@@ -500,6 +502,8 @@ p2.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'],
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
+#### P2 graphs ####
+p2.edge.before|p2.edge.after
 p2.brick.before|p2.brick.after
 
 #### P3 and P4 ====
@@ -574,18 +578,18 @@ p3.wide <- setDT(merge(p3.wide, moveParams, by = 'snail', all.x = T))
 dist <- seq(0,32,.2)
 
 
-p3.wide[!(is.na(logsl)), ed.spd.before:= list(list((shape+logsl+(logsl_before_edgedist*dist))*(scale))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), ed.spd.after:= list(list((shape+logsl+(logsl_after_edgedist*dist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.spd.before:= list(list((shape+logsl_before+(logsl_before_edgedist*dist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.spd.after:= list(list((shape+logsl_after+(logsl_after_edgedist*dist))*(scale))), by=.(snail, brick)]
 
-p3.wide[!(is.na(logsl)), bd.spd.before:= list(list((shape+logsl+(logsl_before_brickdist*dist))*(scale))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bd.spd.after:= list(list((shape+logsl+(logsl_after_brickdist*dist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.spd.before:= list(list((shape+logsl_before+(logsl_before_brickdist*dist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.spd.after:= list(list((shape+logsl_after+(logsl_after_brickdist*dist))*(scale))), by=.(snail, brick)]
 
 
-p3.wide[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa + (costa_before_edgedist*dist)))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), ed.dir.after:= list(list((kappa + costa + (costa_after_edgedist*dist)))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*dist)))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.dir.after:= list(list((kappa + costa_after + (costa_after_edgedist*dist)))), by=.(snail, brick)]
 
-p3.wide[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa + (costa_before_brickdist*dist)))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa + (costa_after_brickdist*dist)))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa_before + (costa_before_brickdist*dist)))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa_after + (costa_after_brickdist*dist)))), by=.(snail, brick)]
 
 
 p3.wide[!(is.na(logsl)), dist:= list(list(dist <- seq(0,32,.2))), by=.(snail, brick)]
@@ -593,16 +597,17 @@ p3.wide[!(is.na(logsl)), dist:= list(list(dist <- seq(0,32,.2))), by=.(snail, br
 speed <- p3.wide[!(is.na(logsl)),.(dist = unlist(dist), ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
                                    bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
                                    disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
+speed[,'snails2'] <- paste(speed$snail, speed$brick, sep = '.')
 
 direction <- p3.wide[!(is.na(logsl)),.(dist = unlist(dist), ed.dir.before = unlist(ed.dir.before), ed.dir.after = unlist(ed.dir.after),
                                    bd.dir.before = unlist(bd.dir.before), bd.dir.after = unlist(bd.dir.after),
                                    disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
+direction[,'snails2'] <- paste(direction$snail, direction$brick, sep = '.')
 
-
-speed.edge.before <- ggplot(data=speed[brick != 'g1' & brick != 'g3'], aes(x=dist, y=ed.spd.before, color = disturbance)) + 
-  geom_line(aes(group=snail), size=1, alpha=.5) +
+speed.edge.before <- ggplot(data=speed, aes(x=dist, y=ed.spd.before, color = brick)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = FALSE)+
+ # geom_smooth(size = 2, se = FALSE)+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -613,26 +618,26 @@ speed.edge.before <- ggplot(data=speed[brick != 'g1' & brick != 'g3'], aes(x=dis
   xlab("Distance from edge (cm)") + ylab("Speed (cm per 30 mins)")
 speed.edge.before 
 
-speed.edge.after <- ggplot(data=speed[brick != 'g1' & brick != 'g3'], aes(x=dist, y=ed.spd.after, color = disturbance)) + 
-  geom_line(aes(group=snail), size=1, alpha=.5) +
+speed.edge.after <- ggplot(data=speed, aes(x=dist, y=ed.spd.after, color = brick)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = FALSE)+
+ # geom_smooth(size = 2, se = FALSE)+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) + 
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("a) after ") +
+  ggtitle("b) after ") +
   xlab("Distance from edge (cm)") + ylab("Speed (cm per 30 mins)")
 speed.edge.after 
 
 
 
-speed.brick.before <- ggplot(data=speed[brick != 'g1' & brick != 'g3'], aes(x=dist, y=bd.spd.before, color = disturbance)) + 
-  geom_line(aes(group=snail), size=1, alpha=.5) +
+speed.brick.before <- ggplot(data=speed, aes(x=dist, y=bd.spd.before, color = brick)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = FALSE)+
+ # geom_smooth(size = 2, se = FALSE)+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -643,26 +648,26 @@ speed.brick.before <- ggplot(data=speed[brick != 'g1' & brick != 'g3'], aes(x=di
   xlab("Distance from brick (cm)") + ylab("Speed (cm per 30 mins)")
 speed.brick.before 
 
-speed.brick.after <- ggplot(data=speed[brick != 'g1' & brick != 'g3'], aes(x=dist, y=bd.spd.after, color = disturbance)) + 
-  geom_line(aes(group=snail), size=1, alpha=.5) +
+speed.brick.after <- ggplot(data=speed, aes(x=dist, y=bd.spd.after, color = brick)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = FALSE)+
+  #geom_smooth(size = 2, se = FALSE)+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) + 
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("a) after ") +
+  ggtitle("b) after ") +
   xlab("Distance from brick (cm)") + ylab("Speed (cm per 30 mins)")
 speed.brick.after 
 
 
 
-direction.edge.before <- ggplot(data=direction[brick != 'g1' & brick != 'g3'], aes(x=dist, y=ed.dir.before, color = disturbance)) + 
-  geom_line(aes(group=snail), size=1, alpha=.5) +
+direction.edge.before <- ggplot(data=direction, aes(x=dist, y=ed.dir.before, color = brick)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = FALSE)+
+  #geom_smooth(size = 2, se = FALSE)+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -673,26 +678,26 @@ direction.edge.before <- ggplot(data=direction[brick != 'g1' & brick != 'g3'], a
   xlab("Distance from edge (cm)") + ylab("direction")
 direction.edge.before 
 
-direction.edge.after <- ggplot(data=direction[brick != 'g1' & brick != 'g3'], aes(x=dist, y=ed.dir.after, color = disturbance)) + 
-  geom_line(aes(group=snail), size=1, alpha=.5) +
+direction.edge.after <- ggplot(data=direction, aes(x=dist, y=ed.dir.after, color = brick)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = FALSE)+
+  #geom_smooth(size = 2, se = FALSE)+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) + 
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("a) after ") +
+  ggtitle("b) after ") +
   xlab("Distance from edge (cm)") + ylab("direction")
 direction.edge.after 
 
 
 
-direction.brick.before <- ggplot(data=direction[brick != 'g1' & brick != 'g3'], aes(x=dist, y=bd.dir.before, color = disturbance)) + 
-  geom_line(aes(group=snail), size=1, alpha=.5) +
+direction.brick.before <- ggplot(data=direction, aes(x=dist, y=bd.dir.before, color = brick)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = FALSE)+
+ # geom_smooth(size = 2, se = FALSE)+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -703,17 +708,17 @@ direction.brick.before <- ggplot(data=direction[brick != 'g1' & brick != 'g3'], 
   xlab("Distance from brick (cm)") + ylab("direction")
 direction.brick.before 
 
-direction.brick.after <- ggplot(data=direction[brick != 'g1' & brick != 'g3'], aes(x=dist, y=bd.dir.after, color = disturbance)) + 
-  geom_line(aes(group=snail), size=1, alpha=.5) +
+direction.brick.after <- ggplot(data=direction, aes(x=dist, y=bd.dir.after, color = brick)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = FALSE)+
+  #geom_smooth(size = 2, se = FALSE)+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) + 
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("a) after ") +
+  ggtitle("b) after ") +
   xlab("Distance from brick (cm)") + ylab("direction")
 direction.brick.after 
 
