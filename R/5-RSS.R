@@ -406,9 +406,9 @@ p1.rss.brick.before|p1.rss.brick.after
 p2.edge.before <- ggplot(data=p1.rss[var == 'edgedist'& BA=='before'], 
                          aes(x, rss, colour=brick)) +
   geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
+  #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  # geom_smooth(size = 1.5, aes(fill = brick), method = 'loess') +
+   geom_smooth(size = 1.5, aes(fill = brick), se =F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -430,9 +430,9 @@ p2.edge.before <- ggplot(data=p1.rss[var == 'edgedist'& BA=='before'],
 p2.edge.after <- ggplot(data=p1.rss[var == 'edgedist'& BA=='after'], 
                         aes(x, rss, colour=brick)) +
   geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1.rss[var == 'edgedist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
+  #geom_line(data=p1.rss[var == 'edgedist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  # geom_smooth(size = 1.5, aes(fill = brick), method = 'loess') +
+   geom_smooth(size = 1.5, aes(fill = brick), se = F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -457,9 +457,9 @@ p2.edge.before|p2.edge.after
 p2.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before'], 
                           aes(x, rss, colour=brick)) +
   geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1.rss[var == 'brickdist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
+  #geom_line(data=p1.rss[var == 'brickdist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  #geom_smooth(size = 1.5, aes(fill = brick), method = 'loess') +
+  geom_smooth(size = 1.5, aes(fill = brick), se =F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -474,16 +474,16 @@ p2.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before'],
         axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
   ylab("logRSS") + xlab("Distance from brick (cm)") +
   ggtitle("before")  +
-  ylim(-100,50) +
+ # ylim(-100,50) +
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
 p2.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'], 
                          aes(x, rss, colour=brick)) +
   geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
+  #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  # geom_smooth(size = 1.5, aes(fill = brick), method = 'loess') +
+   geom_smooth(size = 1.5, aes(fill = brick), se = F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -498,7 +498,7 @@ p2.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'],
         axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
   ylab("logRSS") + xlab("Distance from brick (cm)") +
   ggtitle("after")  +
-  ylim(-100,50) +
+  #ylim(-100,50) +
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
