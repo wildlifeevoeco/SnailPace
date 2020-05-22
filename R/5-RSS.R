@@ -47,6 +47,14 @@ calc_coef_names <- function(model) {
   list(lapply(model, function(m) names(coef(m))))
 }
 
+calc_aic <- function(model) {
+  lapply(model, AIC)
+}
+
+calc_loglik <- function(model) {
+  lapply(model, logLik)
+}
+
 
 #### CORE ====
 # Setup model name, explanatory and response variables
