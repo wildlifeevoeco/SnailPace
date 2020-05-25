@@ -47,9 +47,25 @@ calc_coef_names <- function(model) {
   list(lapply(model, function(m) names(coef(m))))
 }
 
+mod_list <- function(mod, treat) {
+  mapply(function(m, t) paste(m,t, sep = '.'),
+         m = mod, t = treat)
+}
+
+
 calc_aic <- function(model) {
   lapply(model, AIC)
 }
+
+calc_aictab <- function(candMod, modNames) {
+  mapply(function(m, n) aictab(m, n),
+         m = candMod, n = modNames)
+}
+
+calc_evidence <- function(aictab) {
+  list(lapply(aictab, evidence))
+}
+
 
 calc_loglik <- function(model) {
   lapply(model, logLik)
@@ -80,21 +96,23 @@ setup[!(bad), mod :=
                           snail == .BY[[1]]]),
       by = snail]
 
-# Setup new data
-setup[!(bad) & model == 'core', newdat := 
-        list(list(dat[ghostbricks %in% unlist(lsbricks) & snail == .BY[[1]],
-                      .(log_sl = mean(log_sl),
-                        cos_ta = mean(cos_ta),
-                        ToD_start = factor('day', levels = levels(ToD_start)),
-                        Temperature = mean(Temperature),
-                        Precipitation = factor('no', levels = levels(Precipitation)),
-                        step_id_ = step_id_[1])])),
-      by = snail]
- 
+# coefs 
 
-# Predict
-setup[!(bad), pred := list_predict(mod, newdat), by = snail]
-core <- copy(setup)
+setup[!(bad), coef := calc_coef(mod),
+      by = .(snail)]
+
+
+setup[!(bad), var := calc_coef_names(mod),
+      by = .(snail)]
+
+
+move <- setup[!(bad),.(coef = unlist(coef), var = unlist(var), model), by = .(snail)]
+move <- merge(move, moveParams, by = 'snail', all.x = T)
+
+core.move <- copy(move)
+
+
+core.mods <- setup[!(bad),.(mod=list(mod), model), by = .(snail)]
 
 
 # core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
@@ -140,6 +158,7 @@ setup[!(bad) & n != 0, coef := calc_coef(mod),
 
 setup[!(bad) & n != 0, var := calc_coef_names(mod),
       by = .(snail, brick)]
+
 
 
 # Setup new data
@@ -248,6 +267,7 @@ setup[!(bad) & n != 0, xAbrick := list(list(dat[ghostbricks == .BY[[2]] & snail 
                                                 .(brickdist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100))])),
       by = .(snail, brick)]
 
+
 rss <- setup[!(bad) & n > 0,.(snail, brick, h1Bedge, h1Aedge, h1Bbrick, h1Abrick, h2B, h2A, 
                               xBedge, xAedge, xBbrick, xAbrick)]
 
@@ -286,6 +306,8 @@ move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = '
 move <- merge(move, moveParams, by = 'snail', all.x = T)
 
 p1.move <- copy(move)
+
+p1.mods <- setup[!(bad) & n > 0,.(snail, mod, model = paste(model, brick, sep = '.'))]
 
 # P1.g1.Out[,"nbricks"] <- 1
 # P1.g2.Out[,"nbricks"] <- 2
