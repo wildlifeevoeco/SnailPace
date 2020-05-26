@@ -77,6 +77,7 @@ calc_loglik <- function(model) {
 setup <- data.table(
   model = 'core',
   snail = unique(dat$snail),
+  brick = c("1", "2", "3", "g1", "g2", "g3"),
   response = 'case_',
   explanatory = 'log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + Precipitation:log_sl + strata(step_id_)'
 )
@@ -85,16 +86,25 @@ setup <- data.table(
 corebad <- 'P11a'
 setup[model == 'core', bad := snail %in% corebad]
 
+# Run only on *good* individuals and those with > 0 rows
+setup[!(bad), n := 
+        dat[ghostbricks == .BY[[2]] & snail == .BY[[1]], .N],
+      by = .(snail, brick)]
 
-# Which bricks do we want to keep?
-setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
-
-# Run only on *good* individual
-setup[!(bad), mod :=
+setup[!(bad) & n != 0, mod := 
         list_models(response, explanatory,
-                    dat[ghostbricks %in% unlist(lsbricks) &
-                          snail == .BY[[1]]]),
-      by = snail]
+                    dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
+      by = .(snail, brick)]
+
+# # Which bricks do we want to keep?
+# setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
+# 
+# # Run only on *good* individual
+# setup[!(bad), mod :=
+#         list_models(response, explanatory,
+#                     dat[ghostbricks %in% unlist(lsbricks) &
+#                           snail == .BY[[1]]]),
+#       by = snail]
 
 # coefs 
 
@@ -162,81 +172,88 @@ setup[!(bad) & n != 0, var := calc_coef_names(mod),
 
 
 # Setup new data
+meansl <- mean(dat$log_sl, na.rm = T)
+meanta <- mean(dat$cos_ta, na.rm = T)
+meantemp = mean(dat$Temperature, na.rm = T)
+meanedge <- mean(dat$edgedist_end, na.rm = T)
+maxedge <- max(dat$edgedist_end, na.rm = T)
+meanbrick <- mean(dat$brickdist_end, na.rm = T)
+maxbrick <- 65
 # h2 before
 setup[!(bad) & n != 0, h2Bdat :=
         list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                      .(log_sl = mean(log_sl),
-                        cos_ta = mean(cos_ta),
-                        ToD_start = factor('day', levels = levels(ToD_start)),
-                        Temperature = mean(Temperature),
+                      .(log_sl = meansl,
+                         cos_ta = meanta,
+                         ToD_start = factor('day', levels = levels(ToD_start)),
+                         Temperature = meantemp,
                         Stage = factor('B', levels = levels(Stage)),
-                        edgedist_end = mean(edgedist_end, na.rm = TRUE),
-                        brickdist_end = mean(brickdist_end, na.rm = TRUE),
+                        edgedist_end = meanedge,
+                        brickdist_end = meanbrick,
                         step_id_ = step_id_[1])])),
       by = .(snail, brick)]
 
 # h2 After
 setup[!(bad) & n != 0, h2Adat :=
         list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                      .(log_sl = mean(log_sl),
-                        cos_ta = mean(cos_ta),
-                        ToD_start = factor('day', levels = levels(ToD_start)),
-                        Temperature = mean(Temperature),
-                        Stage = factor('A', levels = levels(Stage)),
-                        edgedist_end = mean(edgedist_end, na.rm = TRUE),
-                        brickdist_end = mean(brickdist_end, na.rm = TRUE),
+                      .(log_sl = meansl,
+                         cos_ta = meanta,
+                         ToD_start = factor('day', levels = levels(ToD_start)),
+                         Temperature = meantemp,
+                         Stage = factor('A', levels = levels(Stage)),
+                         edgedist_end = meanedge,
+                         brickdist_end = meanbrick,
                         step_id_ = step_id_[1])])),
       by = .(snail, brick)]
 
 # h1 before edge
 setup[!(bad) & n != 0, h1Bedgedat :=
         list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                      .(log_sl = mean(log_sl),
-                        cos_ta = mean(cos_ta),
+                      .(log_sl = meansl,
+                        cos_ta = meanta,
                         ToD_start = factor('day', levels = levels(ToD_start)),
-                        Temperature = mean(Temperature),
+                        Temperature = meantemp,
                         Stage = factor('B', levels = levels(Stage)),
-                        edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100),
-                        brickdist_end = mean(brickdist_end, na.rm = TRUE),
+                        edgedist_end = seq(0, maxedge, length.out = 100),
+                        brickdist_end = meanbrick,
                         step_id_ = step_id_[1])])),
       by = .(snail, brick)]
 
 # h1 after edge
 setup[!(bad) & n != 0, h1Aedgedat :=
         list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                      .(log_sl = mean(log_sl),
-                        cos_ta = mean(cos_ta),
-                        ToD_start = factor('day', levels = levels(ToD_start)),
-                        Temperature = mean(Temperature),
+                      .(log_sl = meansl,
+                         cos_ta = meanta,
+                         ToD_start = factor('day', levels = levels(ToD_start)),
+                         Temperature = meantemp,
                         Stage = factor('A', levels = levels(Stage)),
-                        edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100),
-                        brickdist_end = mean(brickdist_end, na.rm = TRUE),
+                        edgedist_end = seq(0, maxedge, length.out = 100),
+                        brickdist_end = meanbrick,
                         step_id_ = step_id_[1])])),
       by = .(snail, brick)]
 
 # h1 before brick
 setup[!(bad) & n != 0, h1Bbrickdat :=
         list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                      .(log_sl = mean(log_sl),
-                        cos_ta = mean(cos_ta),
-                        ToD_start = factor('day', levels = levels(ToD_start)),
-                        Temperature = mean(Temperature),
+                      .(log_sl = meansl,
+                         cos_ta = meanta,
+                         ToD_start = factor('day', levels = levels(ToD_start)),
+                         Temperature = meantemp,
                         Stage = factor('B', levels = levels(Stage)),
-                        edgedist_end = mean(edgedist_end, na.rm = TRUE),
-                        brickdist_end = seq(0, max(brickdist_end, na.rm = TRUE), length.out = 100),
+                        edgedist_end = meanedge,
+                        brickdist_end = seq(0, maxbrick, length.out = 100),
                         step_id_ = step_id_[1])])),
       by = .(snail, brick)]
 
-# h1 after edge
+# h1 after brick
 setup[!(bad) & n != 0, h1Abrickdat :=
         list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                      .(log_sl = mean(log_sl),
-                        cos_ta = mean(cos_ta),
-                        ToD_start = factor('day', levels = levels(ToD_start)),
-                        Temperature = mean(Temperature),
+                      .(log_sl = meansl,
+                         cos_ta = meanta,
+                         ToD_start = factor('day', levels = levels(ToD_start)),
+                         Temperature = meantemp,
                         Stage = factor('A', levels = levels(Stage)),
-                        edgedist_end = mean(edgedist_end, na.rm = TRUE),
-                        brickdist_end = seq(0, max(brickdist_end, na.rm = TRUE), length.out = 100),
+                        edgedist_end = meanedge,
+                        brickdist_end = seq(0, maxbrick, length.out = 100),
                         step_id_ = step_id_[1])])),
       by = .(snail, brick)]
 
@@ -249,22 +266,22 @@ setup[!(bad) & n != 0, h2A := list_predict(mod, h2Adat),
 setup[!(bad) & n != 0, h1Bedge := list(list(list_predict(mod, h1Bedgedat))),
       by = .(snail, brick)]
 setup[!(bad) & n != 0, xBedge := list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                                               .(edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100))])),
+                                               .(edgedist_end = seq(0, maxedge, length.out = 100))])),
       by = .(snail, brick)]
 setup[!(bad) & n != 0, h1Aedge := list(list(list_predict(mod, h1Aedgedat))),
       by = .(snail, brick)]
 setup[!(bad) & n != 0, xAedge := list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                                               .(edgedist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100))])),
+                                               .(edgedist_end = seq(0, maxedge, length.out = 100))])),
       by = .(snail, brick)]
 setup[!(bad) & n != 0, h1Bbrick := list(list(list_predict(mod, h1Bbrickdat))),
       by = .(snail, brick)]
 setup[!(bad) & n != 0, xBbrick := list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                                               .(brickdist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100))])),
+                                               .(brickdist_end = seq(0, maxbrick, length.out = 100))])),
       by = .(snail, brick)]
 setup[!(bad) & n != 0, h1Abrick := list(list(list_predict(mod, h1Abrickdat))),
       by = .(snail, brick)]
 setup[!(bad) & n != 0, xAbrick := list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
-                                                .(brickdist_end = seq(0, max(edgedist_end, na.rm = TRUE), length.out = 100))])),
+                                                .(brickdist_end = seq(0, maxbrick, length.out = 100))])),
       by = .(snail, brick)]
 
 
@@ -383,8 +400,8 @@ p1.rss.edge.before|p1.rss.edge.after
 p1.rss.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
                          aes(x, rss, colour=disturbance)) +
   geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
-  #geom_smooth(size = 1.5, aes(fill = disturbance), se = F) +
+  #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
+  geom_smooth(size = 1.5, aes(fill = disturbance), se = F) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
   theme_bw()  + theme(
@@ -405,10 +422,9 @@ p1.rss.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before' & bri
 p1.rss.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
                         aes(x, rss, colour=disturbance)) +
   geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
-  geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
+  #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  # geom_smooth(size = 1.5, aes(fill = disturbance),  se = F) +
-  # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
+   geom_smooth(size = 1.5, aes(fill = disturbance),  se = F) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
   theme_bw()  + theme(
@@ -432,13 +448,14 @@ p1.rss.brick.before|p1.rss.brick.after
 
 
 ### p2 graphs ---
+p1.rss[,'brick2'] <-gsub("[^0-9.-]", "", p1.rss$brick)
 
 p2.edge.before <- ggplot(data=p1.rss[var == 'edgedist'& BA=='before'], 
-                         aes(x, rss, colour=brick)) +
-  geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
+                         aes(x, rss, colour=brick2)) +
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-   geom_smooth(size = 1.5, aes(fill = brick), se =F) +
+   #geom_smooth(size = 1.5, aes(fill = brick2), se =F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -458,11 +475,11 @@ p2.edge.before <- ggplot(data=p1.rss[var == 'edgedist'& BA=='before'],
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
 p2.edge.after <- ggplot(data=p1.rss[var == 'edgedist'& BA=='after'], 
-                        aes(x, rss, colour=brick)) +
-  geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
+                        aes(x, rss, colour=brick2)) +
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-   geom_smooth(size = 1.5, aes(fill = brick), se = F) +
+  #geom_smooth(size = 1.5, aes(fill = brick2), se = F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -485,11 +502,11 @@ p2.edge.before|p2.edge.after
 
 
 p2.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before'], 
-                          aes(x, rss, colour=brick)) +
-  geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
+                          aes(x, rss, colour=brick2)) +
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  geom_smooth(size = 1.5, aes(fill = brick), se =F) +
+  #geom_smooth(size = 1.5, aes(fill = brick2), se =F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -509,11 +526,11 @@ p2.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before'],
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
 p2.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'], 
-                         aes(x, rss, colour=brick)) +
-  geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
+                         aes(x, rss, colour=brick2)) +
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-   geom_smooth(size = 1.5, aes(fill = brick), se = F) +
+  # geom_smooth(size = 1.5, aes(fill = brick2), se = F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -528,7 +545,7 @@ p2.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'],
         axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
   ylab("logRSS") + xlab("Distance from brick (cm)") +
   ggtitle("after")  +
-  #ylim(-100,50) +
+  ylim(-100,150) +
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
@@ -575,7 +592,7 @@ setup[!(bad) & n != 0, coef := calc_coef(mod),
 setup[!(bad) & n != 0, var := calc_coef_names(mod),
       by = .(snail, brick)]
 
-
+p3.mods <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, model = paste(model, brick, sep = '.'))]
 
 move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = 'p3'), by = .(snail, brick)]
 
@@ -605,36 +622,39 @@ p3.wide <- dcast(data =p3.move, snail + brick ~ var, value.var = 'coef')
 p3.wide <- setDT(merge(p3.wide, moveParams, by = 'snail', all.x = T))
 
 
-dist <- seq(0,32,.2)
+edist <- seq(0,maxedge, length.out = 100)
+bdist <- seq(0,maxbrick, length.out = 100)
+
+p3.wide[!(is.na(logsl)), ed.spd.before:= list(list((shape+logsl_before+(logsl_before_edgedist*edist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.spd.after:= list(list((shape+logsl_after+(logsl_after_edgedist*edist))*(scale))), by=.(snail, brick)]
+
+p3.wide[!(is.na(logsl)), bd.spd.before:= list(list((shape+logsl_before+(logsl_before_brickdist*bdist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.spd.after:= list(list((shape+logsl_after+(logsl_after_brickdist*bdist))*(scale))), by=.(snail, brick)]
 
 
-p3.wide[!(is.na(logsl)), ed.spd.before:= list(list((shape+logsl_before+(logsl_before_edgedist*dist))*(scale))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), ed.spd.after:= list(list((shape+logsl_after+(logsl_after_edgedist*dist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*edist)))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.dir.after:= list(list((kappa + costa_after + (costa_after_edgedist*edist)))), by=.(snail, brick)]
 
-p3.wide[!(is.na(logsl)), bd.spd.before:= list(list((shape+logsl_before+(logsl_before_brickdist*dist))*(scale))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bd.spd.after:= list(list((shape+logsl_after+(logsl_after_brickdist*dist))*(scale))), by=.(snail, brick)]
-
-
-p3.wide[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*dist)))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), ed.dir.after:= list(list((kappa + costa_after + (costa_after_edgedist*dist)))), by=.(snail, brick)]
-
-p3.wide[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa_before + (costa_before_brickdist*dist)))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa_after + (costa_after_brickdist*dist)))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa_before + (costa_before_brickdist*bdist)))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa_after + (costa_after_brickdist*bdist)))), by=.(snail, brick)]
 
 
-p3.wide[!(is.na(logsl)), dist:= list(list(dist <- seq(0,32,.2))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), edist:= list(list(dist <- seq(0,maxedge, length.out = 100))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bdist:= list(list(dist <- seq(0,maxbrick,length.out = 100))), by=.(snail, brick)]
 
-speed <- p3.wide[!(is.na(logsl)),.(dist = unlist(dist), ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
+speed <- p3.wide[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
                                    bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
                                    disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
 speed[,'snails2'] <- paste(speed$snail, speed$brick, sep = '.')
+speed[,'brick2'] <-gsub("[^0-9.-]", "", speed$brick)
 
-direction <- p3.wide[!(is.na(logsl)),.(dist = unlist(dist), ed.dir.before = unlist(ed.dir.before), ed.dir.after = unlist(ed.dir.after),
+direction <- p3.wide[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.dir.before = unlist(ed.dir.before), ed.dir.after = unlist(ed.dir.after),
                                    bd.dir.before = unlist(bd.dir.before), bd.dir.after = unlist(bd.dir.after),
                                    disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
 direction[,'snails2'] <- paste(direction$snail, direction$brick, sep = '.')
+direction[,'brick2'] <-gsub("[^0-9.-]", "", direction$brick)
 
-speed.edge.before <- ggplot(data=speed, aes(x=dist, y=ed.spd.before, color = brick)) + 
+speed.edge.before <- ggplot(data=speed[snail != 'O11a'], aes(x=edist, y=ed.spd.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -648,7 +668,7 @@ speed.edge.before <- ggplot(data=speed, aes(x=dist, y=ed.spd.before, color = bri
   xlab("Distance from edge (cm)") + ylab("Speed (cm per 30 mins)")
 speed.edge.before 
 
-speed.edge.after <- ggplot(data=speed, aes(x=dist, y=ed.spd.after, color = brick)) + 
+speed.edge.after <- ggplot(data=speed, aes(x=edist, y=ed.spd.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -664,7 +684,7 @@ speed.edge.after
 
 
 
-speed.brick.before <- ggplot(data=speed, aes(x=dist, y=bd.spd.before, color = brick)) + 
+speed.brick.before <- ggplot(data=speed, aes(x=bdist, y=bd.spd.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -678,7 +698,7 @@ speed.brick.before <- ggplot(data=speed, aes(x=dist, y=bd.spd.before, color = br
   xlab("Distance from brick (cm)") + ylab("Speed (cm per 30 mins)")
 speed.brick.before 
 
-speed.brick.after <- ggplot(data=speed, aes(x=dist, y=bd.spd.after, color = brick)) + 
+speed.brick.after <- ggplot(data=speed, aes(x=bdist, y=bd.spd.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -694,7 +714,7 @@ speed.brick.after
 
 
 
-direction.edge.before <- ggplot(data=direction, aes(x=dist, y=ed.dir.before, color = brick)) + 
+direction.edge.before <- ggplot(data=direction, aes(x=edist, y=ed.dir.before, color = brick)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -708,7 +728,7 @@ direction.edge.before <- ggplot(data=direction, aes(x=dist, y=ed.dir.before, col
   xlab("Distance from edge (cm)") + ylab("direction")
 direction.edge.before 
 
-direction.edge.after <- ggplot(data=direction, aes(x=dist, y=ed.dir.after, color = brick)) + 
+direction.edge.after <- ggplot(data=direction, aes(x=edist, y=ed.dir.after, color = brick)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -724,7 +744,7 @@ direction.edge.after
 
 
 
-direction.brick.before <- ggplot(data=direction, aes(x=dist, y=bd.dir.before, color = brick)) + 
+direction.brick.before <- ggplot(data=direction, aes(x=bdist, y=bd.dir.before, color = brick)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -738,7 +758,7 @@ direction.brick.before <- ggplot(data=direction, aes(x=dist, y=bd.dir.before, co
   xlab("Distance from brick (cm)") + ylab("direction")
 direction.brick.before 
 
-direction.brick.after <- ggplot(data=direction, aes(x=dist, y=bd.dir.after, color = brick)) + 
+direction.brick.after <- ggplot(data=direction, aes(x=bdist, y=bd.dir.after, color = brick)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -761,5 +781,19 @@ direction.brick.before|direction.brick.after
 
 dat[,.(min = min(sl_, na.rm = T), max = max(sl_, na.rm = T), mean = mean(sl_, na.rm = T)), by = .(snail)]
 dat[,.(min = min(ta_, na.rm = T), max = max(ta_, na.rm = T), mean = mean(ta_, na.rm = T)), by = .(snail)]
+
+dat.obs <- dat[case_==TRUE]
+hist(dat$log_sl)
+hist(dat.obs$log_sl)
+hist(dat$cos_ta)
+hist(dat.obs$cos_ta)
+
+#### ALL MODELS ####
+
+all.mods <- rbind(core.mods, p1.mods, p3.mods)
+
+snail.mods <- all.mods[,.(mods = list(list(mod)), modNames = list(list(model))), by = .(snail)]
+
+snail.mods[, aictab:= calc_aictab(mods, modNames=modNames)]
 
 
