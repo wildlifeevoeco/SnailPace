@@ -714,7 +714,7 @@ speed.brick.after
 
 
 
-direction.edge.before <- ggplot(data=direction, aes(x=edist, y=ed.dir.before, color = brick)) + 
+direction.edge.before <- ggplot(data=direction[snail != 'O23a'], aes(x=edist, y=ed.dir.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -728,7 +728,7 @@ direction.edge.before <- ggplot(data=direction, aes(x=edist, y=ed.dir.before, co
   xlab("Distance from edge (cm)") + ylab("direction")
 direction.edge.before 
 
-direction.edge.after <- ggplot(data=direction, aes(x=edist, y=ed.dir.after, color = brick)) + 
+direction.edge.after <- ggplot(data=direction[snail != 'O23a'], aes(x=edist, y=ed.dir.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -744,7 +744,7 @@ direction.edge.after
 
 
 
-direction.brick.before <- ggplot(data=direction, aes(x=bdist, y=bd.dir.before, color = brick)) + 
+direction.brick.before <- ggplot(data=direction[snail != 'O23a'], aes(x=bdist, y=bd.dir.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -758,7 +758,7 @@ direction.brick.before <- ggplot(data=direction, aes(x=bdist, y=bd.dir.before, c
   xlab("Distance from brick (cm)") + ylab("direction")
 direction.brick.before 
 
-direction.brick.after <- ggplot(data=direction, aes(x=bdist, y=bd.dir.after, color = brick)) + 
+direction.brick.after <- ggplot(data=direction, aes(x=bdist, y=bd.dir.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -792,8 +792,8 @@ hist(dat.obs$cos_ta)
 
 all.mods <- rbind(core.mods, p1.mods, p3.mods)
 
-snail.mods <- all.mods[,.(mods = list(list(mod)), modNames = list(list(model))), by = .(snail)]
-
+snail.mods <- all.mods[,.(mods = list(mod), modNames = list(model)), by = .(snail)]
+snail.mods <- snail.mods[modNames !='core']
 snail.mods[, aictab:= calc_aictab(mods, modNames=modNames)]
-
+snail.mods$mods[[1]]
 
