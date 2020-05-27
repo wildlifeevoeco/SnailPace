@@ -4,7 +4,7 @@
 
 ### Packages ----
 libs <- c('data.table', 'dplyr', 'amt', 'lubridate', 
-          'tidyr', 'ggplot2','survival','forcats', 'patchwork')
+          'tidyr', 'ggplot2','survival','forcats', 'patchwork', 'AICcmodavg')
 lapply(libs, require, character.only = TRUE)
 
 ### Input data ----
@@ -87,24 +87,24 @@ corebad <- 'P11a'
 setup[model == 'core', bad := snail %in% corebad]
 
 # Run only on *good* individuals and those with > 0 rows
-setup[!(bad), n := 
-        dat[ghostbricks == .BY[[2]] & snail == .BY[[1]], .N],
-      by = .(snail, brick)]
-
-setup[!(bad) & n != 0, mod := 
-        list_models(response, explanatory,
-                    dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
-      by = .(snail, brick)]
-
-# # Which bricks do we want to keep?
-# setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
+# setup[!(bad), n := 
+#         dat[ghostbricks == .BY[[2]] & snail == .BY[[1]], .N],
+#       by = .(snail, brick)]
 # 
-# # Run only on *good* individual
-# setup[!(bad), mod :=
+# setup[!(bad) & n != 0, mod := 
 #         list_models(response, explanatory,
-#                     dat[ghostbricks %in% unlist(lsbricks) &
-#                           snail == .BY[[1]]]),
-#       by = snail]
+#                     dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
+#       by = .(snail, brick)]
+
+# Which bricks do we want to keep?
+setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
+
+# Run only on *good* individual
+setup[!(bad), mod :=
+        list_models(response, explanatory,
+                    dat[ghostbricks %in% unlist(lsbricks) &
+                          snail == .BY[[1]]]),
+      by = snail]
 
 # coefs 
 
@@ -122,7 +122,7 @@ move <- merge(move, moveParams, by = 'snail', all.x = T)
 core.move <- copy(move)
 
 
-core.mods <- setup[!(bad),.(mod=list(mod), model), by = .(snail)]
+core.mods <- setup[!(bad),.(snail, mod, model = model)]
 
 
 # core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
@@ -179,6 +179,7 @@ meanedge <- mean(dat$edgedist_end, na.rm = T)
 maxedge <- max(dat$edgedist_end, na.rm = T)
 meanbrick <- mean(dat$brickdist_end, na.rm = T)
 maxbrick <- 65
+
 # h2 before
 setup[!(bad) & n != 0, h2Bdat :=
         list(list(dat[ghostbricks == .BY[[2]] & snail == .BY[[1]],
@@ -570,7 +571,8 @@ setup <- CJ(
 
 
 # Which individuals should be dropped?
-p3bad <- c("P24b", "O24a", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b", "O22a")
+p3bad <- c("P24b", "O24a", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b", "O22a", "P13a",
+           "P14a", "P22a", "P24a", "P31a")
 setup[model == 'p3', bad := snail %in% p3bad]
 
 
@@ -604,7 +606,7 @@ p3.move[,'BA'] <- ifelse(p3.move$var %like% 'StageAcc', 'acc',
                                 ifelse(p3.move$var %like% 'StageB', 'before', NA)))
 # p3.move <- p3.move[BA != 'acc']
 
-unique(p3.move$var)
+
 p3.move <- p3.move[!(var %like% 'StageAcc')]
 p3.move$var <- gsub(':', '-', p3.move$var)
 p3.move$var <- gsub(' ', '', p3.move$var)
@@ -613,6 +615,7 @@ p3.move$var <- gsub('StageA', '_after', p3.move$var)
 p3.move$var <- gsub('StageB', '_before', p3.move$var)
 p3.move$var <- gsub('logbrickdiststart1', '_brickdist', p3.move$var)
 p3.move$var <- gsub('logedgediststart1', '_edgedist', p3.move$var)
+unique(p3.move$var)
 
 p3.move[,'snails2'] <- paste(p3.move$snail, p3.move$brick, sep = '.')
 
@@ -639,8 +642,8 @@ p3.wide[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa_before + (cost
 p3.wide[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa_after + (costa_after_brickdist*bdist)))), by=.(snail, brick)]
 
 
-p3.wide[!(is.na(logsl)), edist:= list(list(dist <- seq(0,maxedge, length.out = 100))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bdist:= list(list(dist <- seq(0,maxbrick,length.out = 100))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), edist:= list(list(seq(0,maxedge, length.out = 100))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bdist:= list(list(seq(0,maxbrick,length.out = 100))), by=.(snail, brick)]
 
 speed <- p3.wide[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
                                    bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
@@ -790,10 +793,12 @@ hist(dat.obs$cos_ta)
 
 #### ALL MODELS ####
 
-all.mods <- rbind(core.mods, p1.mods, p3.mods)
+#all.mods <- rbind(core.mods, p1.mods, p3.mods)
+#saveRDS(all.mods, 'Data/derived/allMods.Rds')
+all.mods <- readRDS('Data/derived/allMods.Rds')
 
-snail.mods <- all.mods[,.(mods = list(mod), modNames = list(model)), by = .(snail)]
-snail.mods <- snail.mods[modNames !='core']
-snail.mods[, aictab:= calc_aictab(mods, modNames=modNames)]
-snail.mods$mods[[1]]
+snail.mods <- all.mods[,.(mods = list(mod), modNames = list(model), nMods = .N), by = .(snail)]
+#snail.mods <- snail.mods[ !is.list(modNames)]
+snail.mods[nMods>1, aictab:= calc_aictab(mods, modNames=modNames), by = .(snail)]
+
 
