@@ -57,9 +57,8 @@ calc_aic <- function(model) {
   lapply(model, AIC)
 }
 
-calc_aictab <- function(candMod, modNames) {
-  mapply(function(m, n) aictab(m, n),
-         m = candMod, n = modNames)
+calc_aictab <- function(models, names) {
+  aictab(models, names)
 }
 
 calc_evidence <- function(aictab) {
@@ -797,8 +796,16 @@ hist(dat.obs$cos_ta)
 #saveRDS(all.mods, 'Data/derived/allMods.Rds')
 all.mods <- readRDS('Data/derived/allMods.Rds')
 
-snail.mods <- all.mods[,.(mods = list(mod), modNames = list(model), nMods = .N), by = .(snail)]
-#snail.mods <- snail.mods[ !is.list(modNames)]
-snail.mods[nMods>1, aictab:= calc_aictab(mods, modNames=modNames), by = .(snail)]
+all.mods[, nMods := .N, by = snail]
+all.mods[nMods > 1, calc_aictab(mod, model), by = .(snail)]
 
 
+
+calc_evidence <- function(aictab) {
+  list(lapply(aictab, evidence))
+}
+
+
+calc_loglik <- function(model) {
+  lapply(model, logLik)
+}
