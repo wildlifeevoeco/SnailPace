@@ -797,15 +797,5 @@ hist(dat.obs$cos_ta)
 all.mods <- readRDS('Data/derived/allMods.Rds')
 
 all.mods[, nMods := .N, by = snail]
-all.mods[nMods > 1, calc_aictab(mod, model), by = .(snail)]
-
-
-
-calc_evidence <- function(aictab) {
-  list(lapply(aictab, evidence))
-}
-
-
-calc_loglik <- function(model) {
-  lapply(model, logLik)
-}
+tab <- all.mods[nMods > 1, calc_aictab(mod, model), by = .(snail)]
+evi <- all.mods[nMods > 1, evidence(calc_aictab(mod, model)), by = .(snail)]
