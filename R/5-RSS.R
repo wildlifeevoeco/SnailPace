@@ -798,4 +798,7 @@ all.mods <- readRDS('Data/derived/allMods.Rds')
 
 all.mods[, nMods := .N, by = snail]
 tab <- all.mods[nMods > 1, calc_aictab(mod, model), by = .(snail)]
-evi <- all.mods[nMods > 1, evidence(calc_aictab(mod, model)), by = .(snail)]
+evi <- all.mods[nMods > 1 & !(model %like% 'g1') & !(model %like% 'g3'), evidence(calc_aictab(mod, model)), by = .(snail)]
+
+
+
