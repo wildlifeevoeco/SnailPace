@@ -9,8 +9,8 @@ lapply(libs, require, character.only = TRUE)
 
 
 ### Input data ----
-raw <- '~/snails/Data/raw/'
-derived <- '~/snails/Data/derived/'
+raw <- 'Data/raw/'
+derived <- 'Data/derived/'
 
 
 # Read in Sunset/Sunrise times ####
@@ -30,7 +30,7 @@ day[,'SunsetDate'] <- as.POSIXct(paste(day$Date, day$Sunset, sep = ' '), tz = 'U
 day.snails <- readRDS('~/snails/Data/derived/sunsetsunrise2019.Rds')
 
 # Read in SSA data
-ssa.snails <- readRDS("~/snails/Data/derived/ssa30.Rds")
+ssa.snails <- readRDS("Data/derived/ssa-hr.Rds")
 ssa.snails[,"date.snails"] <- as.POSIXct(format(ssa.snails$t1_, "%Y-%m-%d"), tz = 'UTC', "%Y-%m-%d")
 # Merge based on Date
 full.snails <- merge(ssa.snails, day.snails, by.x = 'date.snails', by.y = 'Date', all.x = T)
@@ -55,12 +55,12 @@ ssa.snails2019 <- setDT(full.snails)[,.(burst_, step_id_, case_, snail,  x1_, y1
                               temp, precip, edgedist_start, edgedist_end, brickedge1_start, brickedge1_end, brickedge2_start, 
                               brickedge2_end, brickedge3_start, brickedge3_end, treatment, stage)]
 
+# 
+# saveRDS(ssa.snails2019, '~/snails/Data/derived/ssaAll_snails2019.Rds')
+# 
+# data <- readRDS('~/snails/Data/derived/ssaAll_snails2019.Rds')
 
-saveRDS(ssa.snails2019, '~/snails/Data/derived/ssaAll_snails2019.Rds')
-
-data <- readRDS('~/snails/Data/derived/ssaAll_snails2019.Rds')
-
-data <- data %>% 
+data <- ssa.snails2019 %>% 
          rename(
             Temperature = temp,
             Precipitation = precip,
@@ -125,4 +125,4 @@ controltreats <- function(data){
 control <- controltreats(data)
 
 ssa.30ghosts <- rbind(treat1, treat2, treat3, control)
-saveRDS(ssa.30ghosts, '~/snails/Data/derived/ssa30ghosts.Rds')
+saveRDS(ssa.30ghosts, 'Data/derived/ssa-hr-ghosts.Rds')
