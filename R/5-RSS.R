@@ -33,6 +33,11 @@ list_predict <- function(mod, ND) {
          m = mod, n = ND)
 }
 
+list_issa <- function(resp, expl, DT) {
+  list(list(fit_clogit(reformulate(expl, resp),
+                       model = T, data = DT)))
+}
+
 #' @param ls list column
 #' @param val constant value
 dif_list <- function(ls, val) {
@@ -157,6 +162,11 @@ setup[!(bad), n :=
 setup[!(bad) & n != 0, mod := 
         list_models(response, explanatory,
                     dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
+      by = .(snail, brick)]
+
+setup[!(bad) & n != 0, issa := 
+        list_issa(response, explanatory,
+                  dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
       by = .(snail, brick)]
 
 # coefs 
@@ -325,6 +335,8 @@ move <- merge(move, moveParams, by = 'snail', all.x = T)
 p1.move <- copy(move)
 
 p1.mods <- setup[!(bad) & n > 0,.(snail, mod, model = paste(model, brick, sep = '.'))]
+
+p1.issa <- setup[!(bad) & n > 0,.(snail, mod, issa, model = paste(model, brick, sep = '.'))]
 
 # P1.g1.Out[,"nbricks"] <- 1
 # P1.g2.Out[,"nbricks"] <- 2
@@ -585,6 +597,12 @@ setup[!(bad) & n != 0, mod :=
                     dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
       by = .(snail, brick)]
 
+
+setup[!(bad) & n != 0, issa := 
+        list_issa(response, explanatory,
+                    dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
+      by = .(snail, brick)]
+
 # coefs
 setup[!(bad) & n != 0, coef := calc_coef(mod),
       by = .(snail, brick)]
@@ -593,7 +611,14 @@ setup[!(bad) & n != 0, coef := calc_coef(mod),
 setup[!(bad) & n != 0, var := calc_coef_names(mod),
       by = .(snail, brick)]
 
+
+setup[!(bad) & n != 0, issacoef := calc_coef(issa),
+      by = .(snail, brick)]
+
 p3.mods <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, model = paste(model, brick, sep = '.'))]
+
+p3.issa <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, issa, model = paste(model, brick, sep = '.'))]
+p3.issa[, sl_distr_params(issa), by = .(snail)]
 
 move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = 'p3'), by = .(snail, brick)]
 
