@@ -24,11 +24,11 @@ crs22 <- sp::CRS("+init=epsg:32621")
 DT.prep <- dat %>% dplyr::select(x = "xUTM", y = "yUTM", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
-
+DT.prep.hr <- DT.prep[t %like% ':00:']
 
 
 # nesting data by id
-dat_all <- DT.prep %>% group_by(snail) %>% nest()
+dat_all <- DT.prep.hr %>% group_by(snail) %>% nest()
 
 #making the track
 dat_all <- dat_all %>%
@@ -49,7 +49,7 @@ brickedge3 <- raster(paste0(raw, 'brickedge3.tif'), )
 
 track <- dat_all %>%
   mutate(steps = map(trk, function(x) {
-    x %>% amt::track_resample(rate = minutes(30), tolerance = minutes(10)) %>%
+    x %>% amt::track_resample(rate = hours(1), tolerance = minutes(10)) %>%
       amt::filter_min_n_burst(min_n = 3) %>%
       amt::steps_by_burst() %>% 
       mutate(sl_ = sl_ + 1)
@@ -149,7 +149,7 @@ dat_all.30 %>% mutate(sr = lapply(trk, summarize_sampling_rate)) %>%
 
 track.30 <- dat_all.30 %>%
   mutate(steps = map(trk, function(x) {
-    x %>% amt::track_resample(rate = minutes(30), tolerance = minutes(10)) %>%
+    x %>% amt::track_resample(rate = hours(1), tolerance = minutes(10)) %>%
       amt::filter_min_n_burst(min_n = 3) %>%
       amt::steps_by_burst() %>% 
       mutate(sl_ = sl_ + 1)
@@ -174,7 +174,7 @@ merged.snails <-merge(ssa.30.unnest, DT.prep.good,
                       by.x=c('snail','t2_'), by.y= c('snail', 't'))
 
 
-saveRDS(merged.snails, '~/snails/Data/derived/ssa30.Rds')
+saveRDS(merged.snails, 'Data/derived/ssa-hr.Rds')
 
-saveRDS(Params, 'Data/derived/moveParams.Rds')
+saveRDS(Params, 'Data/derived/moveParams-hr.Rds')
 
