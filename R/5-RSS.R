@@ -11,11 +11,16 @@ lapply(libs, require, character.only = TRUE)
 raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 dat <- readRDS('Data/derived/ssa30ghosts.Rds')
+dat.hr <- readRDS('Data/derived/ssa-hr-ghosts.Rds')
 moveParams <- readRDS('Data/derived/moveParams.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 dat$ToD_start <- as.factor(dat$ToD_start)
 dat$Precipitation <- as.factor(dat$Precipitation)
+
+dat.hr$Stage <- factor(dat.hr$Stage, levels = c("Acc", "B","A"))
+dat.hr$ToD_start <- as.factor(dat.hr$ToD_start)
+dat.hr$Precipitation <- as.factor(dat.hr$Precipitation)
 
 # list of all snails
 snails <- unique(dat$snail)
@@ -76,19 +81,22 @@ calc_loglik <- function(model) {
 }
 
 
+
 #### CORE ====
+dat <- dat.hr
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
   snail = unique(dat$snail),
   brick = c("1", "2", "3", "g1", "g2", "g3"),
   response = 'case_',
-  explanatory = 'log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + Precipitation:log_sl + strata(step_id_)'
+  explanatory = 'log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + strata(step_id_)'
 )
 
 # Which individuals should be dropped?
 corebad <- 'P11a'
-setup[model == 'core', bad := snail %in% corebad]
+# setup[model == 'core', bad := snail %in% corebad]
+
 
 # Run only on *good* individuals and those with > 0 rows
 # setup[!(bad), n := 
@@ -104,29 +112,35 @@ setup[model == 'core', bad := snail %in% corebad]
 setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 
 # Run only on *good* individual
-setup[!(bad), mod :=
+setup[, mod :=
         list_models(response, explanatory,
+                    dat[ghostbricks %in% unlist(lsbricks) &
+                          snail == .BY[[1]]]),
+      by = snail]
+
+setup[, issa :=
+        list_issa(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
       by = snail]
 
 # coefs 
 
-setup[!(bad), coef := calc_coef(mod),
+setup[, coef := calc_coef(mod),
       by = .(snail)]
 
 
-setup[!(bad), var := calc_coef_names(mod),
+setup[, var := calc_coef_names(mod),
       by = .(snail)]
 
 
-move <- setup[!(bad),.(coef = unlist(coef), var = unlist(var), model), by = .(snail)]
+move <- setup[,.(coef = unlist(coef), var = unlist(var), model), by = .(snail)]
 move <- merge(move, moveParams, by = 'snail', all.x = T)
 
 core.move <- copy(move)
 
 
-core.mods <- setup[!(bad),.(snail, mod, model = model)]
+core.mods <- setup[,.(snail, mod, model = model)]
 
 
 # core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
@@ -149,8 +163,9 @@ setup <- CJ(
 
 
 # Which individuals should be dropped?
-p1bad <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
+p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
            "P22b", "P23a", "P23b", "O11a", "O13a")
+p1bad <- c("O12b", "O14a", "O22b", "O24b", "O31a", "P21a", "P22b", "P23b", "P24b")
 setup[model == 'p1', bad := snail %in% p1bad]
 
 
@@ -427,16 +442,16 @@ p1.rss.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before' & bri
         axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
   ylab("logRSS") + xlab("Distance from brick (cm)") +
   ggtitle("before")  +
-  ylim(-150,100) +
+ # ylim(-150,100) +
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
 p1.rss.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
                         aes(x, rss, colour=disturbance)) +
-  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-   geom_smooth(size = 1.5, aes(fill = disturbance),  se = F) +
+   geom_smooth(size = 1.5, aes(fill = disturbance),  se = T) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
   theme_bw()  + theme(
@@ -450,7 +465,7 @@ p1.rss.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'& brick 
         axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
   ylab("logRSS") + xlab("Distance from brick (cm)") +
   ggtitle("after")  +
-  ylim(-150,100) +
+  #ylim(-150,100) +
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
@@ -557,7 +572,7 @@ p2.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'],
         axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
   ylab("logRSS") + xlab("Distance from brick (cm)") +
   ggtitle("after")  +
-  ylim(-100,150) +
+  #ylim(-100,150) +
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
@@ -574,21 +589,32 @@ setup <- CJ(
   brick = c("1", "2", "3", "g1", "g2", "g3"),
   model = 'p3',
   response = 'case_',
-  explanatory = 'log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + 
+  explanatory = 'log_sl + cos_ta + ToD_start:log_sl +
   log(edgedist_start + 1):log_sl:Stage + log(edgedist_start + 1):cos_ta:Stage + 
+  log(brickdist_start + 1):log_sl:Stage + log(brickdist_start + 1):cos_ta:Stage + 
+  log_sl:Stage + cos_ta:Stage + strata(step_id_)'
+)
+
+setup <- CJ(
+  snail = unique(dat$snail),
+  brick = c("1", "2", "3", "g1", "g2", "g3"),
+  model = 'p3',
+  response = 'case_',
+  explanatory = 'log_sl + cos_ta + ToD_start:log_sl +
   log(brickdist_start + 1):log_sl:Stage + log(brickdist_start + 1):cos_ta:Stage + 
   log_sl:Stage + cos_ta:Stage + strata(step_id_)'
 )
 
 
 # Which individuals should be dropped?
-p3bad <- c("P24b", "O24a", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b", "O22a", "P13a",
+p3bad.30 <- c("P24b", "O24a", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b", "O22a", "P13a",
            "P14a", "P22a", "P24a", "P31a")
+p3bad <- c('O12b', 'O13a', 'O14a','O22b', 'O23a', 'O24a', 'O24b', 'O31a', 'P13a', 'P21a', 'P22b', 'P23b', 'P24b')
 setup[model == 'p3', bad := snail %in% p3bad]
 
 
 # Run only on *good* individual and those with > 0 rows
-setup[!(bad), n := 
+setup[, n := 
         dat[ghostbricks == .BY[[2]] & snail == .BY[[1]], .N],
       by = .(snail, brick)]
 
@@ -618,7 +644,7 @@ setup[!(bad) & n != 0, issacoef := calc_coef(issa),
 p3.mods <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, model = paste(model, brick, sep = '.'))]
 
 p3.issa <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, issa, model = paste(model, brick, sep = '.'))]
-p3.issa[, sl_distr_params(issa), by = .(snail)]
+#p3.issa[, sl_distr_params(unlist(unlist(issa))), by = .(snail)]
 
 move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = 'p3'), by = .(snail, brick)]
 
@@ -681,7 +707,7 @@ direction <- p3.wide[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdi
 direction[,'snails2'] <- paste(direction$snail, direction$brick, sep = '.')
 direction[,'brick2'] <-gsub("[^0-9.-]", "", direction$brick)
 
-speed.edge.before <- ggplot(data=speed[snail != 'O11a'], aes(x=edist, y=ed.spd.before, color = brick2)) + 
+speed.edge.before <- ggplot(data=speed[snail != 'P23a'], aes(x=edist, y=ed.spd.before/50, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -692,10 +718,10 @@ speed.edge.before <- ggplot(data=speed[snail != 'O11a'], aes(x=edist, y=ed.spd.b
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("a) before ") +
-  xlab("Distance from edge (cm)") + ylab("Speed (cm per 30 mins)")
+  xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
 speed.edge.before 
 
-speed.edge.after <- ggplot(data=speed, aes(x=edist, y=ed.spd.after, color = brick2)) + 
+speed.edge.after <- ggplot(data=speed[snail != 'P12a'], aes(x=edist, y=ed.spd.after/50, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -706,12 +732,12 @@ speed.edge.after <- ggplot(data=speed, aes(x=edist, y=ed.spd.after, color = bric
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("b) after ") +
-  xlab("Distance from edge (cm)") + ylab("Speed (cm per 30 mins)")
+  xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
 speed.edge.after 
 
 
 
-speed.brick.before <- ggplot(data=speed, aes(x=bdist, y=bd.spd.before, color = brick2)) + 
+speed.brick.before <- ggplot(data=speed[snail != 'O22a'], aes(x=bdist, y=bd.spd.before/50, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -722,10 +748,10 @@ speed.brick.before <- ggplot(data=speed, aes(x=bdist, y=bd.spd.before, color = b
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("a) before ") +
-  xlab("Distance from brick (cm)") + ylab("Speed (cm per 30 mins)")
+  xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
 speed.brick.before 
 
-speed.brick.after <- ggplot(data=speed, aes(x=bdist, y=bd.spd.after, color = brick2)) + 
+speed.brick.after <- ggplot(data=speed[snail!='P14a' & snail!='P12a'], aes(x=bdist, y=bd.spd.after/50, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -736,12 +762,12 @@ speed.brick.after <- ggplot(data=speed, aes(x=bdist, y=bd.spd.after, color = bri
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("b) after ") +
-  xlab("Distance from brick (cm)") + ylab("Speed (cm per 30 mins)")
+  xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
 speed.brick.after 
 
 
 
-direction.edge.before <- ggplot(data=direction[snail != 'O23a'], aes(x=edist, y=ed.dir.before, color = brick2)) + 
+direction.edge.before <- ggplot(data=direction[snail != 'P23a' &snail != 'P22a'], aes(x=edist, y=ed.dir.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -755,7 +781,7 @@ direction.edge.before <- ggplot(data=direction[snail != 'O23a'], aes(x=edist, y=
   xlab("Distance from edge (cm)") + ylab("direction")
 direction.edge.before 
 
-direction.edge.after <- ggplot(data=direction[snail != 'O23a'], aes(x=edist, y=ed.dir.after, color = brick2)) + 
+direction.edge.after <- ggplot(data=direction, aes(x=edist, y=ed.dir.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -771,7 +797,7 @@ direction.edge.after
 
 
 
-direction.brick.before <- ggplot(data=direction[snail != 'O23a'], aes(x=bdist, y=bd.dir.before, color = brick2)) + 
+direction.brick.before <- ggplot(data=direction, aes(x=bdist, y=bd.dir.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -785,7 +811,7 @@ direction.brick.before <- ggplot(data=direction[snail != 'O23a'], aes(x=bdist, y
   xlab("Distance from brick (cm)") + ylab("direction")
 direction.brick.before 
 
-direction.brick.after <- ggplot(data=direction, aes(x=bdist, y=bd.dir.after, color = brick2)) + 
+direction.brick.after <- ggplot(data=direction[snail != 'O22a'], aes(x=bdist, y=bd.dir.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -818,8 +844,8 @@ hist(dat.obs$cos_ta)
 #### ALL MODELS ####
 
 #all.mods <- rbind(core.mods, p1.mods, p3.mods)
-#saveRDS(all.mods, 'Data/derived/allMods.Rds')
-all.mods <- readRDS('Data/derived/allMods.Rds')
+#saveRDS(all.mods, 'Data/derived/allMods_hr.Rds')
+all.mods <- readRDS('Data/derived/allMods_hr.Rds')
 
 all.mods[, nMods := .N, by = snail]
 tab <- all.mods[nMods > 1, calc_aictab(mod, model), by = .(snail)]
