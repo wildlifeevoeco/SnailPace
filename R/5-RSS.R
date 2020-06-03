@@ -836,10 +836,10 @@ dat[,.(min = min(sl_, na.rm = T), max = max(sl_, na.rm = T), mean = mean(sl_, na
 dat[,.(min = min(ta_, na.rm = T), max = max(ta_, na.rm = T), mean = mean(ta_, na.rm = T)), by = .(snail)]
 
 dat.obs <- dat[case_==TRUE]
-hist(dat$log_sl)
-hist(dat.obs$log_sl)
-hist(dat$cos_ta)
-hist(dat.obs$cos_ta)
+hist(dat$sl_)
+hist(dat.obs$sl_)
+hist(dat$ta_)
+hist(dat.obs$ta_)
 
 #### ALL MODELS ####
 
