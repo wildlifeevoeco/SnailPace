@@ -841,6 +841,17 @@ hist(dat.obs$sl_)
 hist(dat$ta_)
 hist(dat.obs$ta_)
 
+ggplot(dat, aes(sl_)) +
+  geom_density()
+
+ggplot(dat.obs, aes(sl_)) +
+  geom_density()
+
+ggplot(dat, aes(ta_)) +
+  geom_density()
+
+ggplot(dat.obs, aes(ta_)) +
+  geom_density()
 #### ALL MODELS ####
 
 #all.mods <- rbind(core.mods, p1.mods, p3.mods)
