@@ -12,7 +12,7 @@ raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 dat <- readRDS('Data/derived/ssa30ghosts.Rds')
 dat.hr <- readRDS('Data/derived/ssa-hr-ghosts.Rds')
-moveParams <- readRDS('Data/derived/moveParams.Rds')
+moveParams <- readRDS('Data/derived/moveParams-hr.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 dat$ToD_start <- as.factor(dat$ToD_start)
@@ -594,22 +594,24 @@ setup <- CJ(
   log(brickdist_start + 1):log_sl:Stage + log(brickdist_start + 1):cos_ta:Stage + 
   log_sl:Stage + cos_ta:Stage + strata(step_id_)'
 )
-
-setup <- CJ(
-  snail = unique(dat$snail),
-  brick = c("1", "2", "3", "g1", "g2", "g3"),
-  model = 'p3',
-  response = 'case_',
-  explanatory = 'log_sl + cos_ta + ToD_start:log_sl +
-  log(brickdist_start + 1):log_sl:Stage + log(brickdist_start + 1):cos_ta:Stage + 
-  log_sl:Stage + cos_ta:Stage + strata(step_id_)'
-)
+# 
+# setup <- CJ(
+#   snail = unique(dat$snail),
+#   brick = c("1", "2", "3", "g1", "g2", "g3"),
+#   model = 'p3',
+#   response = 'case_',
+#   explanatory = 'log_sl + cos_ta + ToD_start:log_sl +
+#   log(brickdist_start + 1):log_sl:Stage + log(brickdist_start + 1):cos_ta:Stage + 
+#   log_sl:Stage + cos_ta:Stage + strata(step_id_)'
+# )
 
 
 # Which individuals should be dropped?
 p3bad.30 <- c("P24b", "O24a", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b", "O22a", "P13a",
            "P14a", "P22a", "P24a", "P31a")
+#p3bad <- c('O11a','O12b', 'O13a', 'O14a','O22b', 'O23a', 'O24a', 'O24b', 'O31a', 'P13a','P14a', 'P21a', 'P22b', 'P23b', 'P24b')
 p3bad <- c('O12b', 'O13a', 'O14a','O22b', 'O23a', 'O24a', 'O24b', 'O31a', 'P13a', 'P21a', 'P22b', 'P23b', 'P24b')
+
 setup[model == 'p3', bad := snail %in% p3bad]
 
 
@@ -841,17 +843,19 @@ hist(dat.obs$sl_)
 hist(dat$ta_)
 hist(dat.obs$ta_)
 
-ggplot(dat, aes(sl_)) +
+ggplot(dat, aes(sl_, colour = snail)) +
   geom_density()
 
-ggplot(dat.obs, aes(sl_)) +
+sl <- ggplot(dat.obs, aes(sl_, colour = snail)) +
   geom_density()
 
-ggplot(dat, aes(ta_)) +
+ggplot(dat, aes(ta_, colour = ToD_start)) +
   geom_density()
 
-ggplot(dat.obs, aes(ta_)) +
+ta <- ggplot(dat.obs, aes(ta_, colour = snail)) +
   geom_density()
+sl|ta
+
 #### ALL MODELS ####
 
 #all.mods <- rbind(core.mods, p1.mods, p3.mods)
