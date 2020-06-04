@@ -11,6 +11,10 @@ lapply(libs, require, character.only = TRUE)
 # Import your data 
 
 
+#### Basically we'll be making lists of models within a data.table to automate the way we make calculations
+## this can be applied to a lot of things
+## so I included some extra functions you may want for other things
+
 ### FUNCTIONS ----
 # function for model list
 list_models <- function(resp, expl, DT) {
