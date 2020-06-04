@@ -348,6 +348,8 @@ move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = '
 move <- merge(move, moveParams, by = 'snail', all.x = T)
 
 p1.move <- copy(move)
+p1.move <- p1.move[!(var %like% 'Acc')]
+core.move <- core.move[!(var %like% 'Acc')]
 
 p1.mods <- setup[!(bad) & n > 0,.(snail, mod, model = paste(model, brick, sep = '.'))]
 
