@@ -16,6 +16,7 @@ lapply(libs, require, character.only = TRUE)
 ## so I included some extra functions you may want for other things
 
 ### FUNCTIONS ----
+
 # function for model list
 list_models <- function(resp, expl, DT) {
   list(list(clogit(reformulate(expl, resp),
@@ -68,7 +69,6 @@ calc_loglik <- function(model) {
 
 
 
-
 ### Model ----
 # Setup model name, explanatory and response variables
 # Cross join individuals and bricks of interest
@@ -118,7 +118,7 @@ meantemp <- mean(dat$Temperature, na.rm = T)
 meanedge <- mean(dat$edgedist_end, na.rm = T)
 maxedge <- max(dat$edgedist_end, na.rm = T)
 meanbrick <- mean(dat$brickdist_end, na.rm = T)
-maxbrick <- 65
+maxbrick <- max(dat$brickdist_end, na.rm = T)
 
 # h2 -- based off mean values
 setup[!(bad), h2dat :=
