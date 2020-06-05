@@ -163,12 +163,13 @@ setup[!(bad), h1brickdat :=
 
 # you would do this for however many habitats you want RSS for
 
-# Predict
+# Predict based on new data
 # get h2 values
 setup[!(bad), h2 := list_predict(mod, h2dat),
       by = .(snail)]
 
 # get h1 values
+# edge selection
 setup[!(bad), h1edge := list(list(list_predict(mod, h1edgedat))),
       by = .(snail)]
 # range of habitat values you're looking at (x for your graph)
