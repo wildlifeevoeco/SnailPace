@@ -874,7 +874,11 @@ dat[case_==TRUE,ggplot( aes(sl_))+
       geom_density(color='blue') + geom_histogram(bins = 50), by=.(snail)]
 
 snails
-
+gam <- dat[case_==TRUE,.(vals = fit_distr(sl_, 'gamma'), param = names((fit_distr(sl_, 'gamma')))), by = .(snail)]
+gam[,term := names(params), by = .(snail)]
+for (i in snails) {
+  
+}
 
 #### ALL MODELS ####
 
