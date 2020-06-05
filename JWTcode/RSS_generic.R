@@ -120,7 +120,7 @@ maxedge <- max(dat$edgedist_end, na.rm = T)
 meanbrick <- mean(dat$brickdist_end, na.rm = T)
 maxbrick <- max(dat$brickdist_end, na.rm = T)
 
-# h2 -- based off mean values
+# h2 new data -- based off mean values
 setup[!(bad), h2dat :=
         list(list(dat[snail == .BY[[1]],
                       .(log_sl = meansl,  ## if you want RSS based on indiv values use mean(log_sl, na.rm = T) here and for any other variable
@@ -135,7 +135,7 @@ setup[!(bad), h2dat :=
 
 # h2 will be the same for each variable of interest, but you will vary 1 variable at a time for h1
 
-# h1 edge
+# h1 edge new data
 setup[!(bad), h1edgedat :=
         list(list(dat[snail == .BY[[1]],
                       .(log_sl = meansl,
@@ -148,8 +148,8 @@ setup[!(bad), h1edgedat :=
                         step_id_ = step_id_[1])])),
       by = .(snail)]
 
-# h1 brick 
-setup[!(bad), h1edgedat :=
+# h1 brick new data 
+setup[!(bad), h1brickdat :=
         list(list(dat[snail == .BY[[1]],
                       .(log_sl = meansl,
                         cos_ta = meanta,
