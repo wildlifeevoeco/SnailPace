@@ -196,14 +196,13 @@ rss[, rssedge := dif_list(h1edge, h2),
 rss[, stepedge := list(list(seq(0,max(unlist(xedge)), length.out = 100))),
     by = .( brick)]
 
-# now unlist everything so its a norma data frame
-# i like it in long form, so I bind each variable of interest under the last
+# now unlist everything so its a normal data frame
+# I like it in long form, so I bind each variable of interest under the last
 rss.long <- rss[, .(rss = unlist(rssedge), x = unlist(xedge), step = unlist(stepedge), var = 'edgedist', BA = 'before', model = 'p1'),
                 by = .(snail)]
 rss.long <- rbind(rss.long, rss[, .(rss = unlist(rssbrick), x = unlist(xbrick), step = unlist(stepbrick), var = 'brickdist', BA = 'before', model = 'p1'),
                                 by = .(snail)])
 
-# ta da
-
+# tada
 
 p1.rss <- copy(rss.long)
