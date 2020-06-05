@@ -858,6 +858,24 @@ ta <- ggplot(dat.obs, aes(ta_, colour = snail)) +
   geom_density()
 sl|ta
 
+ggplot(dat[case_==TRUE], aes(sl_)) +
+  geom_density(color='blue') + geom_histogram(bins = 500) +
+  ylim(0, 10) +
+  facet_wrap(vars(snail))
+
+ggplot(dat[case_==TRUE], aes(sl_)) +
+  geom_freqpoly(color='blue', bins= 50) + 
+  geom_histogram(bins = 50) +
+  #xlim(-1, 5) +
+  #ylim(0, 10) +
+  facet_wrap(vars(snail))
+
+dat[case_==TRUE,ggplot( aes(sl_))+
+      geom_density(color='blue') + geom_histogram(bins = 50), by=.(snail)]
+
+snails
+
+
 #### ALL MODELS ####
 
 #all.mods <- rbind(core.mods, p1.mods, p3.mods)
