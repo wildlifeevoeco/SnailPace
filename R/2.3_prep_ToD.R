@@ -27,7 +27,7 @@ day[,'SunsetDate'] <- as.POSIXct(paste(day$Date, day$Sunset, sep = ' '), tz = 'U
 #saveRDS(day, '~/snails/Data/derived/sunsetsunrise2019.Rds')
 
 # Read in prepped Sunset/Sunrise times
-day.snails <- readRDS('~/snails/Data/derived/sunsetsunrise2019.Rds')
+day.snails <- readRDS('Data/derived/sunsetsunrise2019.Rds')
 
 # Read in SSA data
 ssa.snails <- readRDS("Data/derived/ssa-hr.Rds")
