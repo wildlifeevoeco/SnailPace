@@ -863,22 +863,28 @@ ggplot(dat[case_==TRUE], aes(sl_)) +
   ylim(0, 10) +
   facet_wrap(vars(snail))
 
-ggplot(dat[case_==TRUE], aes(sl_)) +
-  geom_freqpoly(color='blue', bins= 50) + 
-  geom_histogram(bins = 50) +
-  #xlim(-1, 5) +
-  #ylim(0, 10) +
+ggplot(dat[case_==TRUE], aes(sl_, y = ..density..)) +
+ #geom_freqpoly(color='blue', bins= 50) + 
+  geom_histogram(bins = 20) +
+ # geom_line(aes(x=dat$x, y=dgamma(dat$x,fit.params$estimate["shape"], fit.params$estimate["rate"])), color="red", size = 1) +
   facet_wrap(vars(snail))
 
-dat[case_==TRUE,ggplot( aes(sl_))+
-      geom_density(color='blue') + geom_histogram(bins = 50), by=.(snail)]
+ggplot(dat[case_==TRUE & snail=='O11a']) +
+  geom_histogram(aes(sl_, y = ..density..), bins=20) +
+  geom_line(aes(x=sl_, y=dgamma(sl_, gam[param =="shape" & snail=='O11a', vals], gam[param =="rate" & snail=='O11a', vals])), color="red", size = 1) 
+
 
 snails
-gam <- dat[case_==TRUE,.(vals = fit_distr(sl_, 'gamma'), param = names((fit_distr(sl_, 'gamma')))), by = .(snail)]
-gam[,term := names(params), by = .(snail)]
-for (i in snails) {
-  
-}
+gam <- dat[case_==TRUE,.(vals = MASS::fitdistr(sl_, "gamma")[[1]],
+                         param = names(MASS::fitdistr(sl_, "gamma")[[1]])), by = .(snail)]
+gam.wide <- dcast(gam, snail ~ param, value.var = "vals")
+
+gam.snails <- merge(dat[case_==TRUE,.(snail, sl_)], gam.wide, by = c('snail'), all.x = T)
+
+ggplot(gam.snails) +
+  geom_histogram(aes(sl_, y = ..density..), bins=15) +
+  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
+  facet_wrap(vars(snail))
 
 #### ALL MODELS ####
 
