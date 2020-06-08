@@ -15,13 +15,15 @@ dat$Time <- paste(dat$Time, "00", sep=":")
 dat$datetime <- paste(dat$Date, dat$Time)
 # making sure my newly created datetime is the right str
 dat$datetime <- as.POSIXct(dat$datetime, tz = 'UTC', "%Y-%m-%d %H:%M:%S") 
+dat[,'x'] <- round(dat$x_cm + 370194, 2)
+dat[,'y'] <- round(dat$y_cm + 5268492, 2)
 
 ### setting my crs ----
 utm22T <- "+proj=utm +zone=22 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 crs22 <- sp::CRS("+init=epsg:32621")
 
 # selecting just the parts of the data that I need, you'll probably need to include your other things like temp and precip
-DT.prep <- dat %>% dplyr::select(x = "xUTM", y = "yUTM", t = 'datetime', snail = 'Snail', temp = "Temperature",
+DT.prep <- dat %>% dplyr::select(x = "x", y = "y", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
 DT.prep.hr <- DT.prep[t %like% ':00:']
@@ -152,7 +154,7 @@ ssa.30 <- track.30 %>%
 
 ssa.30.unnest <- ssa.30 %>% dplyr::select(snail, randsteps) %>% unnest(cols = c(randsteps))
 
-merged.snails <-merge(ssa.30.unnest, DT.prep.good,
+merged.snails <-merge(ssa.30.unnest, DT.prep.30,
                       by.x=c('snail','t2_'), by.y= c('snail', 't'))
 
 
