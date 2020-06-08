@@ -21,9 +21,12 @@ dat$Precipitation <- as.factor(dat$Precipitation)
 dat.hr$Stage <- factor(dat.hr$Stage, levels = c("Acc", "B","A"))
 dat.hr$ToD_start <- as.factor(dat.hr$ToD_start)
 dat.hr$Precipitation <- as.factor(dat.hr$Precipitation)
+dat.hr$log_sl <- ifelse(is.finite(dat.hr$log_sl), dat.hr$log_sl, -50)
+trusted.sl <- dat.hr[case_==TRUE & sl_>=0.001,.(snail,step_id_)]
+dat.hr <- merge(dat.hr,trusted.sl, by = c('snail', 'step_id_'))
 
 # list of all snails
-snails <- unique(dat$snail)
+snails <- unique(dat.hr$snail)
 
 
 ### FUNCTIONS ----
@@ -165,8 +168,9 @@ setup <- CJ(
 # Which individuals should be dropped?
 p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
            "P22b", "P23a", "P23b", "O11a", "O13a")
-p1bad <- c("O12b", "P22b", "P23b", "P24b")
-p1bad <- c("O12b", "O14a", "O22b", "O24b", "O31a", "P21a")
+
+p1bad <- c('O11b', "O12b", 'O13a', "O14a", "O22b", 'O24a', "O31a", 'P12a', 'P13a', "P21a", "P22b", "P23b", "P24b")
+
 setup[model == 'p1', bad := snail %in% p1bad]
 
 
@@ -876,7 +880,7 @@ ggplot(dat[case_==TRUE & snail=='O11a']) +
 
 
 snails
-gam <- dat[case_==TRUE,.(vals = MASS::fitdistr(sl_, "gamma")[[1]],
+gam <- dat[case_==TRUE & sl_ > 0,.(vals = MASS::fitdistr(sl_, "gamma")[[1]],
                          param = names(MASS::fitdistr(sl_, "gamma")[[1]])), by = .(snail)]
 gam.wide <- dcast(gam, snail ~ param, value.var = "vals")
 
