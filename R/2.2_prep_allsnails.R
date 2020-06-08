@@ -51,8 +51,7 @@ track <- dat_all %>%
   mutate(steps = map(trk, function(x) {
     x %>% amt::track_resample(rate = hours(1), tolerance = minutes(10)) %>%
       amt::filter_min_n_burst(min_n = 3) %>%
-      amt::steps_by_burst() %>% 
-      mutate(sl_ = sl_ + 1)
+      amt::steps_by_burst() 
   }))
 
 
@@ -64,30 +63,14 @@ sum.sl<-setDT(track_unnest)[,.(stepn=uniqueN(t1_), nas=sum(is.na(sl_)), mean=mea
 sum.sl[,'diff'] <- sum.sl$stepn-sum.sl$nas
 
 snail.30 <- sum.sl[diff>=30]
-dat.30 <- dat[Snail %chin% snail.30$snail]
-
-dat.30$datetime <- paste(dat.30$Date, dat.30$Time)
-dat.30$datetime <- as.POSIXct(dat.30$datetime, tz = 'UTC', "%Y-%m-%d %H:%M") 
+DT.prep.30 <- DT.prep.hr[snail %chin% snail.30$snail]
 
 
-# selecting just the parts of the data that I need, you'll probably need to include your other things like temp and precip
-DT.prep.30 <- dat.30 %>% dplyr::select(x = "xUTM", y = "yUTM", t = 'datetime', snail = 'Snail', temp = "Temperature",
-                                       precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
+
 
 ### finding and removing duplicates
 DT.prep.30[,.(len=length(t), unique=uniqueN(t)), by=.(snail)]
 
-duplicated(dat[Trial==2, .(Time), by=.(Snail)])
-
-t2snails <- dat[Trial==2, unique(Snail)]
-
-t2<-DT.prep.30[snail %in% t2snails]
-
-t2[(duplicated(t)),.(t), by=.(snail)]
-
-badsnails <- t2[, .N, by = .(snail, t)][N > 1]
-
-DT.prep.good <- DT.prep.30[-c(4379, 4811, 5243, 5675, 6107, 6539, 6971, 7403, 7835, 8267, 8699, 9131),]
 
 
 # getting SL and TA distributions
@@ -98,8 +81,8 @@ SLdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
     #function turns locs into steps
     steps()
   #remove any steps that span more than 2hr
-  trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='mins')
-  trk <- subset(trk, trk$dt_ > 29.9 & trk$dt_ < 30.1, drop = T)
+  trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
+  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T)
   #generate random steps
   trk %>%
     random_steps() %>%
@@ -113,8 +96,8 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
     #function turns locs into steps
     steps()
   #remove any steps that span more than 2hr
-  trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='mins')
-  trk <- subset(trk, trk$dt_ > 29.9 & trk$dt_ < 30.1, drop = T)
+  trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
+  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T)
   #generate random steps
   trk %>%
     random_steps() %>%
@@ -122,18 +105,18 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
 }
 
 #run function by ID
-slParams <- DT.prep.good[, SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
+slParams <- DT.prep.30[, SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
                                 sl_distr = "gamma", ta_distr = "vonmises"),
                   by = snail]
 
-taParams <- DT.prep.good[, TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
+taParams <- DT.prep.30[, TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
                                    sl_distr = "gamma", ta_distr = "vonmises"),
                          by = snail]
 
 Params <- merge(slParams, taParams[,.(snail,kappa)], by = 'snail')
 
 # nesting data by id
-dat_all.30 <- DT.prep.good %>% group_by(snail) %>% nest()
+dat_all.30 <- DT.prep.30 %>% group_by(snail) %>% nest()
 
 #making the track
 dat_all.30 <- dat_all.30 %>%
@@ -151,8 +134,7 @@ track.30 <- dat_all.30 %>%
   mutate(steps = map(trk, function(x) {
     x %>% amt::track_resample(rate = hours(1), tolerance = minutes(10)) %>%
       amt::filter_min_n_burst(min_n = 3) %>%
-      amt::steps_by_burst() %>% 
-      mutate(sl_ = sl_ + 1)
+      amt::steps_by_burst()
   }))
 
 ssa.30 <- track.30 %>%
