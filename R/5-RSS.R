@@ -617,8 +617,11 @@ setup <- CJ(
 p3bad.30 <- c("P24b", "O24a", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b", "O22a", "P13a",
            "P14a", "P22a", "P24a", "P31a")
 #p3bad <- c('O11a','O12b', 'O13a', 'O14a','O22b', 'O23a', 'O24a', 'O24b', 'O31a', 'P13a','P14a', 'P21a', 'P22b', 'P23b', 'P24b')
-p3bad <- c('O12b', 'O13a', 'O14a','O22b', 'O23a', 'O24a', 'O24b', 'O31a', 'P13a', 'P21a', 'P22b', 'P23b', 'P24b')
 
+p3bad <- c('O11b', 'O12b', 'O13a', 'O14a','O22b', 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 
+           'P22b', 'P23a', 'P23b', 'P24b')
+  
+  
 setup[model == 'p3', bad := snail %in% p3bad]
 
 
@@ -716,7 +719,7 @@ direction <- p3.wide[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdi
 direction[,'snails2'] <- paste(direction$snail, direction$brick, sep = '.')
 direction[,'brick2'] <-gsub("[^0-9.-]", "", direction$brick)
 
-speed.edge.before <- ggplot(data=speed[snail != 'P23a'], aes(x=edist, y=ed.spd.before/50, color = brick2)) + 
+speed.edge.before <- ggplot(data=speed[snail != 'O11a'], aes(x=edist, y=ed.spd.before/50, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -730,7 +733,7 @@ speed.edge.before <- ggplot(data=speed[snail != 'P23a'], aes(x=edist, y=ed.spd.b
   xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
 speed.edge.before 
 
-speed.edge.after <- ggplot(data=speed[snail != 'P12a'], aes(x=edist, y=ed.spd.after/50, color = brick2)) + 
+speed.edge.after <- ggplot(data=speed, aes(x=edist, y=ed.spd.after/50, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
