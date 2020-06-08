@@ -165,12 +165,13 @@ setup <- CJ(
 # Which individuals should be dropped?
 p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
            "P22b", "P23a", "P23b", "O11a", "O13a")
-p1bad <- c("O12b", "O14a", "O22b", "O24b", "O31a", "P21a", "P22b", "P23b", "P24b")
+p1bad <- c("O12b", "P22b", "P23b", "P24b")
+p1bad <- c("O12b", "O14a", "O22b", "O24b", "O31a", "P21a")
 setup[model == 'p1', bad := snail %in% p1bad]
 
 
 # Run only on *good* individuals and those with > 0 rows
-setup[!(bad), n := 
+setup[, n := 
       dat[ghostbricks == .BY[[2]] & snail == .BY[[1]], .N],
       by = .(snail, brick)]
 
