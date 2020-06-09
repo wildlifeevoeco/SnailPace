@@ -64,7 +64,7 @@ track <- dat_all %>%
 
 track <- track %>%
   mutate(randsteps = map(steps, function(x) {
-    x %>% amt::random_steps(n_control = 10, sl_distr = fit_distr(steps$sl_, dist_name = "exp"))
+    x %>% amt::random_steps(n = 10, sl_distr = fit_distr(dist_name = "exp"))
   }))
 ### Find snails with less than 30 steps missing ###
 amt::random_steps(x=track_unnest$sl_, sl_distr = fit_distr(track_unnest$sl_, dist_name = "exp"))
@@ -120,7 +120,7 @@ slParams <- DT.prep.30[, SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22
                                 sl_distr = "gamma", ta_distr = "vonmises"),
                   by = snail]
 
-taParams <- DT.prep.30[, TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
+taParams <- DT.prep.hr[, TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
                                    sl_distr = "gamma", ta_distr = "vonmises"),
                          by = snail]
 
