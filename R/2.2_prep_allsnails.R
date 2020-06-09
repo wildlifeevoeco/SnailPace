@@ -64,7 +64,7 @@ track <- dat_all %>%
 
 track <- track %>%
   mutate(randsteps = map(steps, function(x) {
-    x %>% amt::random_steps(n = 10, sl_distr = fit_distr(dist_name = "exp"))
+    x %>% amt::random_steps(n = 10, sl_distr = fit_distr(steps$sl_,dist_name = "exp"))
   }))
 ### Find snails with less than 30 steps missing ###
 amt::random_steps(x=track_unnest$sl_, sl_distr = fit_distr(track_unnest$sl_, dist_name = "exp"))
