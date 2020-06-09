@@ -28,7 +28,7 @@ DT.prep <- dat %>%
   dplyr::select(x = "x", y = "y", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
-DT.prep.hr <- DT.prep[t %like% ':30:']
+DT.prep.hr <- DT.prep[t %like% ':30:' & !(is.na(x))]
 stp.snails <- DT.prep.hr[!(is.na(x)),.(nSteps =uniqueN(t)), by=.(snail)]
 stp.snails.30 <- stp.snails[nSteps >=30, snail]
 
@@ -64,7 +64,7 @@ track <- dat_all %>%
 
 track <- track %>%
   mutate(randsteps = map(steps, function(x) {
-    x %>% amt::random_steps(n = 10, sl_distr = fit_distr(steps$sl_,dist_name = "exp"))
+    x %>% amt::random_steps(n = 10, sl_distr = fit_distr(steps,dist_name = "exp"))
   }))
 ### Find snails with less than 30 steps missing ###
 amt::random_steps(x=track_unnest$sl_, sl_distr = fit_distr(track_unnest$sl_, dist_name = "exp"))
@@ -117,18 +117,23 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
 
 #run function by ID
 DT.prep.30[,unique(snail)]
-slParams <- DT.prep.30[, SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
-                                sl_distr = "gamma", ta_distr = "vonmises"),
+bad <-c('P13a', 'O13a', 'P24a','O24a', 'P31a', 'O31a')
+slParams <- DT.prep.30[!(snail %in% bad), {
+  print(.BY[[1]])
+  SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
+                                sl_distr = "gamma", ta_distr = "vonmises")},
                   by = snail]
 
-taParams <- DT.prep.30[, TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
-                                   sl_distr = "gamma", ta_distr = "vonmises"),
+taParams <- DT.prep.30[!(snail %in% bad), {
+  print(.BY[[1]])
+  TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
+          sl_distr = "gamma", ta_distr = "vonmises")},
                          by = snail]
 
 Params <- merge(slParams, taParams[,.(snail,kappa)], by = 'snail')
 
 # nesting data by id
-dat_all.30 <- DT.prep.30 %>% group_by(snail) %>% nest()
+dat_all.30 <- DT.prep.30[!(snail %in% bad)] %>% group_by(snail) %>% nest()
 
 #making the track
 dat_all.30 <- dat_all.30 %>%
