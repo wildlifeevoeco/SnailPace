@@ -889,9 +889,20 @@ gam.wide <- dcast(gam, snail ~ param, value.var = "vals")
 
 gam.snails <- merge(dat[case_==TRUE,.(snail, sl_)], gam.wide, by = c('snail'), all.x = T)
 
+expo <- dat[case_==TRUE & sl_ > 0,.(vals = MASS::fitdistr(sl_, "exponential")[[1]],
+                                   param = names(MASS::fitdistr(sl_, "exponential")[[1]])), by = .(snail)]
+expo.wide <- dcast(expo, snail ~ param, value.var = "vals")
+
+expo.snails <- merge(dat[case_==TRUE,.(snail, sl_)], expo.wide, by = c('snail'), all.x = T)
+
 ggplot(gam.snails) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
+  geom_histogram(aes(sl_, y = ..density..), bins=50) +
   geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
+  facet_wrap(vars(snail))
+
+ggplot(expo.snails) +
+  geom_histogram(aes(sl_, y = ..density..), bins=70) +
+  geom_line(aes(x=sl_, y=dexp(sl_, rate[1])), color="blue", size = 1) +
   facet_wrap(vars(snail))
 
 ggplot(gam.snails[snail==snails[1]]) +
