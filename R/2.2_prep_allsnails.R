@@ -186,7 +186,7 @@ merged.snails <-merge(ssa.30.unnest, DT.prep.30,
                       by.x=c('snail','t2_'), by.y= c('snail', 't'))
 
 
-saveRDS(merged.snails, 'Data/derived/ssa-hr.Rds')
+saveRDS(merged.snails, 'Data/derived/ssa-goods.Rds')
 
-saveRDS(Params, 'Data/derived/moveParams-hr.Rds')
+saveRDS(Params, 'Data/derived/moveParams-goods.Rds')
 
