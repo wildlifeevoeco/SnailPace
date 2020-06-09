@@ -879,7 +879,7 @@ ggplot(dat[case_==TRUE], aes(sl_)) +
 ggplot(dat[case_==TRUE], aes(sl_, y = ..density..)) +
  #geom_freqpoly(color='blue', bins= 50) + 
   geom_histogram(bins = 20) +
- # geom_line(aes(x=dat$x, y=dgamma(dat$x,fit.params$estimate["shape"], fit.params$estimate["rate"])), color="red", size = 1) +
+  #geom_line(aes(x=dat$x, y=dgamma(dat$x,fit.params$estimate["shape"], fit.params$estimate["rate"])), color="red", size = 1) +
   facet_wrap(vars(snail))
 
 ggplot(dat[case_==TRUE & snail=='O11a']) +
