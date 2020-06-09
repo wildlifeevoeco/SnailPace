@@ -23,7 +23,7 @@ dat.hr$ToD_start <- as.factor(dat.hr$ToD_start)
 dat.hr$Precipitation <- as.factor(dat.hr$Precipitation)
 dat.hr$log_sl <- ifelse(is.finite(dat.hr$log_sl), dat.hr$log_sl, -50)
 trusted.sl <- dat.hr[case_==TRUE & sl_>=0.001,.(snail,step_id_)]
-dat.hr <- merge(dat.hr,trusted.sl, by = c('snail', 'step_id_'))
+dat.hr.trusted <- merge(dat.hr,trusted.sl, by = c('snail', 'step_id_'))
 
 # list of all snails
 snails <- unique(dat.hr$snail)
@@ -97,16 +97,16 @@ setup <- data.table(
 )
 
 # Which individuals should be dropped?
-corebad <- 'P11a'
-# setup[model == 'core', bad := snail %in% corebad]
+corebad <- c('P22b', 'P13a')
+setup[model == 'core', bad := snail %in% corebad]
 
 
 # Run only on *good* individuals and those with > 0 rows
-# setup[!(bad), n := 
+# setup[!(bad), n :=
 #         dat[ghostbricks == .BY[[2]] & snail == .BY[[1]], .N],
 #       by = .(snail, brick)]
 # 
-# setup[!(bad) & n != 0, mod := 
+# setup[!(bad) & n != 0, mod :=
 #         list_models(response, explanatory,
 #                     dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
 #       by = .(snail, brick)]
@@ -115,13 +115,13 @@ corebad <- 'P11a'
 setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 
 # Run only on *good* individual
-setup[, mod :=
+setup[!(bad), mod :=
         list_models(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
       by = snail]
 
-setup[, issa :=
+setup[!(bad), issa :=
         list_issa(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
@@ -129,21 +129,21 @@ setup[, issa :=
 
 # coefs 
 
-setup[, coef := calc_coef(mod),
+setup[!(bad), coef := calc_coef(mod),
       by = .(snail)]
 
 
-setup[, var := calc_coef_names(mod),
+setup[!(bad), var := calc_coef_names(mod),
       by = .(snail)]
 
 
-move <- setup[,.(coef = unlist(coef), var = unlist(var), model), by = .(snail)]
+move <- setup[!(bad),.(coef = unlist(coef), var = unlist(var), model), by = .(snail)]
 move <- merge(move, moveParams, by = 'snail', all.x = T)
 
 core.move <- copy(move)
 
 
-core.mods <- setup[,.(snail, mod, model = model)]
+core.mods <- setup[!(bad),.(snail, mod, model = model)]
 
 
 # core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
