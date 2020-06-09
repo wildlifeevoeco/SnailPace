@@ -142,7 +142,7 @@ move <- merge(move, moveParams, by = 'snail', all.x = T)
 
 core.move <- copy(move)
 
-
+core.issa <- setup[!(bad),.(snail, issa, model = model)]
 core.mods <- setup[!(bad),.(snail, mod, model = model)]
 
 
@@ -169,7 +169,9 @@ setup <- CJ(
 p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
            "P22b", "P23a", "P23b", "O11a", "O13a")
 
-p1bad <- c('O11b', "O12b", 'O13a', "O14a", "O22b", 'O24a', "O31a", 'P12a', 'P13a', "P21a", "P22b", "P23b", "P24b")
+#p1bad <- c('O11b', "O12b", 'O13a', "O14a", "O22b", 'O24a', "O31a", 'P12a', 'P13a', "P21a", "P22b", "P23b", "P24b")
+
+p1bad <- c('P22b', 'P13a', "O12b", "O14a", 'O22a', 'O31a', "P21a", 'P23a', "P23b", "P24b", 'P31a')
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
@@ -614,14 +616,16 @@ setup <- CJ(
 
 
 # Which individuals should be dropped?
-p3bad.30 <- c("P24b", "O24a", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b", "O22a", "P13a",
-           "P14a", "P22a", "P24a", "P31a")
+# p3bad.30 <- c("P24b", "O24a", "P11a", "P21a", "O12b", "O22b", "P12b", "P22b", "O13a", "P23a", "P23b", "O22a", "P13a",
+#            "P14a", "P22a", "P24a", "P31a")
+
 #p3bad <- c('O11a','O12b', 'O13a', 'O14a','O22b', 'O23a', 'O24a', 'O24b', 'O31a', 'P13a','P14a', 'P21a', 'P22b', 'P23b', 'P24b')
 
-p3bad <- c('O11b', 'O12b', 'O13a', 'O14a','O22b', 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 
-           'P22b', 'P23a', 'P23b', 'P24b')
+# p3bad <- c('O11b', 'O12b', 'O13a', 'O14a','O22b', 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 
+#            'P22b', 'P23a', 'P23b', 'P24b')
   
-  
+p3bad <- c('P22b', 'P13a', 'O12b', 'O14a', 'O23a', 'O24a', 'O31a', 'P21a', 'P23b', 'P24b')
+
 setup[model == 'p3', bad := snail %in% p3bad]
 
 
@@ -728,6 +732,7 @@ speed.edge.before <- ggplot(data=speed[snail != 'O11a'], aes(x=edist, y=ed.spd.b
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) + 
   #  theme(legend.position = "none") +
+  ylim(-0.001, 25) +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("a) before ") +
   xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
