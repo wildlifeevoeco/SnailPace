@@ -18,7 +18,7 @@ dat$datetime <- as.POSIXct(dat$datetime, tz = 'UTC', "%Y-%m-%d %H:%M:%S")
 dat[,'x'] <- round(dat$x_cm + 370194, 2)
 dat[,'y'] <- round(dat$y_cm + 5268492, 2)
 
-set.seed(37)
+set.seed(53)
 ### setting my crs ----
 utm22T <- "+proj=utm +zone=22 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 crs22 <- sp::CRS("+init=epsg:32621")
@@ -28,7 +28,7 @@ DT.prep <- dat %>%
   dplyr::select(x = "x", y = "y", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
-DT.prep.hr <- DT.prep[t %like% ':00:' & !(is.na(x))]
+DT.prep.hr <- DT.prep[t %like% ':30:']
 stp.snails <- DT.prep.hr[,.(nSteps =uniqueN(t)), by=.(snail)]
 stp.snails.30 <- stp.snails[nSteps >=30, snail]
 
@@ -116,11 +116,12 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
 }
 
 #run function by ID
+DT.prep.30[,unique(snail)]
 slParams <- DT.prep.30[, SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
                                 sl_distr = "gamma", ta_distr = "vonmises"),
                   by = snail]
 
-taParams <- DT.prep.hr[, TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
+taParams <- DT.prep.30[, TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
                                    sl_distr = "gamma", ta_distr = "vonmises"),
                          by = snail]
 
