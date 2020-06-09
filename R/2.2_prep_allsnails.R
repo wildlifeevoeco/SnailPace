@@ -18,16 +18,18 @@ dat$datetime <- as.POSIXct(dat$datetime, tz = 'UTC', "%Y-%m-%d %H:%M:%S")
 dat[,'x'] <- round(dat$x_cm + 370194, 2)
 dat[,'y'] <- round(dat$y_cm + 5268492, 2)
 
+set.seed(37)
 ### setting my crs ----
 utm22T <- "+proj=utm +zone=22 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 crs22 <- sp::CRS("+init=epsg:32621")
 
 # selecting just the parts of the data that I need, you'll probably need to include your other things like temp and precip
-DT.prep <- dat %>% dplyr::select(x = "x", y = "y", t = 'datetime', snail = 'Snail', temp = "Temperature",
+DT.prep <- dat %>% 
+  dplyr::select(x = "x", y = "y", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
-DT.prep.hr <- DT.prep[t %like% ':00:']
-
+DT.prep.hr <- DT.prep[t %like% ':00:' & !(is.na(x))]
+DT.prep.hr[,uniqueN(t), by=.(snail)]
 
 # nesting data by id
 dat_all <- DT.prep.hr %>% group_by(snail) %>% nest()
@@ -53,12 +55,16 @@ track <- dat_all %>%
   mutate(steps = map(trk, function(x) {
     x %>% amt::track_resample(rate = hours(1), tolerance = minutes(10)) %>%
       amt::filter_min_n_burst(min_n = 3) %>%
-      amt::steps_by_burst() 
+      amt::steps_by_burst() #%>%
+      #amt::random_steps(n_control = 10, sl_distr = fit_distr(sl_, dist_name = "exp"))
   }))
 
-
+track <- track %>%
+  mutate(randsteps = map(steps, function(x) {
+    x %>% amt::random_steps(n_control = 10, sl_distr = fit_distr(steps$sl_, dist_name = "exp"))
+  }))
 ### Find snails with less than 30 steps missing ###
-
+amt::random_steps(x=track_unnest$sl_, sl_distr = fit_distr(track_unnest$sl_, dist_name = "exp"))
 
 track_unnest <- track %>% dplyr::select(snail, steps) %>% unnest(cols = c(steps))
 sum.sl<-setDT(track_unnest)[,.(stepn=uniqueN(t1_), nas=sum(is.na(sl_)), mean=mean(sl_, na.rm=T), min = min(sl_, na.rm=T), max=max(sl_, na.rm=T), median = median(sl_, na.rm=T)), by= .(snail)]
