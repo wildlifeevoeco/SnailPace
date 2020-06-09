@@ -29,7 +29,10 @@ DT.prep <- dat %>%
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
 DT.prep.hr <- DT.prep[t %like% ':00:' & !(is.na(x))]
-DT.prep.hr[,uniqueN(t), by=.(snail)]
+stp.snails <- DT.prep.hr[,.(nSteps =uniqueN(t)), by=.(snail)]
+stp.snails.30 <- stp.snails[nSteps >=30, snail]
+
+DT.prep.hr <- DT.prep.hr[snail %chin% stp.snails.30]
 
 # nesting data by id
 dat_all <- DT.prep.hr %>% group_by(snail) %>% nest()
