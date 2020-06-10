@@ -11,8 +11,8 @@ lapply(libs, require, character.only = TRUE)
 raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 dat <- readRDS('Data/derived/ssa30ghosts.Rds')
-dat.hr <- readRDS('Data/derived/ssa-hr-ghosts.Rds')
-moveParams <- readRDS('Data/derived/moveParams-hr.Rds')
+dat.hr <- readRDS('Data/derived/ssa-good-ghosts.Rds')
+moveParams <- readRDS('Data/derived/moveParams-goods.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 dat$ToD_start <- as.factor(dat$ToD_start)
@@ -171,7 +171,9 @@ p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b",
 
 #p1bad <- c('O11b', "O12b", 'O13a', "O14a", "O22b", 'O24a', "O31a", 'P12a', 'P13a', "P21a", "P22b", "P23b", "P24b")
 
-p1bad <- c('P22b', 'P13a', "O12b", "O14a", 'O22a', 'O31a', "P21a", 'P23a', "P23b", "P24b", 'P31a')
+#p1bad <- c('P22b', 'P13a', "O12b", "O14a", 'O22a', 'O31a', "P21a", 'P23a', "P23b", "P24b", 'P31a')
+
+p1bad <- c('P22b', 'P13a', 'O11b', "O12b", "O14a", 'O22a', 'P12a', "P21a", 'P22a', 'P23a', "P23b", "P24b")
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
