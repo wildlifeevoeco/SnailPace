@@ -86,7 +86,7 @@ calc_loglik <- function(model) {
 
 
 #### CORE ====
-dat <- dat.hr
+dat <- dat.hr.trusted
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -97,7 +97,8 @@ setup <- data.table(
 )
 
 # Which individuals should be dropped?
-corebad <- c('P22b', 'P13a')
+#corebad <- c('P22b', 'P13a')
+corebad <- c('O24b')
 setup[model == 'core', bad := snail %in% corebad]
 
 
@@ -173,7 +174,9 @@ p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b",
 
 #p1bad <- c('P22b', 'P13a', "O12b", "O14a", 'O22a', 'O31a', "P21a", 'P23a', "P23b", "P24b", 'P31a')
 
-p1bad <- c('P22b', 'P13a', 'O11b', "O12b", "O14a", 'O22a', 'P12a', "P21a", 'P22a', 'P23a', "P23b", "P24b")
+#p1bad <- c('P22b', 'P13a', 'O11b', "O12b", "O14a", 'O22a', 'P12a', "P21a", 'P22a', 'P23a', "P23b", "P24b")
+
+p1bad <- c('O24b', "O12b", "O14a", 'O22b', 'P12a', 'P14a', "P21a", 'P22a', 'P22b', "P23b", "P24b")
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
