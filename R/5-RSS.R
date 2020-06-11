@@ -11,10 +11,10 @@ lapply(libs, require, character.only = TRUE)
 raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 dat <- readRDS('Data/derived/ssa30ghosts.Rds')
-dat.hr <- readRDS('Data/derived/ssa-gam-ghosts.Rds')
-dat.2hr <- readRDS('Data/derived/ssa-gam2hr-ghosts.Rds')
-moveParams <- readRDS('Data/derived/moveParams-gam.Rds')
-moveParams.2hr <- readRDS('Data/derived/moveParams-gam2hr.Rds')
+dat.hr <- readRDS('Data/derived/ssa-exp-ghosts.Rds')
+dat.2hr <- readRDS('Data/derived/ssa-exp2hr-ghosts.Rds')
+moveParams <- readRDS('Data/derived/moveParams-exp.Rds')
+moveParams.2hr <- readRDS('Data/derived/moveParams-exp2hr.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 dat$ToD_start <- as.factor(dat$ToD_start)
@@ -96,7 +96,7 @@ calc_loglik <- function(model) {
 
 
 #### CORE ====
-dat <- dat.hr.trusted
+dat <- dat.2hr
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -109,7 +109,9 @@ setup <- data.table(
 # Which individuals should be dropped?
 #corebad <- c('P22b') #, 'P13a') # good
 #corebad <- c('O24a') #all
-corebad <- c('O22a','O22b', 'O24a','O23a','O24b')
+# corebad <- c('O22a','O22b', 'O24a','O23a','O24b')
+#corebad <- c('P31a', 'P14a') #2hr all
+corebad <- c('P14a') #2hr all exp
 
 
 setup[model == 'core', bad := snail %in% corebad]
@@ -120,7 +122,7 @@ setup[model == 'core', bad := snail %in% corebad]
 setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 
 # Run only on *good* individual
-setup[, mod :=
+setup[!(bad), mod :=
         list_models(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
@@ -171,8 +173,8 @@ setup <- CJ(
 
 
 # Which individuals should be dropped?
-p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
-           "P22b", "P23a", "P23b", "O11a", "O13a")
+# p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b", 
+#            "P22b", "P23a", "P23b", "O11a", "O13a")
 
 #p1bad <- c('O11b', "O12b", 'O13a', "O14a", "O22b", 'O24a', "O31a", 'P12a', 'P13a', "P21a", "P22b", "P23b", "P24b")
 
@@ -185,7 +187,8 @@ p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b",
 #p1bad <- c('O24a', "O12b", 'O13a', "O14a", 'O22b', 'O24b', 'O31a', 'P13a', 'P14a', "P21a", 'P22a', 'P22b', "P23b", 'P24a', 'P31a') # exp no 0 steps
 
 #p1bad <- c('P22b', 'O11a', 'O12b', "O14a", 'P21a', 'P23b') #exp good
-p1bad <- c('P31a', 'P22b', 'P13a', 'P14a', 'O11b', 'O12b', 'O14a', 'O22a')
+#p1bad <- c('P31a', 'P14a', "O12b", "O14a", 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 'P22b', 'P23b') #2hr all
+p1bad <- c('P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24b', 'O31a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P31a') #2hr all exp
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
@@ -640,7 +643,8 @@ setup <- CJ(
   
 #p3bad <- c('P22b', 'P13a', 'O12b', 'O14a', 'O23a', 'O24a', 'O31a', 'P21a', 'P23b', 'P24b')
 #p3bad <- c('P22b', 'P13a', 'O11a','O12b', 'O13a', 'O14a')
-p3bad <- c('P22b', 'O11a', 'O12b', 'O14a', 'P14a', 'P21a', 'P23b', 'P24b')
+#p3bad <- c('P31a', 'P14a', 'O11b','O12b', 'O14a', 'O23a', 'O24a', 'O24b', 'P21a', 'P22a', 'O31a', 'P12a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') #2hr all
+p3bad <- c('P14a', 'O12b', 'O14a', 'O22a', 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24b') #2hr all exp
 
 setup[model == 'p3', bad := snail %in% p3bad]
 
