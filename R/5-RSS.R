@@ -11,8 +11,10 @@ lapply(libs, require, character.only = TRUE)
 raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 dat <- readRDS('Data/derived/ssa30ghosts.Rds')
-dat.hr <- readRDS('Data/derived/ssa-exp-good-ghosts.Rds')
-moveParams <- readRDS('Data/derived/moveParams-exp-goods.Rds')
+dat.hr <- readRDS('Data/derived/ssa-gam-ghosts.Rds')
+dat.2hr <- readRDS('Data/derived/ssa-gam2hr-ghosts.Rds')
+moveParams <- readRDS('Data/derived/moveParams-gam.Rds')
+moveParams.2hr <- readRDS('Data/derived/moveParams-gam2hr.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 dat$ToD_start <- as.factor(dat$ToD_start)
@@ -21,9 +23,17 @@ dat$Precipitation <- as.factor(dat$Precipitation)
 dat.hr$Stage <- factor(dat.hr$Stage, levels = c("Acc", "B","A"))
 dat.hr$ToD_start <- as.factor(dat.hr$ToD_start)
 dat.hr$Precipitation <- as.factor(dat.hr$Precipitation)
-dat.hr$log_sl <- ifelse(is.finite(dat.hr$log_sl), dat.hr$log_sl, -50)
+#dat.hr$log_sl <- ifelse(is.finite(dat.hr$log_sl), dat.hr$log_sl, -50)
 trusted.sl <- dat.hr[case_==TRUE & sl_>=0.001,.(snail,step_id_)]
 dat.hr.trusted <- merge(dat.hr,trusted.sl, by = c('snail', 'step_id_'))
+
+
+dat.2hr$Stage <- factor(dat.2hr$Stage, levels = c("Acc", "B","A"))
+dat.2hr$ToD_start <- as.factor(dat.2hr$ToD_start)
+dat.2hr$Precipitation <- as.factor(dat.2hr$Precipitation)
+#dat.2hr$log_sl <- ifelse(is.finite(dat.2hr$log_sl), dat.2hr$log_sl, -50)
+trusted.sl <- dat.2hr[case_==TRUE & sl_>=0.001,.(snail,step_id_)]
+dat.2hr.trusted <- merge(dat.2hr,trusted.sl, by = c('snail', 'step_id_'))
 
 # list of all snails
 snails <- unique(dat.hr$snail)
@@ -86,7 +96,7 @@ calc_loglik <- function(model) {
 
 
 #### CORE ====
-dat <- dat.hr
+dat <- dat.hr.trusted
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -97,26 +107,20 @@ setup <- data.table(
 )
 
 # Which individuals should be dropped?
-corebad <- c('P22b') #, 'P13a') # good
+#corebad <- c('P22b') #, 'P13a') # good
 #corebad <- c('O24a') #all
+corebad <- c('O22a','O22b', 'O24a','O23a','O24b')
+
+
 setup[model == 'core', bad := snail %in% corebad]
 
 
-# Run only on *good* individuals and those with > 0 rows
-# setup[!(bad), n :=
-#         dat[ghostbricks == .BY[[2]] & snail == .BY[[1]], .N],
-#       by = .(snail, brick)]
-# 
-# setup[!(bad) & n != 0, mod :=
-#         list_models(response, explanatory,
-#                     dat[ghostbricks == .BY[[2]] & snail == .BY[[1]]]),
-#       by = .(snail, brick)]
 
 # Which bricks do we want to keep?
 setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 
 # Run only on *good* individual
-setup[!(bad), mod :=
+setup[, mod :=
         list_models(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
@@ -180,7 +184,8 @@ p1bad.30mins <- c("P24b", "P11a", "P21a", "O12b", "O22b", "P12b",
 #p1bad <- c('O24b', "O12b", "O14a", 'O22b', 'P12a', 'P14a', "P21a", 'P22a', 'P22b', "P23b", "P24b")
 #p1bad <- c('O24a', "O12b", 'O13a', "O14a", 'O22b', 'O24b', 'O31a', 'P13a', 'P14a', "P21a", 'P22a', 'P22b', "P23b", 'P24a', 'P31a') # exp no 0 steps
 
-p1bad <- c('P22b', 'O11a', 'O12b', "O14a", 'P21a', 'P23b')
+#p1bad <- c('P22b', 'O11a', 'O12b', "O14a", 'P21a', 'P23b') #exp good
+p1bad <- c('P31a', 'P22b', 'P13a', 'P14a', 'O11b', 'O12b', 'O14a', 'O22a')
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
