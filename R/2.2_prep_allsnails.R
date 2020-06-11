@@ -18,7 +18,7 @@ dat$datetime <- as.POSIXct(dat$datetime, tz = 'UTC', "%Y-%m-%d %H:%M:%S")
 dat[,'x'] <- round(dat$x_cm + 370194, 2)
 dat[,'y'] <- round(dat$y_cm + 5268492, 2)
 
-set.seed(53)
+set.seed(57)
 ### setting my crs ----
 utm22T <- "+proj=utm +zone=22 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 crs22 <- sp::CRS("+init=epsg:32621")
@@ -59,15 +59,15 @@ track <- dat_all %>%
     x %>% amt::track_resample(rate = hours(1), tolerance = minutes(10)) %>%
       amt::filter_min_n_burst(min_n = 3) %>%
       amt::steps_by_burst() #%>%
-      #amt::random_steps(n_control = 10, sl_distr = fit_distr(sl_, dist_name = "exp"))
+      amt::random_steps(n_control = 10, sl_distr = fit_distr(.$sl_, sl_distr))
   }))
 
-track <- track %>%
-  mutate(randsteps = map(steps, function(x) {
-    x %>% amt::random_steps(n = 10, sl_distr = fit_distr(steps,dist_name = "exp"))
-  }))
+# track <- track %>%
+#   mutate(randsteps = map(steps, function(x) {
+#     x %>% amt::random_steps(n = 10, sl_distr = fit_distr(.$sl_, 'exp'))
+#   }))
 ### Find snails with less than 30 steps missing ###
-amt::random_steps(x=track_unnest$sl_, sl_distr = fit_distr(track_unnest$sl_, dist_name = "exp"))
+#amt::random_steps(x=track_unnest$sl_, sl_distr = fit_distr(.$sl_, sl_distr))
 
 track_unnest <- track %>% dplyr::select(snail, steps) %>% unnest(cols = c(steps))
 sum.sl<-setDT(track_unnest)[,.(stepn=uniqueN(t1_), nas=sum(is.na(sl_)), mean=mean(sl_, na.rm=T), min = min(sl_, na.rm=T), max=max(sl_, na.rm=T), median = median(sl_, na.rm=T)), by= .(snail)]
@@ -96,7 +96,7 @@ SLdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
   trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T)
   #generate random steps
   trk %>%
-    random_steps() %>%
+    random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
     sl_distr_params()
 }
 
@@ -111,23 +111,24 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
   trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T)
   #generate random steps
   trk %>%
-    random_steps() %>%
+    random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
     ta_distr_params()
 }
 
 #run function by ID
 DT.prep.30[,unique(snail)]
+# bad <-c('P13a', 'O13a', 'P24a','O24a', 'P31a', 'O31a')
 bad <-c('P13a', 'O13a', 'P24a','O24a', 'P31a', 'O31a')
 slParams <- DT.prep.30[!(snail %in% bad), {
   print(.BY[[1]])
   SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
-                                sl_distr = "gamma", ta_distr = "vonmises")},
+                                sl_distr = "exp", ta_distr = "vonmises")},
                   by = snail]
 
 taParams <- DT.prep.30[!(snail %in% bad), {
   print(.BY[[1]])
   TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
-          sl_distr = "gamma", ta_distr = "vonmises")},
+          sl_distr = "exp", ta_distr = "vonmises")},
                          by = snail]
 
 Params <- merge(slParams, taParams[,.(snail,kappa)], by = 'snail')
@@ -169,7 +170,7 @@ ssa.30 <- track.30 %>%
 
 ssa.exp <- track.30 %>%
   mutate(randsteps = map(steps, function(x) {   
-    x %>% amt::random_steps(n=10, sl_distr = 'exp') %>%
+    x %>% amt::random_steps(n=10, sl_distr = fit_distr(.$sl_, "exp")) %>%
       amt::extract_covariates(edge, where = "both")  %>% # both indicates you want the covariate at the start and end of the step
       amt::extract_covariates(brickedge1, where = "both") %>%
       amt::extract_covariates(brickedge2, where = "both") %>%
@@ -182,11 +183,16 @@ ssa.exp <- track.30 %>%
 
 ssa.30.unnest <- ssa.30 %>% dplyr::select(snail, randsteps) %>% unnest(cols = c(randsteps))
 
+ssa.exp.unnest <- ssa.exp %>% dplyr::select(snail, randsteps) %>% unnest(cols = c(randsteps))
+
 merged.snails <-merge(ssa.30.unnest, DT.prep.30,
                       by.x=c('snail','t2_'), by.y= c('snail', 't'))
 
+merged.snails.exp <-merge(ssa.exp.unnest, DT.prep.30,
+                      by.x=c('snail','t2_'), by.y= c('snail', 't'))
 
-saveRDS(merged.snails, 'Data/derived/ssa-goods.Rds')
 
-saveRDS(Params, 'Data/derived/moveParams-goods.Rds')
+saveRDS(merged.snails.exp, 'Data/derived/ssa-exp-goods.Rds')
+
+saveRDS(Params, 'Data/derived/moveParams-exp-goods.Rds')
 
