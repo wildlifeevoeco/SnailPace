@@ -40,7 +40,7 @@ DT.prep.hr <- DT.prep.hr[snail %chin% stp.snails.30]
 DT.prep.2hr <- DT.prep.2hr[snail %chin% stp.snails.30.2hr]
 
 # nesting data by id
-dat_all <- DT.prep.2hr %>% group_by(snail) %>% nest()
+dat_all <- DT.prep.hr %>% group_by(snail) %>% nest()
 
 #making the track
 dat_all <- dat_all %>%
@@ -78,7 +78,7 @@ sum.sl<-setDT(track_unnest)[,.(stepn=uniqueN(t1_), nas=sum(is.na(sl_)), mean=mea
 sum.sl[,'diff'] <- sum.sl$stepn-sum.sl$nas
 
 snail.20 <- sum.sl[diff>=20]
-DT.prep.30 <- DT.prep.2hr[snail %chin% snail.20$snail]
+DT.prep.30 <- DT.prep.hr[snail %chin% snail.20$snail]
 
 
 
@@ -97,7 +97,7 @@ SLdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
     steps()
   #remove any steps that span more than 2hr
   trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
-  trk <- subset(trk, trk$dt_ > 1.9 & trk$dt_ < 2.1, drop = T) ### make sure time is right
+  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T) ### make sure time is right
   #generate random steps
   trk %>%
     random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
@@ -112,7 +112,7 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
     steps()
   #remove any steps that span more than 2hr
   trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
-  trk <- subset(trk, trk$dt_ > 1.9 & trk$dt_ < 2.1, drop = T)
+  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T)
   #generate random steps
   trk %>%
     random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
