@@ -37,10 +37,10 @@ stp.snails.2hr <- DT.prep.2hr[!(is.na(x)),.(nSteps =uniqueN(t)), by=.(snail)]
 stp.snails.30.2hr <- stp.snails.2hr[nSteps >=10, snail]
 
 DT.prep.hr <- DT.prep.hr[snail %chin% stp.snails.30]
-DT.prep.2hr <- DT.prep.2hr[snail %chin% stp.snails.30.2hr]
+DT.prep.2hr <- DT.prep.2hr[snail %chin% stp.snails.30.2hr & !(is.na(x))]
 
 # nesting data by id
-dat_all <- DT.prep.hr %>% group_by(snail) %>% nest()
+dat_all <- DT.prep.2hr %>% group_by(snail) %>% nest()
 
 #making the track
 dat_all <- dat_all %>%
@@ -78,7 +78,7 @@ sum.sl<-setDT(track_unnest)[,.(stepn=uniqueN(t1_), nas=sum(is.na(sl_)), mean=mea
 sum.sl[,'diff'] <- sum.sl$stepn-sum.sl$nas
 
 snail.20 <- sum.sl[diff>=20]
-DT.prep.30 <- DT.prep.hr[snail %chin% snail.20$snail]
+DT.prep.30 <- DT.prep.2hr[snail %chin% snail.20$snail]
 
 
 
@@ -97,7 +97,7 @@ SLdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
     steps()
   #remove any steps that span more than 2hr
   trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
-  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T) ### make sure time is right
+  trk <- subset(trk, trk$dt_ > 1.9 & trk$dt_ < 2.1, drop = T) ### make sure time is right
   #generate random steps
   trk %>%
     random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
@@ -112,7 +112,7 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
     steps()
   #remove any steps that span more than 2hr
   trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
-  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T)
+  trk <- subset(trk, trk$dt_ > 1.9 & trk$dt_ < 2.1, drop = T)
   #generate random steps
   trk %>%
     random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
@@ -121,14 +121,15 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
 
 #run function by ID
 DT.prep.30[,unique(snail)]
-# bad <-c('P13a', 'O13a', 'P24a','O24a', 'P31a', 'O31a')
-slParams.gamma <- DT.prep.30[, {
+# bad <-c('P13a', 'O13a', 'P24a','O24a', 'P31a', 'O31a') # good 1hr
+bad <- c('P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a')
+slParams.gamma <- DT.prep.30[!(snail %in% bad), {
   print(.BY[[1]])
   SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
           sl_distr = "gamma", ta_distr = "vonmises")},
   by = snail]
 
-taParams.gamma <- DT.prep.30[, {
+taParams.gamma <- DT.prep.30[!(snail %in% bad), {
   print(.BY[[1]])
   TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
           sl_distr = "gamma", ta_distr = "vonmises")},
@@ -136,13 +137,13 @@ taParams.gamma <- DT.prep.30[, {
 
 Params.gamma <- merge(slParams.gamma, taParams.gamma[,.(snail,kappa)], by = 'snail')
 
-slParams.exp <- DT.prep.30[, {
+slParams.exp <- DT.prep.30[!(snail %in% bad), {
   print(.BY[[1]])
   SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
                                 sl_distr = "exp", ta_distr = "vonmises")},
                   by = snail]
 
-taParams.exp <- DT.prep.30[, {
+taParams.exp <- DT.prep.30[!(snail %in% bad), {
   print(.BY[[1]])
   TAdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
           sl_distr = "exp", ta_distr = "vonmises")},
@@ -219,11 +220,11 @@ merged.snails.exp <-merge(ssa.exp.unnest, DT.prep.30,
 # saveRDS(Params.exp, 'Data/derived/moveParams-exp.Rds')
 
 ### 2 hr
-saveRDS(merged.snails, 'Data/derived/ssa-gam2hr.Rds')
+saveRDS(merged.snails, 'Data/derived/ssa-gam2hr-goods.Rds')
 
-saveRDS(Params.gamma, 'Data/derived/moveParams-gam2hr.Rds')
+saveRDS(Params.gamma, 'Data/derived/moveParams-gam2hr-goods.Rds')
 
-saveRDS(merged.snails.exp, 'Data/derived/ssa-exp2hr.Rds')
+saveRDS(merged.snails.exp, 'Data/derived/ssa-exp2hr-goods.Rds')
 
-saveRDS(Params.exp, 'Data/derived/moveParams-exp2hr.Rds')
+saveRDS(Params.exp, 'Data/derived/moveParams-exp2hr-goods.Rds')
 
