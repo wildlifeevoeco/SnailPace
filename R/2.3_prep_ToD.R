@@ -30,7 +30,7 @@ derived <- 'Data/derived/'
 day.snails <- readRDS('Data/derived/sunsetsunrise2019.Rds')
 
 # Read in SSA data
-ssa.snails <- readRDS("Data/derived/ssa-gam.Rds")
+ssa.snails <- readRDS("Data/derived/ssa-exp2hr-goods.Rds")
 ssa.snails[,"date.snails"] <- as.POSIXct(format(ssa.snails$t1_, "%Y-%m-%d"), tz = 'UTC', "%Y-%m-%d")
 # Merge based on Date
 full.snails <- merge(ssa.snails, day.snails, by.x = 'date.snails', by.y = 'Date', all.x = T)
@@ -125,5 +125,5 @@ controltreats <- function(data){
 control <- controltreats(data)
 
 ssa.30ghosts <- rbind(treat1, treat2, treat3, control)
-saveRDS(ssa.30ghosts, 'Data/derived/ssa-gam-ghosts.Rds')
+saveRDS(ssa.30ghosts, 'Data/derived/ssa-exp2hr-goods-ghosts.Rds')
 
