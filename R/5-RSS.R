@@ -96,7 +96,7 @@ calc_loglik <- function(model) {
 
 
 #### CORE ====
-dat <- dat.2hr
+dat <- dat.2hr.trusted
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -111,7 +111,8 @@ setup <- data.table(
 #corebad <- c('O24a') #all
 # corebad <- c('O22a','O22b', 'O24a','O23a','O24b')
 #corebad <- c('P31a', 'P14a') #2hr all
-corebad <- c('P14a') #2hr all exp
+# corebad <- c('P14a') #2hr all exp
+corebad <- c('O12b', 'O24b') #2hr all exp only moving
 
 
 setup[model == 'core', bad := snail %in% corebad]
@@ -188,7 +189,8 @@ setup <- CJ(
 
 #p1bad <- c('P22b', 'O11a', 'O12b', "O14a", 'P21a', 'P23b') #exp good
 #p1bad <- c('P31a', 'P14a', "O12b", "O14a", 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 'P22b', 'P23b') #2hr all
-p1bad <- c('P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24b', 'O31a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P31a') #2hr all exp
+#p1bad <- c('P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24b', 'O31a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P31a') #2hr all exp
+p1bad <- c('O12b', 'O24b', 'O13a', 'O14a', 'O22a', 'O22b', 'O24a', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') #2hr all exp only moving
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
