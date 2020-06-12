@@ -10,15 +10,15 @@ lapply(libs, require, character.only = TRUE)
 ### Input data ----
 raw <- 'Data/raw/'
 derived <- 'Data/derived/'
-dat <- readRDS('Data/derived/ssa30ghosts.Rds')
-dat.hr <- readRDS('Data/derived/ssa-exp-ghosts.Rds')
-dat.2hr <- readRDS('Data/derived/ssa-exp2hr-ghosts.Rds')
-moveParams <- readRDS('Data/derived/moveParams-exp.Rds')
-moveParams.2hr <- readRDS('Data/derived/moveParams-exp2hr.Rds')
+# dat <- readRDS('Data/derived/ssa30ghosts.Rds')
+dat.hr <- readRDS('Data/derived/ssa-exp-good-ghosts.Rds')
+dat.2hr <- readRDS('Data/derived/ssa-gam2hr-goods-ghosts.Rds')
+moveParams <- readRDS('Data/derived/moveParams-exp-goods.Rds')
+moveParams.2hr <- readRDS('Data/derived/moveParams-gam2hr-goods.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
-dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
-dat$ToD_start <- as.factor(dat$ToD_start)
-dat$Precipitation <- as.factor(dat$Precipitation)
+# dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
+# dat$ToD_start <- as.factor(dat$ToD_start)
+# dat$Precipitation <- as.factor(dat$Precipitation)
 
 dat.hr$Stage <- factor(dat.hr$Stage, levels = c("Acc", "B","A"))
 dat.hr$ToD_start <- as.factor(dat.hr$ToD_start)
@@ -96,7 +96,7 @@ calc_loglik <- function(model) {
 
 
 #### CORE ====
-dat <- dat.2hr.trusted
+dat <- dat.2hr
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -112,9 +112,10 @@ setup <- data.table(
 # corebad <- c('O22a','O22b', 'O24a','O23a','O24b')
 #corebad <- c('P31a', 'P14a') #2hr all
 # corebad <- c('P14a') #2hr all exp
-corebad <- c('O12b', 'O24b') #2hr all exp only moving
-
-
+# corebad <- c('O12b', 'O24b') #2hr all exp only moving
+# corebad <- c('P13a', 'P14a') # 2hr exp goods all
+# no bad when 2hr exp only moving steps
+corebad <- c('P31a') # 2hr gam goods all
 setup[model == 'core', bad := snail %in% corebad]
 
 
@@ -190,7 +191,10 @@ setup <- CJ(
 #p1bad <- c('P22b', 'O11a', 'O12b', "O14a", 'P21a', 'P23b') #exp good
 #p1bad <- c('P31a', 'P14a', "O12b", "O14a", 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 'P22b', 'P23b') #2hr all
 #p1bad <- c('P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24b', 'O31a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P31a') #2hr all exp
-p1bad <- c('O12b', 'O24b', 'O13a', 'O14a', 'O22a', 'O22b', 'O24a', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') #2hr all exp only moving
+#p1bad <- c('O12b', 'O24b', 'O13a', 'O14a', 'O22a', 'O22b', 'O24a', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') #2hr all exp only moving
+#p1bad <- c('P13a', 'P14a', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P12a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
+#p1bad <- c('O12b', 'O13a', 'O14a', 'O22a', 'O22b', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # 2hr exp goods moving only
+p1bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O13a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr gam goods all
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
@@ -646,7 +650,9 @@ setup <- CJ(
 #p3bad <- c('P22b', 'P13a', 'O12b', 'O14a', 'O23a', 'O24a', 'O31a', 'P21a', 'P23b', 'P24b')
 #p3bad <- c('P22b', 'P13a', 'O11a','O12b', 'O13a', 'O14a')
 #p3bad <- c('P31a', 'P14a', 'O11b','O12b', 'O14a', 'O23a', 'O24a', 'O24b', 'P21a', 'P22a', 'O31a', 'P12a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') #2hr all
-p3bad <- c('P14a', 'O12b', 'O14a', 'O22a', 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24b') #2hr all exp
+#p3bad <- c('P14a', 'O12b', 'O14a', 'O22a', 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24b') #2hr all exp
+#p3bad <- c('P13a', 'P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24a', 'O24b', 'O31a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
+p3bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O22a', 'O23a', 'O24a', 'P21a', 'P22b','P23b', 'P24b') # 2hr gam goods all
 
 setup[model == 'p3', bad := snail %in% p3bad]
 
@@ -710,17 +716,20 @@ p3.move[,'snails2'] <- paste(p3.move$snail, p3.move$brick, sep = '.')
 
 p3.wide <- dcast(data =p3.move, snail + brick ~ var, value.var = 'coef')
 
-p3.wide <- setDT(merge(p3.wide, moveParams, by = 'snail', all.x = T))
+p3.wide <- setDT(merge(p3.wide, moveParams.2hr, by = 'snail', all.x = T))
 
 
 edist <- seq(0,maxedge, length.out = 100)
 bdist <- seq(0,maxbrick, length.out = 100)
 
-p3.wide[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl_before+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl_after+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+# gamma distribution: shape and scale for speed
+# exponential: shape = 1, scale =1/rate
 
-p3.wide[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl_before+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl_after+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.spd.before:= list(list((shape+logsl_before+(logsl_before_edgedist*edist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.spd.after:= list(list((shape+logsl_after+(logsl_after_edgedist*edist))*(scale))), by=.(snail, brick)]
+
+p3.wide[!(is.na(logsl)), bd.spd.before:= list(list((shape+logsl_before+(logsl_before_brickdist*bdist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.spd.after:= list(list((shape+logsl_after+(logsl_after_brickdist*bdist))*(scale))), by=.(snail, brick)]
 
 
 p3.wide[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*edist)))), by=.(snail, brick)]
