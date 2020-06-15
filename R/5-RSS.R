@@ -96,7 +96,7 @@ calc_loglik <- function(model) {
 
 
 #### CORE ====
-dat <- dat.hr
+dat <- dat.hr.trusted
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -117,7 +117,9 @@ setup <- data.table(
 # no bad when 1hr and 2hr exp only moving steps ****
 # corebad <- c('P31a') # 2hr gam goods all
 # corebad <- c('O11a', 'O11b', 'P21a') # exp, goods, trusted 1hr
-corebad <- c('P31a', 'P22b', 'P13a', 'P14a') # exp all 1 hr
+# corebad <- c('P31a', 'P22b', 'P13a', 'P14a') # exp all 1 hr
+corebad <- c('O22a', 'O24a') # exp 1 hr trusted
+
 setup[model == 'core', bad := snail %in% corebad]
 
 
@@ -198,7 +200,8 @@ setup <- CJ(
 #p1bad <- c('O12b', 'O13a', 'O14a', 'O22a', 'O22b', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # 2hr exp goods moving only
 #p1bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O13a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr gam goods all
 # p1bad <- c('O12b', "O14a", 'O22a', 'O22b', 'P12a','P14a', 'P21a', 'P22b', 'P23b', 'P24b') # 1 hr exp good trusted
-p1bad <- c('P31a', 'P22b', 'P13a', 'P14a', 'O11b', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P21a', 'P23a', 'P23b', 'P24b') # exp all 1 hr
+# p1bad <- c('P31a', 'P22b', 'P13a', 'P14a', 'O11b', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P21a', 'P23a', 'P23b', 'P24b') # exp all 1 hr
+p1bad <- c('O22a', 'O24a', 'O12b', 'O13a', 'O14a', 'O22b', 'O31a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # exp 1 hr trusted
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
@@ -656,7 +659,8 @@ setup <- CJ(
 #p3bad <- c('P31a', 'P14a', 'O11b','O12b', 'O14a', 'O23a', 'O24a', 'O24b', 'P21a', 'P22a', 'O31a', 'P12a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') #2hr all
 #p3bad <- c('P14a', 'O12b', 'O14a', 'O22a', 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24b') #2hr all exp
 #p3bad <- c('P13a', 'P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24a', 'O24b', 'O31a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
-p3bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O22a', 'O23a', 'O24a', 'P21a', 'P22b','P23b', 'P24b') # 2hr gam goods all
+#p3bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O22a', 'O23a', 'O24a', 'P21a', 'P22b','P23b', 'P24b') # 2hr gam goods all
+p3bad <- c('O22a', 'O24a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22b', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b','P23b', 'P24a', 'P24b') # exp 1 hr trusted
 
 setup[model == 'p3', bad := snail %in% p3bad]
 
@@ -720,7 +724,7 @@ p3.move[,'snails2'] <- paste(p3.move$snail, p3.move$brick, sep = '.')
 
 p3.wide <- dcast(data =p3.move, snail + brick ~ var, value.var = 'coef')
 
-p3.wide <- setDT(merge(p3.wide, moveParams.2hr, by = 'snail', all.x = T))
+p3.wide <- setDT(merge(p3.wide, moveParams, by = 'snail', all.x = T))
 
 
 edist <- seq(0,maxedge, length.out = 100)
@@ -729,11 +733,11 @@ bdist <- seq(0,maxbrick, length.out = 100)
 # gamma distribution: shape and scale for speed
 # exponential: shape = 1, scale =1/rate
 
-p3.wide[!(is.na(logsl)), ed.spd.before:= list(list((shape+logsl_before+(logsl_before_edgedist*edist))*(scale))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), ed.spd.after:= list(list((shape+logsl_after+(logsl_after_edgedist*edist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl_before+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl_after+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
 
-p3.wide[!(is.na(logsl)), bd.spd.before:= list(list((shape+logsl_before+(logsl_before_brickdist*bdist))*(scale))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bd.spd.after:= list(list((shape+logsl_after+(logsl_after_brickdist*bdist))*(scale))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl_before+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
+p3.wide[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl_after+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
 
 
 p3.wide[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*edist)))), by=.(snail, brick)]
