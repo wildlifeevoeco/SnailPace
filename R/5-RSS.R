@@ -11,9 +11,9 @@ lapply(libs, require, character.only = TRUE)
 raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 # dat <- readRDS('Data/derived/ssa30ghosts.Rds')
-dat.hr <- readRDS('Data/derived/ssa-exp-good-ghosts.Rds')
+dat.hr <- readRDS('Data/derived/ssa-exp-ghosts.Rds')
 dat.2hr <- readRDS('Data/derived/ssa-gam2hr-goods-ghosts.Rds')
-moveParams <- readRDS('Data/derived/moveParams-exp-goods.Rds')
+moveParams <- readRDS('Data/derived/moveParams-exp.Rds')
 moveParams.2hr <- readRDS('Data/derived/moveParams-gam2hr-goods.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 # dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
@@ -96,7 +96,7 @@ calc_loglik <- function(model) {
 
 
 #### CORE ====
-dat <- dat.2hr
+dat <- dat.hr
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -114,14 +114,16 @@ setup <- data.table(
 # corebad <- c('P14a') #2hr all exp
 # corebad <- c('O12b', 'O24b') #2hr all exp only moving
 # corebad <- c('P13a', 'P14a') # 2hr exp goods all
-# no bad when 2hr exp only moving steps
-corebad <- c('P31a') # 2hr gam goods all
+# no bad when 1hr and 2hr exp only moving steps ****
+# corebad <- c('P31a') # 2hr gam goods all
+# corebad <- c('O11a', 'O11b', 'P21a') # exp, goods, trusted 1hr
+corebad <- c('P31a', 'P22b', 'P13a', 'P14a') # exp all 1 hr
 setup[model == 'core', bad := snail %in% corebad]
 
 
 
 # Which bricks do we want to keep?
-setup[model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
+setup[ model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 
 # Run only on *good* individual
 setup[!(bad), mod :=
@@ -194,7 +196,9 @@ setup <- CJ(
 #p1bad <- c('O12b', 'O24b', 'O13a', 'O14a', 'O22a', 'O22b', 'O24a', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') #2hr all exp only moving
 #p1bad <- c('P13a', 'P14a', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P12a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
 #p1bad <- c('O12b', 'O13a', 'O14a', 'O22a', 'O22b', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # 2hr exp goods moving only
-p1bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O13a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr gam goods all
+#p1bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O13a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr gam goods all
+# p1bad <- c('O12b', "O14a", 'O22a', 'O22b', 'P12a','P14a', 'P21a', 'P22b', 'P23b', 'P24b') # 1 hr exp good trusted
+p1bad <- c('P31a', 'P22b', 'P13a', 'P14a', 'O11b', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P21a', 'P23a', 'P23b', 'P24b') # exp all 1 hr
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
