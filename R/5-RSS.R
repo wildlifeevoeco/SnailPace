@@ -161,6 +161,20 @@ core.issa.2hr <- setup[!(bad),.(snail, issa, model = model)]
 core.mods.2hr <- setup[!(bad),.(snail, mod, model = model)]
 
 
+unique(core.mods$snail)
+unique(core.mods.2hr$snail)
+
+core.used <- c('O11a', 'O22b', 'O24b', 'P12a', 'P22a', 'O24a', 'P13a', 'P21a', 'O31a', 
+               'O12b', 'O22a', 'P23b', 'O14a', 'P24b')
+core.used.2hr <- c('O11b', 'O23a', 'P24a', 'P23a', 'P31a', 'O13a', 
+                   'P22b')
+core.mods[, samp := '1hr']
+core.mods.2hr[, samp := '2hr']
+core.mods.all <- rbind(core.mods[snail %in% core.used],
+                    core.mods.2hr[snail %in% core.used.2hr])
+
+
+
 # core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
 # core_models[,"nbricks"] <- ifelse(core_models$nbricks=="4", "0", core_models$nbricks)
 # core_models[,"Disturbance"] <- ifelse(core_models$nbricks=="0", "Control", "Disturbed")
@@ -411,14 +425,30 @@ p1.issa.2hr <- setup[!(bad) & n > 0,.(snail, mod, issa, model = paste(model, bri
 
 #saveRDS(P1ModelOut, '~/snails/Data/derived/P1Model.Rds')
 
+##### check who from each model (1 or 2hr) ----
+unique(p1.rss$snail)
+unique(p1.rss.2hr$snail)
+
+p1.used <- c('O11a', 'O22b', 'O24b', 'P12a', 'P22a', 'O24a', 'P13a')
+p1.used.2hr <- c('O11b', 'O23a', 'P24a', 'P23a', 'P31a', 'O13a')
+p1.rss[, samp := '1hr']
+p1.rss.2hr[, samp := '2hr']
+p1.rss.all <- rbind(p1.rss[snail %in% p1.used],
+                    p1.rss.2hr[snail %in% p1.used.2hr])
+
+#saveRDS(p1.rss.all, 'Data/derived/p1rss_1-2hr.Rds')
+
+p1.mods.all <- rbind(p1.mods[snail %in% p1.used],
+                    p1.mods.2hr[snail %in% p1.used.2hr])
+
 ### P1 graphs ----
 
-p1.rss[,'disturbance'] <- ifelse(p1.rss$brick %like% 'g', 'undisturbed', 'disturbed')
-p1.rss[,'snails2'] <- paste(p1.rss$snail, p1.rss$brick, sep = '.')
-p1.rss[,disturbance.rss:=mean(rss, na.rm = T), by=.(step, disturbance)]
-p1.rss[,brick.rss:=mean(rss), by=.(step, brick)]
+# p1.rss.2hr[,'disturbance'] <- ifelse(p1.rss.2hr$brick %like% 'g', 'undisturbed', 'disturbed')
+# p1.rss.2hr[,'snails2'] <- paste(p1.rss.2hr$snail, p1.rss.2hr$brick, sep = '.')
+# p1.rss.2hr[,disturbance.rss:=mean(rss, na.rm = T), by=.(step, disturbance)]
+# p1.rss.2hr[,brick.rss:=mean(rss), by=.(step, brick)]
 
-p1.rss.edge.before <- ggplot(data=p1.rss[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
+p1.rss.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
                          aes(x, rss, colour=disturbance)) +
   geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,disturbance.rss, group = disturbance), size = 1) +
@@ -442,7 +472,7 @@ p1.rss.edge.before <- ggplot(data=p1.rss[var == 'edgedist'& BA=='before' & brick
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
-p1.rss.edge.after <- ggplot(data=p1.rss[var == 'edgedist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
+p1.rss.edge.after <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
                         aes(x, rss, colour=disturbance)) +
   geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
@@ -468,7 +498,7 @@ p1.rss.edge.after <- ggplot(data=p1.rss[var == 'edgedist'& BA=='after'& brick !=
 p1.rss.edge.before|p1.rss.edge.after
 
 
-p1.rss.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
+p1.rss.brick.before <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
                          aes(x, rss, colour=disturbance)) +
   geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
@@ -490,7 +520,7 @@ p1.rss.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before' & bri
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
-p1.rss.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
+p1.rss.brick.after <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
                         aes(x, rss, colour=disturbance)) +
   #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
@@ -519,9 +549,9 @@ p1.rss.brick.before|p1.rss.brick.after
 
 
 ### p2 graphs ---
-p1.rss[,'brick2'] <-gsub("[^0-9.-]", "", p1.rss$brick)
+#p1.rss.2hr[,'brick2'] <-gsub("[^0-9.-]", "", p1.rss.2hr$brick)
 
-p2.edge.before <- ggplot(data=p1.rss[var == 'edgedist'& BA=='before'], 
+p2.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before'], 
                          aes(x, rss, colour=brick2)) +
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
@@ -545,7 +575,7 @@ p2.edge.before <- ggplot(data=p1.rss[var == 'edgedist'& BA=='before'],
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
-p2.edge.after <- ggplot(data=p1.rss[var == 'edgedist'& BA=='after'], 
+p2.edge.after <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='after'], 
                         aes(x, rss, colour=brick2)) +
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
@@ -572,7 +602,7 @@ p2.edge.after <- ggplot(data=p1.rss[var == 'edgedist'& BA=='after'],
 p2.edge.before|p2.edge.after
 
 
-p2.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before'], 
+p2.brick.before <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='before'], 
                           aes(x, rss, colour=brick2)) +
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='before'],aes(step,brick.rss, group = brick), size = 1) +
@@ -596,7 +626,7 @@ p2.brick.before <- ggplot(data=p1.rss[var == 'brickdist'& BA=='before'],
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
-p2.brick.after <- ggplot(data=p1.rss[var == 'brickdist'& BA=='after'], 
+p2.brick.after <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='after'], 
                          aes(x, rss, colour=brick2)) +
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,brick.rss, group = brick), size = 1) +
@@ -770,7 +800,7 @@ direction.2hr <- p3.wide.2hr[!(is.na(logsl)),.(edist = unlist(edist), bdist = un
 direction.2hr[,'snails2'] <- paste(direction.2hr$snail, direction.2hr$brick, sep = '.')
 direction.2hr[,'brick2'] <-gsub("[^0-9.-]", "", direction.2hr$brick)
 
-##### check who from each model (1 or 2hr)
+##### check who from each model (1 or 2hr) ----
 unique(p3.wide$snail)
 unique(p3.wide.2hr$snail)
 speed[ed.spd.before<0, unique(snail)]
@@ -788,6 +818,22 @@ speed.used.2hr <- speed.2hr[snail %in% p3.used.2hr, .(edist, bdist, ed.spd.befor
                                           disturbance, snail, snails2, brick, brick2, samp = '2hr')]
 
 speed.all <- rbind(speed.used, speed.used.2hr)
+#saveRDS(speed.all, 'Data/derived/speed_1-2hr.Rds')
+
+direction.used <- direction[snail %in% p3.used, .(edist, bdist, ed.dir.before = ed.dir.before, ed.dir.after = ed.dir.after,
+                                          bd.dir.before = bd.dir.before, bd.dir.after = bd.dir.after,
+                                          disturbance, snail, snails2, brick, brick2, samp = '1hr')]
+
+direction.used.2hr <- direction.2hr[snail %in% p3.used.2hr, .(edist, bdist, ed.dir.before = ed.dir.before, ed.dir.after = ed.dir.after,
+                                                      bd.dir.before = bd.dir.before, bd.dir.after = bd.dir.after,
+                                                      disturbance, snail, snails2, brick, brick2, samp = '2hr')]
+
+direction.all <- rbind(direction.used, direction.used.2hr)
+#saveRDS(direction.all, 'Data/derived/direction_1-2hr.Rds')
+
+
+p3.mods.all <- rbind(p3.mods[snail %in% p3.used, samp:='1hr'],
+                     p3.mods.2hr[snail %in% p3.used.2hr, samp:='2hr'])
 
 
 speed.edge.before <- ggplot(data=speed.all [snail != 'O11b'], aes(x=edist, y=ed.spd.before, color = brick2)) + 
@@ -851,7 +897,7 @@ speed.brick.after
 
 
 
-direction.edge.before <- ggplot(data=direction, aes(x=edist, y=ed.dir.before, color = brick2)) + 
+direction.edge.before <- ggplot(data=direction.all, aes(x=edist, y=ed.dir.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -865,7 +911,7 @@ direction.edge.before <- ggplot(data=direction, aes(x=edist, y=ed.dir.before, co
   xlab("Distance from edge (cm)") + ylab("Concentration of turn angle")
 direction.edge.before 
 
-direction.edge.after <- ggplot(data=direction, aes(x=edist, y=ed.dir.after, color = brick2)) + 
+direction.edge.after <- ggplot(data=direction.all, aes(x=edist, y=ed.dir.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -881,7 +927,7 @@ direction.edge.after
 
 
 
-direction.brick.before <- ggplot(data=direction, aes(x=bdist, y=bd.dir.before, color = brick2)) + 
+direction.brick.before <- ggplot(data=direction.all, aes(x=bdist, y=bd.dir.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -895,7 +941,7 @@ direction.brick.before <- ggplot(data=direction, aes(x=bdist, y=bd.dir.before, c
   xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
 direction.brick.before 
 
-direction.brick.after <- ggplot(data=direction, aes(x=bdist, y=bd.dir.after, color = brick2)) + 
+direction.brick.after <- ggplot(data=direction.all, aes(x=bdist, y=bd.dir.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -990,9 +1036,17 @@ all.mods <- rbind(core.mods[,samp:= '1hr'], p1.mods[,samp:= '1hr'], p3.mods[,sam
                   core.mods.2hr[,samp:= '2hr'], p1.mods.2hr[,samp:= '2hr'], p3.mods.2hr[,samp:= '2hr'])
 #saveRDS(all.mods, 'Data/derived/allMods_1-2hr.Rds')
 
-all.mods[, nMods := .N, by = snail]
-tab <- all.mods[nMods > 1, calc_aictab(mod, model), by = .(snail)]
-evi <- all.mods[nMods > 1 & !(model %like% 'g1') & !(model %like% 'g3'), evidence(calc_aictab(mod, model)), by = .(snail)]
+good.mods <- rbind(core.mods.all, p1.mods.all, p3.mods.all)
+#saveRDS(good.mods, 'Data/derived/goodMods_1-2hr.Rds')
 
+good.mods[, nMods := .N, by = snail]
+# tab.good <- good.mods[nMods > 1, calc_aictab(mod, model), by = .(snail, samp)]
+# evi.good <- good.mods[nMods > 1 & !(model %like% 'g1') & !(model %like% 'g3'), evidence(calc_aictab(mod, model)), by = .(snail)]
+
+
+
+all.mods[, sampMods := paste(samp,model, sep = '.')]
+tab <- all.mods[nMods > 1, calc_aictab(mod, model), by = .(snail, samp)]
+evi <- all.mods[nMods > 1 & !(model %like% 'g1') & !(model %like% 'g3'), evidence(calc_aictab(mod, model)), by = .(snail, samp)]
 
 
