@@ -12,9 +12,9 @@ raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 # dat <- readRDS('Data/derived/ssa30ghosts.Rds')
 dat.hr <- readRDS('Data/derived/ssa-exp-good-ghosts.Rds')
-dat.2hr <- readRDS('Data/derived/ssa-gam2hr-goods-ghosts.Rds')
+dat.2hr <- readRDS('Data/derived/ssa-exp2hr-ghosts.Rds')
 moveParams <- readRDS('Data/derived/moveParams-exp-goods.Rds')
-moveParams.2hr <- readRDS('Data/derived/moveParams-gam2hr-goods.Rds')
+moveParams.2hr <- readRDS('Data/derived/moveParams-exp2hr.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 # dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 # dat$ToD_start <- as.factor(dat$ToD_start)
@@ -107,7 +107,7 @@ setup <- data.table(
 )
 
 # Which individuals should be dropped?
-corebad <- c('P22b') #, 'P13a') # good
+#corebad <- c('P22b') #, 'P13a') # good
 #corebad <- c('O24a') #all
 # corebad <- c('O22a','O22b', 'O24a','O23a','O24b')
 #corebad <- c('P31a', 'P14a') #2hr all
@@ -119,7 +119,7 @@ corebad <- c('P22b') #, 'P13a') # good
 # corebad <- c('O11a', 'O11b', 'P21a') # exp, goods, trusted 1hr
 # corebad <- c('P31a', 'P22b', 'P13a', 'P14a') # exp all 1 hr
 #corebad <- c('O22a', 'O24a') # exp 1 hr trusted
-# corebad <- c('O11a', 'O11b', 'P21a', 'O12b') # exp 1 hr good
+corebad <- c('P31a', 'P22b', 'P14a') # exp 1 hr good
 
 setup[model == 'core', bad := snail %in% corebad]
 
@@ -129,7 +129,7 @@ setup[model == 'core', bad := snail %in% corebad]
 setup[ model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 
 # Run only on *good* individual
-setup[, mod :=
+setup[!(bad), mod :=
         list_models(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
@@ -202,8 +202,9 @@ setup <- CJ(
 #p1bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O13a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr gam goods all
 # p1bad <- c('O12b', "O14a", 'O22a', 'O22b', 'P12a','P14a', 'P21a', 'P22b', 'P23b', 'P24b') # 1 hr exp good trusted
 # p1bad <- c('P31a', 'P22b', 'P13a', 'P14a', 'O11b', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P21a', 'P23a', 'P23b', 'P24b') # exp all 1 hr
-p1bad <- c('O22a', 'O24a', 'O12b', 'O13a', 'O14a', 'O22b', 'O31a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # exp 1 hr trusted
-
+#p1bad <- c('O22a', 'O24a', 'O12b', 'O13a', 'O14a', 'O22b', 'O31a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # exp 1 hr trusted
+p1bad <- c('P31a', 'P22b', 'P14a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22a', 'O31a', 'P14a', 'P21a', 'P23b', 'P24b') # exp 1 hr good
+# from shape params bad <-c('P13a', 'O13a', 'P24a','O24a', 'P31a', 'O31a')
 setup[model == 'p1', bad := snail %in% p1bad]
 
 
@@ -661,7 +662,8 @@ setup <- CJ(
 #p3bad <- c('P14a', 'O12b', 'O14a', 'O22a', 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24b') #2hr all exp
 #p3bad <- c('P13a', 'P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24a', 'O24b', 'O31a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
 #p3bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O22a', 'O23a', 'O24a', 'P21a', 'P22b','P23b', 'P24b') # 2hr gam goods all
-p3bad <- c('O22a', 'O24a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22b', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b','P23b', 'P24a', 'P24b') # exp 1 hr trusted
+#p3bad <- c('O22a', 'O24a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22b', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b','P23b', 'P24a', 'P24b') # exp 1 hr trusted
+p3bad <- c('P31a', 'P22b', 'P14a', 'P13a', 'O13a', 'P24a','O24a', 'O31a', 'O12b', 'O14a', 'O22a', 'O22b', 'P21a', 'P22b', 'P23a','P23b', 'P24b') # exp 1 hr good
 
 setup[model == 'p3', bad := snail %in% p3bad]
 
@@ -763,7 +765,7 @@ direction <- p3.wide[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdi
 direction[,'snails2'] <- paste(direction$snail, direction$brick, sep = '.')
 direction[,'brick2'] <-gsub("[^0-9.-]", "", direction$brick)
 
-speed.edge.before <- ggplot(data=speed[snail != 'O11a'], aes(x=edist, y=ed.spd.before/50, color = brick2)) + 
+speed.edge.before <- ggplot(data=speed[snail != 'O11b'], aes(x=edist, y=ed.spd.before/50, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -794,7 +796,7 @@ speed.edge.after
 
 
 
-speed.brick.before <- ggplot(data=speed[snail != 'O22a'], aes(x=bdist, y=bd.spd.before/50, color = brick2)) + 
+speed.brick.before <- ggplot(data=speed, aes(x=bdist, y=bd.spd.before/50, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -808,7 +810,7 @@ speed.brick.before <- ggplot(data=speed[snail != 'O22a'], aes(x=bdist, y=bd.spd.
   xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
 speed.brick.before 
 
-speed.brick.after <- ggplot(data=speed[snail!='P14a' & snail!='P12a'], aes(x=bdist, y=bd.spd.after/50, color = brick2)) + 
+speed.brick.after <- ggplot(data=speed[snail!='P12a'], aes(x=bdist, y=bd.spd.after/50, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -824,7 +826,7 @@ speed.brick.after
 
 
 
-direction.edge.before <- ggplot(data=direction[snail != 'P23a' &snail != 'P22a'], aes(x=edist, y=ed.dir.before, color = brick2)) + 
+direction.edge.before <- ggplot(data=direction, aes(x=edist, y=ed.dir.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -835,7 +837,7 @@ direction.edge.before <- ggplot(data=direction[snail != 'P23a' &snail != 'P22a']
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("a) before ") +
-  xlab("Distance from edge (cm)") + ylab("direction")
+  xlab("Distance from edge (cm)") + ylab("Concentration of turn angle")
 direction.edge.before 
 
 direction.edge.after <- ggplot(data=direction, aes(x=edist, y=ed.dir.after, color = brick2)) + 
@@ -849,7 +851,7 @@ direction.edge.after <- ggplot(data=direction, aes(x=edist, y=ed.dir.after, colo
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("b) after ") +
-  xlab("Distance from edge (cm)") + ylab("direction")
+  xlab("Distance from edge (cm)") + ylab("Concentration of turn angle")
 direction.edge.after 
 
 
@@ -865,10 +867,10 @@ direction.brick.before <- ggplot(data=direction, aes(x=bdist, y=bd.dir.before, c
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("a) before ") +
-  xlab("Distance from brick (cm)") + ylab("direction")
+  xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
 direction.brick.before 
 
-direction.brick.after <- ggplot(data=direction[snail != 'O22a'], aes(x=bdist, y=bd.dir.after, color = brick2)) + 
+direction.brick.after <- ggplot(data=direction, aes(x=bdist, y=bd.dir.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -879,7 +881,7 @@ direction.brick.after <- ggplot(data=direction[snail != 'O22a'], aes(x=bdist, y=
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("b) after ") +
-  xlab("Distance from brick (cm)") + ylab("direction")
+  xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
 direction.brick.after 
 
 
@@ -922,10 +924,6 @@ ggplot(dat[case_==TRUE], aes(sl_, y = ..density..)) +
   #geom_line(aes(x=dat$x, y=dgamma(dat$x,fit.params$estimate["shape"], fit.params$estimate["rate"])), color="red", size = 1) +
   facet_wrap(vars(snail))
 
-ggplot(dat[case_==TRUE & snail=='O11a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=20) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, gam[param =="shape" & snail=='O11a', vals], gam[param =="rate" & snail=='O11a', vals])), color="red", size = 1) 
-
 
 snails
 gam <- dat[case_==TRUE & sl_ > 0,.(vals = MASS::fitdistr(sl_, "gamma")[[1]],
@@ -955,119 +953,7 @@ ggplot(gam.snails[snail==snails[1]]) +
   geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
   ggtitle(gam.snails$snail)
 
-o11a <-ggplot(gam.snails[snail=='O11a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O11a')
 
-o11b <-ggplot(gam.snails[snail=='O11b']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O11b')
-
-o12b <-ggplot(gam.snails[snail=='O12b']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O12b')
-
-o13a <-ggplot(gam.snails[snail=='O13a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O13a')
-
-o14a <-ggplot(gam.snails[snail=='O14a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O14a')
-
-o22a <-ggplot(gam.snails[snail=='O22a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=20) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O22a')
-
-o22b <-ggplot(gam.snails[snail=='O22b']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O22b')
-
-o23a <-ggplot(gam.snails[snail=='O23a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O23a')
-
-o24a <-ggplot(gam.snails[snail=='O24a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O24a')
-
-o24b <-ggplot(gam.snails[snail=='O24b']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O24b')
-
-o31a <-ggplot(gam.snails[snail=='O31a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=10) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('O31a')
-
-p12a <-ggplot(gam.snails[snail=='P12a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P12a')
-
-p13a <-ggplot(gam.snails[snail=='P13a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P13a')
-
-p14a <-ggplot(gam.snails[snail=='P14a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P14a')
-
-p21a <-ggplot(gam.snails[snail=='P21a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P21a')
-
-p22a <-ggplot(gam.snails[snail=='P22a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P22a')
-
-p22b <-ggplot(gam.snails[snail=='P22b']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P22b')
-
-p23a <-ggplot(gam.snails[snail=='P23a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P23a')
-
-p23b <-ggplot(gam.snails[snail=='P23b']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P23b')
-
-p24a <-ggplot(gam.snails[snail=='P24a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P24a')
-
-p24b <-ggplot(gam.snails[snail=='P24b']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=10) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P24b')
-
-p31a <-ggplot(gam.snails[snail=='P31a']) +
-  geom_histogram(aes(sl_, y = ..density..), bins=15) +
-  geom_line(aes(x=sl_, y=dgamma(sl_, shape[1], rate[1])), color="blue", size = 1) +
-  ggtitle('P31a')
-
-
-(o11a|o11b|o12b|o13a|o14a)/(o22a|o22b|o23a|o24a|o24b)/(o31a|p12a|p13a|p14a|p21a)/
-  (p22a|p22b|p23a|p23b|p24a)/(p24b|p31a)
 
 #### ALL MODELS ####
 
