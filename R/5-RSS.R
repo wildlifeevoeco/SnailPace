@@ -12,9 +12,9 @@ raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 # dat <- readRDS('Data/derived/ssa30ghosts.Rds')
 dat.hr <- readRDS('Data/derived/ssa-exp-good-ghosts.Rds')
-dat.2hr <- readRDS('Data/derived/ssa-exp2hr-ghosts.Rds')
+dat.2hr <- readRDS('Data/derived/ssa-exp2hr-goods-ghosts.Rds')
 moveParams <- readRDS('Data/derived/moveParams-exp-goods.Rds')
-moveParams.2hr <- readRDS('Data/derived/moveParams-exp2hr.Rds')
+moveParams.2hr <- readRDS('Data/derived/moveParams-exp2hr-goods.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 # dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
 # dat$ToD_start <- as.factor(dat$ToD_start)
@@ -96,7 +96,7 @@ calc_loglik <- function(model) {
 
 
 #### CORE ====
-dat <- dat.hr
+dat <- dat.2hr
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -113,13 +113,14 @@ setup <- data.table(
 #corebad <- c('P31a', 'P14a') #2hr all
 # corebad <- c('P14a') #2hr all exp
 # corebad <- c('O12b', 'O24b') #2hr all exp only moving
-# corebad <- c('P13a', 'P14a') # 2hr exp goods all
 # no bad when 1hr and 2hr exp only moving steps ****
 # corebad <- c('P31a') # 2hr gam goods all
 # corebad <- c('O11a', 'O11b', 'P21a') # exp, goods, trusted 1hr
 # corebad <- c('P31a', 'P22b', 'P13a', 'P14a') # exp all 1 hr
 #corebad <- c('O22a', 'O24a') # exp 1 hr trusted
-corebad <- c('P31a', 'P22b', 'P14a') # exp 1 hr good
+
+#corebad <- c('P31a', 'P22b', 'P14a') # exp 1 hr goods all
+corebad <- c('P13a', 'P14a') # 2hr exp goods all
 
 setup[model == 'core', bad := snail %in% corebad]
 
@@ -154,10 +155,10 @@ setup[!(bad), var := calc_coef_names(mod),
 move <- setup[!(bad),.(coef = unlist(coef), var = unlist(var), model), by = .(snail)]
 move <- merge(move, moveParams, by = 'snail', all.x = T)
 
-core.move <- copy(move)
+core.move.2hr <- copy(move)
 
-core.issa <- setup[!(bad),.(snail, issa, model = model)]
-core.mods <- setup[!(bad),.(snail, mod, model = model)]
+core.issa.2hr <- setup[!(bad),.(snail, issa, model = model)]
+core.mods.2hr <- setup[!(bad),.(snail, mod, model = model)]
 
 
 # core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
@@ -197,14 +198,16 @@ setup <- CJ(
 #p1bad <- c('P31a', 'P14a', "O12b", "O14a", 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 'P22b', 'P23b') #2hr all
 #p1bad <- c('P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24b', 'O31a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P31a') #2hr all exp
 #p1bad <- c('O12b', 'O24b', 'O13a', 'O14a', 'O22a', 'O22b', 'O24a', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') #2hr all exp only moving
-#p1bad <- c('P13a', 'P14a', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P12a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
 #p1bad <- c('O12b', 'O13a', 'O14a', 'O22a', 'O22b', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P14a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # 2hr exp goods moving only
 #p1bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O13a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr gam goods all
 # p1bad <- c('O12b', "O14a", 'O22a', 'O22b', 'P12a','P14a', 'P21a', 'P22b', 'P23b', 'P24b') # 1 hr exp good trusted
 # p1bad <- c('P31a', 'P22b', 'P13a', 'P14a', 'O11b', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P21a', 'P23a', 'P23b', 'P24b') # exp all 1 hr
 #p1bad <- c('O22a', 'O24a', 'O12b', 'O13a', 'O14a', 'O22b', 'O31a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # exp 1 hr trusted
-p1bad <- c('P31a', 'P22b', 'P14a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22a', 'O31a', 'P14a', 'P21a', 'P23b', 'P24b') # exp 1 hr good
-# from shape params bad <-c('P13a', 'O13a', 'P24a','O24a', 'P31a', 'O31a')
+
+
+#p1bad <- c('P31a', 'P22b', 'P14a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22a', 'O31a', 'P14a', 'P21a', 'P23b', 'P24b') # exp 1 hr good
+p1bad <- c('P13a', 'P14a', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P12a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
+
 setup[model == 'p1', bad := snail %in% p1bad]
 
 
@@ -380,19 +383,19 @@ rss.long <- rbind(rss.long, rss[, .(rss = unlist(rssAbrick), x = unlist(xAbrick)
                                 by = .(snail, brick)])
 
   
-p1.rss <- copy(rss.long)
+p1.rss.2hr <- copy(rss.long)
 
 
 move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = 'p1'), by = .(snail, brick)]
-move <- merge(move, moveParams, by = 'snail', all.x = T)
+move <- merge(move, moveParams.2hr, by = 'snail', all.x = T)
 
-p1.move <- copy(move)
-p1.move <- p1.move[!(var %like% 'Acc')]
-core.move <- core.move[!(var %like% 'Acc')]
+p1.move.2hr <- copy(move)
+p1.move.2hr <- p1.move[!(var %like% 'Acc')]
+core.move.2hr <- core.move[!(var %like% 'Acc')]
 
-p1.mods <- setup[!(bad) & n > 0,.(snail, mod, model = paste(model, brick, sep = '.'))]
+p1.mods.2hr <- setup[!(bad) & n > 0,.(snail, mod, model = paste(model, brick, sep = '.'))]
 
-p1.issa <- setup[!(bad) & n > 0,.(snail, mod, issa, model = paste(model, brick, sep = '.'))]
+p1.issa.2hr <- setup[!(bad) & n > 0,.(snail, mod, issa, model = paste(model, brick, sep = '.'))]
 
 # P1.g1.Out[,"nbricks"] <- 1
 # P1.g2.Out[,"nbricks"] <- 2
@@ -660,10 +663,11 @@ setup <- CJ(
 #p3bad <- c('P22b', 'P13a', 'O11a','O12b', 'O13a', 'O14a')
 #p3bad <- c('P31a', 'P14a', 'O11b','O12b', 'O14a', 'O23a', 'O24a', 'O24b', 'P21a', 'P22a', 'O31a', 'P12a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') #2hr all
 #p3bad <- c('P14a', 'O12b', 'O14a', 'O22a', 'O23a', 'O24a', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22b', 'P23a', 'P23b', 'P24b') #2hr all exp
-#p3bad <- c('P13a', 'P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24a', 'O24b', 'O31a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
 #p3bad <- c('P31a', 'P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a', 'O12b', 'O22a', 'O23a', 'O24a', 'P21a', 'P22b','P23b', 'P24b') # 2hr gam goods all
 #p3bad <- c('O22a', 'O24a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22b', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b','P23b', 'P24a', 'P24b') # exp 1 hr trusted
-p3bad <- c('P31a', 'P22b', 'P14a', 'P13a', 'O13a', 'P24a','O24a', 'O31a', 'O12b', 'O14a', 'O22a', 'O22b', 'P21a', 'P22b', 'P23a','P23b', 'P24b') # exp 1 hr good
+
+#p3bad <- c('P31a', 'P22b', 'P14a', 'P13a', 'O13a', 'P24a','O24a', 'O31a', 'O12b', 'O14a', 'O22a', 'O22b', 'P21a', 'P22b', 'P23a','P23b', 'P24b') # exp 1 hr good
+p3bad <- c('P13a', 'P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24a', 'O24b', 'O31a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
 
 setup[model == 'p3', bad := snail %in% p3bad]
 
@@ -696,38 +700,39 @@ setup[!(bad) & n != 0, var := calc_coef_names(mod),
 setup[!(bad) & n != 0, issacoef := calc_coef(issa),
       by = .(snail, brick)]
 
-p3.mods <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, model = paste(model, brick, sep = '.'))]
+p3.mods.2hr <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, model = paste(model, brick, sep = '.'))]
 
-p3.issa <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, issa, model = paste(model, brick, sep = '.'))]
+p3.issa.2hr <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, issa, model = paste(model, brick, sep = '.'))]
 #p3.issa[, sl_distr_params(unlist(unlist(issa))), by = .(snail)]
 
 move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = 'p3'), by = .(snail, brick)]
 
 
-p3.move <- copy(move)
+p3.move.2hr <- copy(move)
 
-p3.move[,'BA'] <- ifelse(p3.move$var %like% 'StageAcc', 'acc', 
-                         ifelse(p3.move$var %like% 'StageA', 'after',
-                                ifelse(p3.move$var %like% 'StageB', 'before', NA)))
+p3.move.2hr[,'BA'] <- ifelse(p3.move.2hr$var %like% 'StageAcc', 'acc', 
+                         ifelse(p3.move.2hr$var %like% 'StageA', 'after',
+                                ifelse(p3.move.2hr$var %like% 'StageB', 'before', NA)))
 # p3.move <- p3.move[BA != 'acc']
 
 
-p3.move <- p3.move[!(var %like% 'StageAcc')]
-p3.move$var <- gsub(':', '-', p3.move$var)
-p3.move$var <- gsub(' ', '', p3.move$var)
-p3.move$var <- gsub('[[:punct:]]', '', p3.move$var)
-p3.move$var <- gsub('StageA', '_after', p3.move$var)
-p3.move$var <- gsub('StageB', '_before', p3.move$var)
-p3.move$var <- gsub('logbrickdiststart1', '_brickdist', p3.move$var)
-p3.move$var <- gsub('logedgediststart1', '_edgedist', p3.move$var)
-unique(p3.move$var)
 
-p3.move[,'snails2'] <- paste(p3.move$snail, p3.move$brick, sep = '.')
+p3.move.2hr <- p3.move.2hr[!(var %like% 'StageAcc')]
+p3.move.2hr$var <- gsub(':', '-', p3.move.2hr$var)
+p3.move.2hr$var <- gsub(' ', '', p3.move.2hr$var)
+p3.move.2hr$var <- gsub('[[:punct:]]', '', p3.move.2hr$var)
+p3.move.2hr$var <- gsub('StageA', '_after', p3.move.2hr$var)
+p3.move.2hr$var <- gsub('StageB', '_before', p3.move.2hr$var)
+p3.move.2hr$var <- gsub('logbrickdiststart1', '_brickdist', p3.move.2hr$var)
+p3.move.2hr$var <- gsub('logedgediststart1', '_edgedist', p3.move.2hr$var)
+unique(p3.move.2hr$var)
+
+p3.move.2hr[,'snails2'] <- paste(p3.move.2hr$snail, p3.move.2hr$brick, sep = '.')
 
 
-p3.wide <- dcast(data =p3.move, snail + brick ~ var, value.var = 'coef')
+p3.wide.2hr <- dcast(data =p3.move.2hr, snail + brick ~ var, value.var = 'coef')
 
-p3.wide <- setDT(merge(p3.wide, moveParams, by = 'snail', all.x = T))
+p3.wide.2hr <- setDT(merge(p3.wide.2hr, moveParams.2hr, by = 'snail', all.x = T))
 
 
 edist <- seq(0,maxedge, length.out = 100)
@@ -736,36 +741,42 @@ bdist <- seq(0,maxbrick, length.out = 100)
 # gamma distribution: shape and scale for speed
 # exponential: shape = 1, scale =1/rate
 
-p3.wide[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl_before+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl_after+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+p3.wide.2hr[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl_before+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+p3.wide.2hr[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl_after+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
 
-p3.wide[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl_before+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl_after+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
-
-
-p3.wide[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*edist)))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), ed.dir.after:= list(list((kappa + costa_after + (costa_after_edgedist*edist)))), by=.(snail, brick)]
-
-p3.wide[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa_before + (costa_before_brickdist*bdist)))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa_after + (costa_after_brickdist*bdist)))), by=.(snail, brick)]
+p3.wide.2hr[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl_before+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
+p3.wide.2hr[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl_after+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
 
 
-p3.wide[!(is.na(logsl)), edist:= list(list(seq(0,maxedge, length.out = 100))), by=.(snail, brick)]
-p3.wide[!(is.na(logsl)), bdist:= list(list(seq(0,maxbrick,length.out = 100))), by=.(snail, brick)]
+p3.wide.2hr[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*edist)))), by=.(snail, brick)]
+p3.wide.2hr[!(is.na(logsl)), ed.dir.after:= list(list((kappa + costa_after + (costa_after_edgedist*edist)))), by=.(snail, brick)]
 
-speed <- p3.wide[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
+p3.wide.2hr[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa_before + (costa_before_brickdist*bdist)))), by=.(snail, brick)]
+p3.wide.2hr[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa_after + (costa_after_brickdist*bdist)))), by=.(snail, brick)]
+
+
+p3.wide.2hr[!(is.na(logsl)), edist:= list(list(seq(0,maxedge, length.out = 100))), by=.(snail, brick)]
+p3.wide.2hr[!(is.na(logsl)), bdist:= list(list(seq(0,maxbrick,length.out = 100))), by=.(snail, brick)]
+
+speed.2hr <- p3.wide.2hr[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
                                    bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
                                    disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
-speed[,'snails2'] <- paste(speed$snail, speed$brick, sep = '.')
-speed[,'brick2'] <-gsub("[^0-9.-]", "", speed$brick)
+speed.2hr[,'snails2'] <- paste(speed.2hr$snail, speed.2hr$brick, sep = '.')
+speed.2hr[,'brick2'] <-gsub("[^0-9.-]", "", speed.2hr$brick)
 
-direction <- p3.wide[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.dir.before = unlist(ed.dir.before), ed.dir.after = unlist(ed.dir.after),
+direction.2hr <- p3.wide.2hr[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.dir.before = unlist(ed.dir.before), ed.dir.after = unlist(ed.dir.after),
                                    bd.dir.before = unlist(bd.dir.before), bd.dir.after = unlist(bd.dir.after),
                                    disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
-direction[,'snails2'] <- paste(direction$snail, direction$brick, sep = '.')
-direction[,'brick2'] <-gsub("[^0-9.-]", "", direction$brick)
+direction.2hr[,'snails2'] <- paste(direction.2hr$snail, direction.2hr$brick, sep = '.')
+direction.2hr[,'brick2'] <-gsub("[^0-9.-]", "", direction.2hr$brick)
 
-speed.edge.before <- ggplot(data=speed[snail != 'O11b'], aes(x=edist, y=ed.spd.before/50, color = brick2)) + 
+##### check who from each model (1 or 2hr)
+unique(p3.wide$snail)
+unique(p3.wide.2hr$snail)
+speed[ed.spd.before<0, unique(snail)]
+speed.2hr[ed.spd.before<0, unique(snail)]
+
+speed.edge.before <- ggplot(data=speed[snail != 'O11b'], aes(x=edist, y=ed.spd.before/100, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
