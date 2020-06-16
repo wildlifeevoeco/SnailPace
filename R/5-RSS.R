@@ -11,9 +11,9 @@ lapply(libs, require, character.only = TRUE)
 raw <- 'Data/raw/'
 derived <- 'Data/derived/'
 # dat <- readRDS('Data/derived/ssa30ghosts.Rds')
-dat.hr <- readRDS('Data/derived/ssa-exp-ghosts.Rds')
+dat.hr <- readRDS('Data/derived/ssa-exp-good-ghosts.Rds')
 dat.2hr <- readRDS('Data/derived/ssa-gam2hr-goods-ghosts.Rds')
-moveParams <- readRDS('Data/derived/moveParams-exp.Rds')
+moveParams <- readRDS('Data/derived/moveParams-exp-goods.Rds')
 moveParams.2hr <- readRDS('Data/derived/moveParams-gam2hr-goods.Rds')
 #dat <- dat[Stage!="Acc"] ## Can't limit to ToD=night because it won't work in interactions
 # dat$Stage <- factor(dat$Stage, levels = c("Acc", "B","A"))
@@ -96,7 +96,7 @@ calc_loglik <- function(model) {
 
 
 #### CORE ====
-dat <- dat.hr.trusted
+dat <- dat.hr
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -107,7 +107,7 @@ setup <- data.table(
 )
 
 # Which individuals should be dropped?
-#corebad <- c('P22b') #, 'P13a') # good
+corebad <- c('P22b') #, 'P13a') # good
 #corebad <- c('O24a') #all
 # corebad <- c('O22a','O22b', 'O24a','O23a','O24b')
 #corebad <- c('P31a', 'P14a') #2hr all
@@ -118,7 +118,8 @@ setup <- data.table(
 # corebad <- c('P31a') # 2hr gam goods all
 # corebad <- c('O11a', 'O11b', 'P21a') # exp, goods, trusted 1hr
 # corebad <- c('P31a', 'P22b', 'P13a', 'P14a') # exp all 1 hr
-corebad <- c('O22a', 'O24a') # exp 1 hr trusted
+#corebad <- c('O22a', 'O24a') # exp 1 hr trusted
+# corebad <- c('O11a', 'O11b', 'P21a', 'O12b') # exp 1 hr good
 
 setup[model == 'core', bad := snail %in% corebad]
 
@@ -128,7 +129,7 @@ setup[model == 'core', bad := snail %in% corebad]
 setup[ model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 
 # Run only on *good* individual
-setup[!(bad), mod :=
+setup[, mod :=
         list_models(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
