@@ -776,7 +776,21 @@ unique(p3.wide.2hr$snail)
 speed[ed.spd.before<0, unique(snail)]
 speed.2hr[ed.spd.before<0, unique(snail)]
 
-speed.edge.before <- ggplot(data=speed[snail != 'O11b'], aes(x=edist, y=ed.spd.before/100, color = brick2)) + 
+p3.used <- c('O24b', 'O11a', 'P22a')
+p3.used.2hr <- c('O11b', 'P24a', 'O23a', 'P12a', 'O22b', 'P23a', 'P31a')
+
+speed.used <- speed[snail %in% p3.used, .(edist, bdist, ed.spd.before = ed.spd.before/100, ed.spd.after = ed.spd.after/100,
+                                          bd.spd.before = bd.spd.before/100, bd.spd.after = bd.spd.after/100,
+                                          disturbance, snail, snails2, brick, brick2, samp = '1hr')]
+
+speed.used.2hr <- speed.2hr[snail %in% p3.used.2hr, .(edist, bdist, ed.spd.before = ed.spd.before/50, ed.spd.after = ed.spd.after/50,
+                                          bd.spd.before = bd.spd.before/50, bd.spd.after = bd.spd.after/50,
+                                          disturbance, snail, snails2, brick, brick2, samp = '2hr')]
+
+speed.all <- rbind(speed.used, speed.used.2hr)
+
+
+speed.edge.before <- ggplot(data=speed.all [snail != 'O11b'], aes(x=edist, y=ed.spd.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -785,13 +799,13 @@ speed.edge.before <- ggplot(data=speed[snail != 'O11b'], aes(x=edist, y=ed.spd.b
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) + 
   #  theme(legend.position = "none") +
-  #ylim(-0.001, 25) +
+  ylim(-5, 75) +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("a) before ") +
   xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
 speed.edge.before 
 
-speed.edge.after <- ggplot(data=speed, aes(x=edist, y=ed.spd.after/50, color = brick2)) + 
+speed.edge.after <- ggplot(data=speed.all, aes(x=edist, y=ed.spd.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -807,7 +821,7 @@ speed.edge.after
 
 
 
-speed.brick.before <- ggplot(data=speed, aes(x=bdist, y=bd.spd.before/50, color = brick2)) + 
+speed.brick.before <- ggplot(data=speed.all, aes(x=bdist, y=bd.spd.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  # geom_smooth(size = 2, se = FALSE)+
@@ -821,7 +835,7 @@ speed.brick.before <- ggplot(data=speed, aes(x=bdist, y=bd.spd.before/50, color 
   xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
 speed.brick.before 
 
-speed.brick.after <- ggplot(data=speed[snail!='P12a'], aes(x=bdist, y=bd.spd.after/50, color = brick2)) + 
+speed.brick.after <- ggplot(data=speed.all[snail!='O11b'], aes(x=bdist, y=bd.spd.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -969,8 +983,12 @@ ggplot(gam.snails[snail==snails[1]]) +
 #### ALL MODELS ####
 
 #all.mods <- rbind(core.mods, p1.mods, p3.mods)
-#saveRDS(all.mods, 'Data/derived/allMods_hr.Rds')
+
 all.mods <- readRDS('Data/derived/allMods_hr.Rds')
+
+all.mods <- rbind(core.mods[,samp:= '1hr'], p1.mods[,samp:= '1hr'], p3.mods[,samp:= '1hr'],
+                  core.mods.2hr[,samp:= '2hr'], p1.mods.2hr[,samp:= '2hr'], p3.mods.2hr[,samp:= '2hr'])
+#saveRDS(all.mods, 'Data/derived/allMods_1-2hr.Rds')
 
 all.mods[, nMods := .N, by = snail]
 tab <- all.mods[nMods > 1, calc_aictab(mod, model), by = .(snail)]
