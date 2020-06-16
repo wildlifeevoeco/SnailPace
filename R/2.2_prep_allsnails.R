@@ -28,7 +28,7 @@ DT.prep <- dat %>%
   dplyr::select(x = "x", y = "y", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
-DT.prep.hr <- DT.prep[t %like% ':30:']
+DT.prep.hr <- DT.prep[t %like% ':30:' & !(is.na(x))]
 stp.snails <- DT.prep.hr[!(is.na(x)),.(nSteps =uniqueN(t)), by=.(snail)]
 stp.snails.30 <- stp.snails[nSteps >=30, snail]
 
@@ -40,7 +40,7 @@ DT.prep.hr <- DT.prep.hr[snail %chin% stp.snails.30]
 DT.prep.2hr <- DT.prep.2hr[snail %chin% stp.snails.30.2hr & !(is.na(x))]
 
 # nesting data by id
-dat_all <- DT.prep.2hr %>% group_by(snail) %>% nest()
+dat_all <- DT.prep.hr %>% group_by(snail) %>% nest()
 
 #making the track
 dat_all <- dat_all %>%
@@ -61,14 +61,14 @@ brickedge3 <- raster(paste0(raw, 'brickedge3.tif'), )
 
 track <- dat_all %>%
   mutate(steps = map(trk, function(x) {
-    x %>% amt::track_resample(rate = hours(2), tolerance = minutes(10)) %>%
+    x %>% amt::track_resample(rate = hours(1), tolerance = minutes(10)) %>%
       amt::filter_min_n_burst(min_n = 3) %>%
       amt::steps_by_burst() 
   }))
 
 track <- track %>%
   mutate(randsteps = map(steps, function(x) {
-    x %>% amt::random_steps(n = 10, sl_distr = fit_distr(.$sl_, 'gamma'))
+    x %>% amt::random_steps(n = 10, sl_distr = fit_distr(.$sl_, 'exp'))
   }))
 ### Find snails with less than 30 steps missing ###
 #amt::random_steps(x=track_unnest$sl_, sl_distr = fit_distr(.$sl_, sl_distr))
@@ -77,7 +77,9 @@ track_unnest <- track %>% dplyr::select(snail, steps) %>% unnest(cols = c(steps)
 sum.sl<-setDT(track_unnest)[,.(stepn=uniqueN(t1_), nas=sum(is.na(sl_)), mean=mean(sl_, na.rm=T), min = min(sl_, na.rm=T), max=max(sl_, na.rm=T), median = median(sl_, na.rm=T)), by= .(snail)]
 sum.sl[,'diff'] <- sum.sl$stepn-sum.sl$nas
 
+snail.30 <- sum.sl[diff>=30]
 snail.20 <- sum.sl[diff>=20]
+DT.prep.30 <- DT.prep.hr[snail %chin% snail.30$snail]
 DT.prep.30 <- DT.prep.2hr[snail %chin% snail.20$snail]
 
 
@@ -97,7 +99,7 @@ SLdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
     steps()
   #remove any steps that span more than 2hr
   trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
-  trk <- subset(trk, trk$dt_ > 1.9 & trk$dt_ < 2.1, drop = T) ### make sure time is right
+  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T) ### make sure time is right
   #generate random steps
   trk %>%
     random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
@@ -112,7 +114,7 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
     steps()
   #remove any steps that span more than 2hr
   trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
-  trk <- subset(trk, trk$dt_ > 1.9 & trk$dt_ < 2.1, drop = T)
+  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T)
   #generate random steps
   trk %>%
     random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
@@ -121,8 +123,8 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
 
 #run function by ID
 DT.prep.30[,unique(snail)]
-# bad <-c('P13a', 'O13a', 'P24a','O24a', 'P31a', 'O31a') # good 1hr
-bad <- c('P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a')
+bad <-c('P13a', 'O13a', 'P24a','O24a', 'P31a', 'O31a') # good 1hr
+# bad <- c('P12a', 'P13a', 'P14a', 'O14a', 'O24b', 'O31a') # good 2hr
 slParams.gamma <- DT.prep.30[!(snail %in% bad), {
   print(.BY[[1]])
   SLdistr(x.col = x, y.col = y, date.col = t, crs = utm22T, ID = snail, 
@@ -168,7 +170,7 @@ dat_all.30 %>% mutate(sr = lapply(trk, summarize_sampling_rate)) %>%
 
 track.30 <- dat_all.30 %>%
   mutate(steps = map(trk, function(x) {
-    x %>% amt::track_resample(rate = hours(2), tolerance = minutes(10)) %>% # make sure time frame is right
+    x %>% amt::track_resample(rate = hours(1), tolerance = minutes(10)) %>% # make sure time frame is right
       amt::filter_min_n_burst(min_n = 3) %>%
       amt::steps_by_burst()
   }))
@@ -211,13 +213,13 @@ merged.snails.exp <-merge(ssa.exp.unnest, DT.prep.30,
 
 
 
-# saveRDS(merged.snails, 'Data/derived/ssa-gam.Rds')
-# 
-# saveRDS(Params.gamma, 'Data/derived/moveParams-gam.Rds')
-# 
-# saveRDS(merged.snails.exp, 'Data/derived/ssa-exp.Rds')
-# 
-# saveRDS(Params.exp, 'Data/derived/moveParams-exp.Rds')
+saveRDS(merged.snails, 'Data/derived/ssa-gam-goods.Rds')
+
+saveRDS(Params.gamma, 'Data/derived/moveParams-gam-goods.Rds')
+
+saveRDS(merged.snails.exp, 'Data/derived/ssa-exp-goods.Rds')
+
+saveRDS(Params.exp, 'Data/derived/moveParams-exp-goods.Rds')
 
 ### 2 hr
 saveRDS(merged.snails, 'Data/derived/ssa-gam2hr-goods.Rds')
