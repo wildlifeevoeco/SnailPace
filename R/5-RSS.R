@@ -181,8 +181,11 @@ dat.hr[!(snail %in% bad.snail.all), mean(sl_), by = .(snail)]
 dat.hr[snail %in% bad.snail.all & sl_<0.001, .N, by = .(snail)]
 dat.hr[!(snail %in% bad.snail.all) & sl_<0.001, .N, by = .(snail)]
 
-nomove <- rbind(dat.hr[snail %in% bad.snail.all, .(nSteps = .N, nomove.rate = .SD[sl_<1,.N]/.N, minSL = quantile(sl_, 0.25), meanSL = mean(sl_), work = 'bad'), by = .(snail)],
-  dat.hr[!(snail %in% bad.snail.all), .(nSteps = .N, nomove.rate = .SD[sl_<1,.N]/.N, minSL = quantile(sl_, 0.25), meanSL = mean(sl_), work = 'good'), by = .(snail)])
+nomove.1hr <- rbind(dat.hr[snail %in% bad.snail.all, .(nSteps = .N, nomove.rate = .SD[sl_<1,.N]/.N, minSL = quantile(sl_, 0.25), meanSL = mean(sl_), work = 'bad', samp = '1hr'), by = .(snail)],
+  dat.hr[!(snail %in% bad.snail.all), .(nSteps = .N, nomove.rate = .SD[sl_<1,.N]/.N, minSL = quantile(sl_, 0.25), meanSL = mean(sl_), work = 'good', samp = '1hr'), by = .(snail)])
+nomove.2hr <- rbind(dat.2hr[snail %in% bad.snail.all, .(nSteps = .N, nomove.rate = .SD[sl_<1,.N]/.N, minSL = quantile(sl_, 0.25), meanSL = mean(sl_), work = 'bad', samp = '2hr'), by = .(snail)],
+                dat.2hr[!(snail %in% bad.snail.all), .(nSteps = .N, nomove.rate = .SD[sl_<1,.N]/.N, minSL = quantile(sl_, 0.25), meanSL = mean(sl_), work = 'good', samp = '2hr'), by = .(snail)])
+nomove <- rbind(nomove.1hr, nomove.2hr)
 
 nomove[,mean(nomove.rate), by=.(work)]
 nomove[,mean(meanSL), by=.(work)]
