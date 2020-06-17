@@ -173,8 +173,22 @@ core.mods.2hr[, samp := '2hr']
 core.mods.all <- rbind(core.mods[snail %in% core.used],
                     core.mods.2hr[snail %in% core.used.2hr])
 
+mod.used.all <- unique(p1.mods.all$snail)
+bad.snail.all <- dat.hr[!(snail %in% mod.used.all), unique(snail)]
+dat.hr[snail %in% bad.snail.all, mean(sl_), by = .(snail)]
+dat.hr[!(snail %in% bad.snail.all), mean(sl_), by = .(snail)]
 
+dat.hr[snail %in% bad.snail.all & sl_<0.001, .N, by = .(snail)]
+dat.hr[!(snail %in% bad.snail.all) & sl_<0.001, .N, by = .(snail)]
 
+nomove <- rbind(dat.hr[snail %in% bad.snail.all, .(nSteps = .N, nomove.rate = .SD[sl_<1,.N]/.N, minSL = quantile(sl_, 0.25), meanSL = mean(sl_), work = 'bad'), by = .(snail)],
+  dat.hr[!(snail %in% bad.snail.all), .(nSteps = .N, nomove.rate = .SD[sl_<1,.N]/.N, minSL = quantile(sl_, 0.25), meanSL = mean(sl_), work = 'good'), by = .(snail)])
+
+nomove[,mean(nomove.rate), by=.(work)]
+nomove[,mean(meanSL), by=.(work)]
+nomove[,mean(minSL), by=.(work)]
+nomove[,mean(nSteps), by=.(work)]
+t.test(nomove.rate ~ work, nomove)
 # core_models[,"nbricks"] <- substr(core_models$snail, 3, 3)
 # core_models[,"nbricks"] <- ifelse(core_models$nbricks=="4", "0", core_models$nbricks)
 # core_models[,"Disturbance"] <- ifelse(core_models$nbricks=="0", "Control", "Disturbed")
