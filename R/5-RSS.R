@@ -914,6 +914,66 @@ speed.brick.after
 
 
 
+
+speed.edge.before.dist <- ggplot(data=speed.all[snail!='O11b' & ed.spd.before >=-5], aes(x=bdist, y=ed.spd.before, color = disturbance)) + 
+  #geom_line( size=1, alpha=.5) +
+  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
+  geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  #  theme(legend.position = "none") +
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  ggtitle("a) before ") +
+  xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
+speed.edge.before.dist
+
+speed.edge.after.dist <- ggplot(data=speed.all, aes(x=bdist, y=ed.spd.after, color = disturbance)) + 
+  #geom_line( size=1, alpha=.5) +
+  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
+  geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  #  theme(legend.position = "none") +
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  ggtitle("b) after ") +
+  xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
+speed.edge.after.dist
+
+
+speed.brick.before.dist <- ggplot(data=speed.all, aes(x=bdist, y=bd.spd.before, color = disturbance)) + 
+  #geom_line( size=1, alpha=.5) +
+  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
+  geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  #  theme(legend.position = "none") +
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  ggtitle("a) before ") +
+  xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
+speed.brick.before.dist
+
+speed.brick.after.dist <- ggplot(data=speed.all[snail!='O11b'], aes(x=bdist, y=bd.spd.after, color = disturbance)) + 
+  #geom_line( size=1, alpha=.5) +
+  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
+  geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  #  theme(legend.position = "none") +
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  ggtitle("b) after ") +
+  xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
+speed.brick.after.dist
+
+
+
 direction.edge.before <- ggplot(data=direction.all, aes(x=edist, y=ed.dir.before, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
@@ -958,7 +1018,7 @@ direction.brick.before <- ggplot(data=direction.all, aes(x=bdist, y=bd.dir.befor
   xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
 direction.brick.before 
 
-direction.brick.after <- ggplot(data=direction.all, aes(x=bdist, y=bd.dir.after, color = brick2)) + 
+direction.brick.after <- ggplot(data=direction.all[snail != 'O24b'], aes(x=bdist, y=bd.dir.after, color = brick2)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   #geom_smooth(size = 2, se = FALSE)+
@@ -973,11 +1033,77 @@ direction.brick.after <- ggplot(data=direction.all, aes(x=bdist, y=bd.dir.after,
 direction.brick.after 
 
 
+
+
+direction.edge.before.dist <- ggplot(data=direction.all, aes(x=edist, y=ed.dir.before, color = disturbance)) + 
+  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
+  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
+  geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  #  theme(legend.position = "none") +
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  ggtitle("a) before ") +
+  xlab("Distance from edge (cm)") + ylab("Concentration of turn angle")
+direction.edge.before.dist 
+
+direction.edge.after.dist <- ggplot(data=direction.all, aes(x=edist, y=ed.dir.after, color = disturbance)) + 
+  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
+  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
+  geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  #  theme(legend.position = "none") +
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  ggtitle("b) after ") +
+  xlab("Distance from edge (cm)") + ylab("Concentration of turn angle")
+direction.edge.after.dist 
+
+
+
+direction.brick.before.dist <- ggplot(data=direction.all, aes(x=bdist, y=bd.dir.before, color = disturbance)) + 
+  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
+  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
+  geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  #  theme(legend.position = "none") +
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  ggtitle("a) before ") +
+  xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
+direction.brick.before.dist 
+
+direction.brick.after.dist <- ggplot(data=direction.all[snail != 'O24b'], aes(x=bdist, y=bd.dir.after, color = disturbance)) + 
+  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
+  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
+  geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  #  theme(legend.position = "none") +
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  ggtitle("b) after ") +
+  xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
+direction.brick.after.dist 
+
+
 #### Disturbance graphs ----
 speed.edge.before|speed.edge.after
 speed.brick.before|speed.brick.after
 direction.edge.before|direction.edge.after
 direction.brick.before|direction.brick.after
+
+speed.edge.before.dist|speed.edge.after.dist
+speed.brick.before.dist|speed.brick.after.dist
+direction.edge.before.dist|direction.edge.after.dist
+direction.brick.before.dist|direction.brick.after.dist
 
 dat[,.(min = min(sl_, na.rm = T), max = max(sl_, na.rm = T), mean = mean(sl_, na.rm = T)), by = .(snail)]
 dat[,.(min = min(ta_, na.rm = T), max = max(ta_, na.rm = T), mean = mean(ta_, na.rm = T)), by = .(snail)]
