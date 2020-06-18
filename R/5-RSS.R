@@ -467,10 +467,10 @@ p1.mods.all <- rbind(p1.mods[snail %in% p1.used],
 
 p1.rss.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
                          aes(x, rss, colour=disturbance)) +
-  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
- geom_smooth(size = 1.5, aes(fill = disturbance), se = F) +
+ geom_smooth(size = 1.5, aes(fill = disturbance), se = T) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -491,9 +491,9 @@ p1.rss.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before' & b
 
 p1.rss.edge.after <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
                         aes(x, rss, colour=disturbance)) +
-  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  geom_smooth(size = 1.5, aes(fill = disturbance), se = F) +
+  geom_smooth(size = 1.5, aes(fill = disturbance), se = T) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -517,9 +517,9 @@ p1.rss.edge.before|p1.rss.edge.after
 
 p1.rss.brick.before <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
                          aes(x, rss, colour=disturbance)) +
-  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
-  geom_smooth(size = 1.5, aes(fill = disturbance), se = F) +
+  geom_smooth(size = 1.5, aes(fill = disturbance), se = T) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
   theme_bw()  + theme(
@@ -915,7 +915,7 @@ speed.brick.after
 
 
 
-speed.edge.before.dist <- ggplot(data=speed.all[snail!='O11b' & ed.spd.before >=-5], aes(x=bdist, y=ed.spd.before, color = disturbance)) + 
+speed.edge.before.dist <- ggplot(data=speed.all[snail!='O11b' & ed.spd.before >=-5 & brick != 'g1' & brick != 'g3'], aes(x=bdist, y=ed.spd.before, color = disturbance)) + 
   #geom_line( size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
@@ -929,7 +929,7 @@ speed.edge.before.dist <- ggplot(data=speed.all[snail!='O11b' & ed.spd.before >=
   xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
 speed.edge.before.dist
 
-speed.edge.after.dist <- ggplot(data=speed.all, aes(x=bdist, y=ed.spd.after, color = disturbance)) + 
+speed.edge.after.dist <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=ed.spd.after, color = disturbance)) + 
   #geom_line( size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
@@ -944,7 +944,7 @@ speed.edge.after.dist <- ggplot(data=speed.all, aes(x=bdist, y=ed.spd.after, col
 speed.edge.after.dist
 
 
-speed.brick.before.dist <- ggplot(data=speed.all, aes(x=bdist, y=bd.spd.before, color = disturbance)) + 
+speed.brick.before.dist <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.spd.before, color = disturbance)) + 
   #geom_line( size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
@@ -958,7 +958,7 @@ speed.brick.before.dist <- ggplot(data=speed.all, aes(x=bdist, y=bd.spd.before, 
   xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
 speed.brick.before.dist
 
-speed.brick.after.dist <- ggplot(data=speed.all[snail!='O11b'], aes(x=bdist, y=bd.spd.after, color = disturbance)) + 
+speed.brick.after.dist <- ggplot(data=speed.all[snail!='O11b' & brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.spd.after, color = disturbance)) + 
   #geom_line( size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
@@ -1035,7 +1035,7 @@ direction.brick.after
 
 
 
-direction.edge.before.dist <- ggplot(data=direction.all, aes(x=edist, y=ed.dir.before, color = disturbance)) + 
+direction.edge.before.dist <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=edist, y=ed.dir.before, color = disturbance)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
@@ -1049,7 +1049,7 @@ direction.edge.before.dist <- ggplot(data=direction.all, aes(x=edist, y=ed.dir.b
   xlab("Distance from edge (cm)") + ylab("Concentration of turn angle")
 direction.edge.before.dist 
 
-direction.edge.after.dist <- ggplot(data=direction.all, aes(x=edist, y=ed.dir.after, color = disturbance)) + 
+direction.edge.after.dist <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=edist, y=ed.dir.after, color = disturbance)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
@@ -1065,7 +1065,7 @@ direction.edge.after.dist
 
 
 
-direction.brick.before.dist <- ggplot(data=direction.all, aes(x=bdist, y=bd.dir.before, color = disturbance)) + 
+direction.brick.before.dist <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.dir.before, color = disturbance)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
@@ -1079,7 +1079,7 @@ direction.brick.before.dist <- ggplot(data=direction.all, aes(x=bdist, y=bd.dir.
   xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
 direction.brick.before.dist 
 
-direction.brick.after.dist <- ggplot(data=direction.all[snail != 'O24b'], aes(x=bdist, y=bd.dir.after, color = disturbance)) + 
+direction.brick.after.dist <- ggplot(data=direction.all[snail != 'O24b' & brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.dir.after, color = disturbance)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
