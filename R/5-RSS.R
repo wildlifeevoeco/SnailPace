@@ -24,16 +24,16 @@ dat.hr$Stage <- factor(dat.hr$Stage, levels = c("Acc", "B","A"))
 dat.hr$ToD_start <- as.factor(dat.hr$ToD_start)
 dat.hr$Precipitation <- as.factor(dat.hr$Precipitation)
 #dat.hr$log_sl <- ifelse(is.finite(dat.hr$log_sl), dat.hr$log_sl, -50)
-trusted.sl <- dat.hr[case_==TRUE & sl_>=0.001,.(snail,step_id_)]
-dat.hr.trusted <- merge(dat.hr,trusted.sl, by = c('snail', 'step_id_'))
+trusted.sl.1hr <- dat.hr[case_==TRUE & sl_>=0.001,.(snail,step_id_)]
+dat.hr.trusted <- merge(dat.hr,trusted.sl.1hr, by = c('snail', 'step_id_'))
 
 
 dat.2hr$Stage <- factor(dat.2hr$Stage, levels = c("Acc", "B","A"))
 dat.2hr$ToD_start <- as.factor(dat.2hr$ToD_start)
 dat.2hr$Precipitation <- as.factor(dat.2hr$Precipitation)
 #dat.2hr$log_sl <- ifelse(is.finite(dat.2hr$log_sl), dat.2hr$log_sl, -50)
-trusted.sl <- dat.2hr[case_==TRUE & sl_>=0.001,.(snail,step_id_)]
-dat.2hr.trusted <- merge(dat.2hr,trusted.sl, by = c('snail', 'step_id_'))
+trusted.sl.2hr <- dat.2hr[case_==TRUE & sl_>=0.001,.(snail,step_id_)]
+dat.2hr.trusted <- merge(dat.2hr,trusted.sl.2hr, by = c('snail', 'step_id_'))
 
 # list of all snails
 snails <- unique(dat.hr$snail)
