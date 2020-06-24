@@ -94,9 +94,10 @@ calc_loglik <- function(model) {
 }
 
 
+dat <- dat.2hr
 
 #### CORE ====
-dat <- dat.2hr
+
 # Setup model name, explanatory and response variables
 setup <- data.table(
   model = 'core',
@@ -235,9 +236,9 @@ setup <- CJ(
 # p1bad <- c('P31a', 'P22b', 'P13a', 'P14a', 'O11b', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P21a', 'P23a', 'P23b', 'P24b') # exp all 1 hr
 #p1bad <- c('O22a', 'O24a', 'O12b', 'O13a', 'O14a', 'O22b', 'O31a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # exp 1 hr trusted
 
-
-#p1bad <- c('P31a', 'P22b', 'P14a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22a', 'O31a', 'P14a', 'P21a', 'P23b', 'P24b') # exp 1 hr good
-p1bad <- c('P13a', 'P14a', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P12a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
+#dat <- dat.hr
+p1bad <- c('P31a', 'P22b', 'P14a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22a', 'O31a', 'P14a', 'P21a', 'P23b', 'P24b') # exp 1 hr good
+#p1bad <- c('P13a', 'P14a', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P12a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
@@ -272,9 +273,9 @@ setup[!(bad) & n != 0, var := calc_coef_names(mod),
 meansl <- mean(dat$log_sl, na.rm = T)
 meanta <- mean(dat$cos_ta, na.rm = T)
 meantemp = mean(dat$Temperature, na.rm = T)
-meanedge <- mean(dat$edgedist_end, na.rm = T)
+meanedge <- 0 #mean(dat$edgedist_end, na.rm = T)
 maxedge <- max(dat$edgedist_end, na.rm = T)
-meanbrick <- mean(dat$brickdist_end, na.rm = T)
+meanbrick <- 0 #mean(dat$brickdist_end, na.rm = T)
 maxbrick <- 65
 
 # h2 before
@@ -414,7 +415,7 @@ rss.long <- rbind(rss.long, rss[, .(rss = unlist(rssAbrick), x = unlist(xAbrick)
                                 by = .(snail, brick)])
 
   
-p1.rss.2hr <- copy(rss.long)
+p1.rss.1hr <- copy(rss.long)
 
 
 move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = 'p1'), by = .(snail, brick)]
@@ -443,14 +444,14 @@ p1.issa.2hr <- setup[!(bad) & n > 0,.(snail, mod, issa, model = paste(model, bri
 #saveRDS(P1ModelOut, '~/snails/Data/derived/P1Model.Rds')
 
 ##### check who from each model (1 or 2hr) ----
-unique(p1.rss$snail)
+unique(p1.rss.1hr$snail)
 unique(p1.rss.2hr$snail)
 
 p1.used <- c('O11a', 'O22b', 'O24b', 'P12a', 'P22a', 'O24a', 'P13a')
 p1.used.2hr <- c('O11b', 'O23a', 'P24a', 'P23a', 'P31a', 'O13a')
-p1.rss[, samp := '1hr']
+p1.rss.1hr[, samp := '1hr']
 p1.rss.2hr[, samp := '2hr']
-p1.rss.all <- rbind(p1.rss[snail %in% p1.used],
+p1.rss.all <- rbind(p1.rss.1hr[snail %in% p1.used],
                     p1.rss.2hr[snail %in% p1.used.2hr])
 
 #saveRDS(p1.rss.all, 'Data/derived/p1rss_1-2hr.Rds')
@@ -460,10 +461,10 @@ p1.mods.all <- rbind(p1.mods[snail %in% p1.used],
 
 ### P1 graphs ----
 
-# p1.rss.2hr[,'disturbance'] <- ifelse(p1.rss.2hr$brick %like% 'g', 'undisturbed', 'disturbed')
-# p1.rss.2hr[,'snails2'] <- paste(p1.rss.2hr$snail, p1.rss.2hr$brick, sep = '.')
-# p1.rss.2hr[,disturbance.rss:=mean(rss, na.rm = T), by=.(step, disturbance)]
-# p1.rss.2hr[,brick.rss:=mean(rss), by=.(step, brick)]
+p1.rss.all[,'disturbance'] <- ifelse(p1.rss.all$brick %like% 'g', 'undisturbed', 'disturbed')
+p1.rss.all[,'snails2'] <- paste(p1.rss.all$snail, p1.rss.all$brick, sep = '.')
+p1.rss.all[,disturbance.rss:=mean(rss, na.rm = T), by=.(step, disturbance)]
+p1.rss.all[,brick.rss:=mean(rss), by=.(step, brick)]
 
 p1.rss.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
                          aes(x, rss, colour=disturbance)) +
@@ -566,7 +567,7 @@ p1.rss.brick.before|p1.rss.brick.after
 
 
 ### p2 graphs ---
-#p1.rss.2hr[,'brick2'] <-gsub("[^0-9.-]", "", p1.rss.2hr$brick)
+p1.rss.all[,'brick2'] <-gsub("[^0-9.-]", "", p1.rss.all$brick)
 
 p2.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before'], 
                          aes(x, rss, colour=brick2)) +
