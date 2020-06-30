@@ -16,15 +16,16 @@ iterations <- 100
 #### proof 1hr vs 2hr ####
 p1.rss.all[,.(sample(samp)), by=.(snail)]
 rand.samp <- lapply(seq(0, iterations), function(iter){
-  sub<-p1.rss.all
+  sub<-unique(p1.rss.all[,.(snail, samp)])
   if (iter == 0) {
     sub[, randSamp := samp]
   } else {
-    sub[, randSamp := sample(samp), by= .(snail)]
+    sub[, randSamp := sample(samp)]
   }
-  subls <- rbindlist(sub)
-  subls[,iteration:=iter]
+  sub[,iteration:=iter]
 })
+rand.samp.ls <- rbindlist(rand.samp)
+hr.proof <- merge(p1.rss.all, rand.samp.ls, by= c('snail', 'samp'), allow.cartesian = T)
 
 #### proof before disturbance ####
 
