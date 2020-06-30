@@ -456,8 +456,11 @@ p1.rss.all <- rbind(p1.rss.1hr[snail %in% p1.used],
 
 #saveRDS(p1.rss.all, 'Data/derived/p1rss_1-2hr.Rds')
 
+p1.rss.all<-readRDS('Data/derived/p1rss_1-2hr.Rds')
+
 p1.mods.all <- rbind(p1.mods[snail %in% p1.used],
                     p1.mods.2hr[snail %in% p1.used.2hr])
+
 
 ### P1 graphs ----
 
