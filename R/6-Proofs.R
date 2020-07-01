@@ -14,6 +14,7 @@ p1.rss.all[,'disturbance'] <- ifelse(p1.rss.all$brick %like% 'g', 'undisturbed',
 p1.rss.all[,'snails2'] <- paste(p1.rss.all$snail, p1.rss.all$brick, sep = '.')
 p1.rss.all[,disturbance.rss:=mean(rss, na.rm = T), by=.(step, disturbance)]
 p1.rss.all[,brick.rss:=mean(rss), by=.(step, brick)]
+p1.rss.all[,'brick2'] <-gsub("[^0-9.-]", "", p1.rss.all$brick)
 
 speed.all <- readRDS('Data/derived/speed_1-2hr.Rds')
 
@@ -93,4 +94,46 @@ p2 <- ggplot(data=dist.proof[var == 'edgedist'& BA=='before' & brick != 'g1' & b
 p2
 
 #### proof treatment diffs ####
+
+rss.treat <- lapply(seq(0, iterations), function(iter){
+  sub<-unique(p1.rss.all[,.(snail, disturbance)])
+  if (iter == 0) {
+    sub[, randSamp := disturbance]
+  } else {
+    sub[, randSamp := sample(disturbance)]
+  }
+  sub[,iteration:=iter]
+})
+rss.treat.ls <- rbindlist(rss.treat)
+treat.proof <- merge(p1.rss.all, rss.treat.ls, by= c('snail', 'disturbance'), allow.cartesian = T)
+treat.proof[iteration == 0, observed := 'yes']
+treat.proof[iteration != 0, observed := 'no']
+treat.proof[,'snailsIter'] <- paste(treat.proof$snails2, treat.proof$iteration, sep = '.')
+
+p3 <- ggplot(data=dist.proof[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
+             aes(x, rss, colour= randSamp)) +
+  #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,disturbance.rss, group = disturbance), size = 1) +
+  #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
+  geom_smooth(size = 1.5, aes(fill = randSamp, linetype = observed), se = T, method = 'lm') +
+  # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
+  geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
+  #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
+  theme_bw()  + theme(
+    #panel.background =element_rect(colour = "black", fill=NA, size=1),
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", size = .7)) +
+  theme(plot.title=element_text(size=12,hjust = 0.05),axis.text.x = element_text(size=12), axis.title = element_text(size=15),axis.text.y = element_text(size=12)) +
+  theme(axis.text.x = element_text(margin=margin(10,10,10,10,"pt")),
+        axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
+  ylab("logRSS") + xlab("Distance from edge (cm)") +
+  ggtitle("before")  +
+  #ylim(-0.7,1.3) +
+  # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
+p3
+
+
 
