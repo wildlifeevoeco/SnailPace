@@ -38,9 +38,9 @@ hr.proof[iteration != 0, observed := 'no']
 hr.proof[,'snailsIter'] <- paste(hr.proof$snails2, hr.proof$iteration, sep = '.')
 
 
-p1 <- ggplot(data=hr.proof [bd.spd.before>=0], aes(x=bdist, y=bd.spd.before)) + 
+p1 <- ggplot(data=hr.proof [bd.spd.before>=0], aes(x=bdist, y=bd.spd.before, color = randSamp)) + 
   #geom_smooth(data=hr.proof [bd.spd.before>=0 & observed == 'yes'], aes(color = randSamp), size=2, method = 'lm') +
-  geom_smooth(data=hr.proof [bd.spd.before>=0 & observed == 'no'], aes(color = randSamp), size = 1, method = 'lm')+
+  geom_smooth(data=hr.proof [bd.spd.before>=0 & observed == 'no'], aes(fill = randSamp), size = 1, method = 'lm')+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -48,7 +48,7 @@ p1 <- ggplot(data=hr.proof [bd.spd.before>=0], aes(x=bdist, y=bd.spd.before)) +
   #  theme(legend.position = "none") +
   #ylim(-5, 75) +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("a) before ") +
+  ggtitle("before") +
   xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
 p1
 
@@ -70,9 +70,9 @@ dist.proof[iteration != 0, observed := 'no']
 dist.proof[,'snailsIter'] <- paste(dist.proof$snails2, dist.proof$iteration, sep = '.')
 
 p2 <- ggplot(data=dist.proof[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
-             aes(x, rss)) +
+             aes(x, rss, color = randSamp)) +
  # geom_smooth(data=dist.proof[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3' & observed == 'yes'], aes(color = randSamp), size=2) +
-  geom_smooth(data=dist.proof[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3' & observed == 'no'], aes(color = randSamp), size = 1, method = 'lm')+
+  geom_smooth(data=dist.proof[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3' & observed == 'no'], aes(fill = randSamp), size = 1, method = 'gam')+
   #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
@@ -115,7 +115,7 @@ treat.proof[,'snailsIter'] <- paste(treat.proof$snails2, treat.proof$iteration, 
 
 p3 <- ggplot(data=treat.proof[var == 'edgedist'& BA=='after' & brick != 'g1' & brick != 'g3'], 
              aes(x, rss, colour= randSamp)) +
-  geom_smooth(data=treat.proof[var == 'edgedist'& BA=='after' & brick != 'g1' & brick != 'g3' & observed == 'no'], aes(color = randSamp), size = 1, method = 'lm')+
+  geom_smooth(data=treat.proof[var == 'edgedist'& BA=='after' & brick != 'g1' & brick != 'g3' & observed == 'no'], aes(fill = randSamp), size = 1, method = 'gam')+
   #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
@@ -140,4 +140,7 @@ p3 <- ggplot(data=treat.proof[var == 'edgedist'& BA=='after' & brick != 'g1' & b
 p3
 
 
+p1
+p2
+p3
 
