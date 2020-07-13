@@ -470,11 +470,11 @@ p1.rss.all[,disturbance.rss:=mean(rss, na.rm = T), by=.(step, disturbance)]
 p1.rss.all[,brick.rss:=mean(rss), by=.(step, brick)]
 
 p1.rss.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
-                         aes(x, rss, colour=disturbance)) +
+                         aes(x, rss), colour ='purple') +
   #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
- geom_smooth(size = 1.5, aes(fill = disturbance), se = T) +
+ geom_smooth(size = 1.5, aes(fill = 'purple', colour ='purple'), se = T, show.legend = F)  +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -489,7 +489,7 @@ p1.rss.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before' & b
         axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
   ylab("logRSS") + xlab("Distance from edge (cm)") +
   ggtitle("before")  +
-  #ylim(-0.7,1.3) +
+ # ylim(-200, 400) +
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
