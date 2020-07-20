@@ -40,6 +40,10 @@ snails <- unique(dat.hr$snail)
 
 
 ### FUNCTIONS ----
+se <- function(x){
+  sd(x, na.rm = T)/ sqrt(length(na.omit(x)))
+}
+
 # function for model list
 list_models <- function(resp, expl, DT) {
   list(list(clogit(reformulate(expl, resp),
@@ -473,9 +477,16 @@ p1.rss.all[,'snails2'] <- paste(p1.rss.all$snail, p1.rss.all$brick, sep = '.')
 p1.rss.all[,disturbance.rss:=mean(rss, na.rm = T), by=.(step, disturbance)]
 p1.rss.all[,brick.rss:=mean(rss), by=.(step, brick)]
 
+p1.rss <- p1.rss.all[brick != 'g1' & brick != 'g3',.(snail, brick, snails2, rss, x, var, BA, samp, disturbance,
+                                                     treatment = ifelse(BA =='before', 'before', disturbance))]
+p1.rss[var =='brickdist',step:= seq(0, 65, length.out = 100), by=.(snail, treatment)]
+p1.rss[var =='edgedist',step:= seq(0, 32, length.out = 100), by=.(snail, treatment)]
+
+
+#####
 p1.rss.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
                          aes(x, rss)) +
-  #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'edgedist'& BA=='before'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
  geom_smooth(size = 1.5, fill = 'purple', colour = 'purple', se = T, show.legend = F)  +
@@ -500,7 +511,7 @@ p1.rss.edge.before <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='before' & b
 
 p1.rss.edge.after <- ggplot(data=p1.rss.all[var == 'edgedist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
                         aes(x, rss, colour=disturbance)) +
-  #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
   geom_smooth(size = 1.5, aes(fill = disturbance), se = T) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
@@ -526,7 +537,7 @@ p1.rss.edge.before|p1.rss.edge.after
 
 p1.rss.brick.before <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
                          aes(x, rss)) +
-  #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   geom_smooth(size = 1.5, fill = 'purple', colour = 'purple', se = T) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
@@ -548,7 +559,7 @@ p1.rss.brick.before <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='before' &
 
 p1.rss.brick.after <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
                         aes(x, rss, colour=disturbance)) +
-  #geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
    geom_smooth(size = 1.5, aes(fill = disturbance),  se = T) +
@@ -569,9 +580,113 @@ p1.rss.brick.after <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='after'& br
   # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 
+
+#### P1 sum graphs ----
+p1.rss.sum <- p1.rss[, .(rss = mean(rss), se = se(rss)), by = .(var, step, treatment)]
+p1.rss.sum[, upr:= rss + (1.96*se)]
+p1.rss.sum[, lwr:= rss - (1.96*se)]
+p1.rss[,'snails2'] <- paste(p1.rss$snail, p1.rss$treatment, sep = '.')
+
+p1.rss.sum.edge <- ggplot(data=p1.rss.sum[var == 'edgedist'], 
+                             aes(step, rss, color = treatment)) +
+  geom_line(aes(group = treatment), show.legend = T) +
+  geom_ribbon(aes(step, ymin = (lwr), ymax = (upr), fill=treatment), alpha = .2, show.legend = F) +
+  geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
+  theme_bw()  + theme(
+    #panel.background =element_rect(colour = "black", fill=NA, size=1),
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", size = .7)) +
+  theme(plot.title=element_text(size=12,hjust = 0.05),axis.text.x = element_text(size=12), axis.title = element_text(size=15),axis.text.y = element_text(size=12)) +
+  theme(axis.text.x = element_text(margin=margin(10,10,10,10,"pt")),
+        axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
+  ylab("logRSS") + xlab("Distance from edge (cm)") +
+  #ggtitle("before")  +
+  #ylim(-200, 420) +
+  # scale_colour_manual("", values = c('purple'))  +  
+  # scale_fill_manual("", values = c('purple'))  + 
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
+p1.rss.sum.edge
+
+p1.rss.edge<- ggplot(data=p1.rss[var == 'edgedist'], 
+                            aes(step, rss, colour=treatment)) +
+  geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
+  #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
+  geom_smooth(size = 1.5, aes(fill = treatment), se = F) +
+  # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
+  geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
+  #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
+  theme_bw()  + theme(
+    #panel.background =element_rect(colour = "black", fill=NA, size=1),
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", size = .7)) +
+  theme(plot.title=element_text(size=12,hjust = 0.05),axis.text.x = element_text(size=12), axis.title = element_text(size=15),axis.text.y = element_text(size=12)) +
+  theme(axis.text.x = element_text(margin=margin(10,10,10,10,"pt")),
+        axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
+  ylab("logRSS") + xlab("Distance from edge (cm)") +
+ # ggtitle("after")  +
+  #ylim(-200, 450) +
+   scale_colour_manual("", values = c("purple", "red", 'blue'))  +  
+  scale_fill_manual("", values = c("purple", "red", 'blue'))  + 
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
+p1.rss.edge
+
+p1.rss.sum.brick <- ggplot(data=p1.rss.sum[var == 'brickdist'], 
+                          aes(step, rss, color = treatment)) +
+  geom_line(aes(group = treatment), show.legend = T) +
+  geom_ribbon(aes(step, ymin = (lwr), ymax = (upr), fill=treatment), alpha = .2, show.legend = F) +
+  geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
+  theme_bw()  + theme(
+    #panel.background =element_rect(colour = "black", fill=NA, size=1),
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", size = .7)) +
+  theme(plot.title=element_text(size=12,hjust = 0.05),axis.text.x = element_text(size=12), axis.title = element_text(size=15),axis.text.y = element_text(size=12)) +
+  theme(axis.text.x = element_text(margin=margin(10,10,10,10,"pt")),
+        axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
+  ylab("logRSS") + xlab("Distance from brick (cm)") +
+  #ggtitle("before")  +
+  #ylim(-200, 420) +
+  # scale_colour_manual("", values = c('purple'))  +  
+  # scale_fill_manual("", values = c('purple'))  + 
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
+p1.rss.sum.brick
+
+p1.rss.brick<- ggplot(data=p1.rss[var == 'brickdist'], 
+                     aes(step, rss, colour=treatment)) +
+  geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
+  #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
+  geom_smooth(size = 1.5, aes(fill = treatment), se = F) +
+  # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
+  geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
+  #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
+  theme_bw()  + theme(
+    #panel.background =element_rect(colour = "black", fill=NA, size=1),
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", size = .7)) +
+  theme(plot.title=element_text(size=12,hjust = 0.05),axis.text.x = element_text(size=12), axis.title = element_text(size=15),axis.text.y = element_text(size=12)) +
+  theme(axis.text.x = element_text(margin=margin(10,10,10,10,"pt")),
+        axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
+  ylab("logRSS") + xlab("Distance from brick (cm)") +
+  # ggtitle("after")  +
+  #ylim(-200, 450) +
+  scale_colour_manual("", values = c("purple", "red", 'blue'))  +  
+  scale_fill_manual("", values = c("purple", "red", 'blue'))  + 
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
+p1.rss.brick
+
+
 #### P1 graphs ----
 p1.rss.edge.before|p1.rss.edge.after
 p1.rss.brick.before|p1.rss.brick.after
+
+
 
 
 ### p2 graphs ---
@@ -863,12 +978,17 @@ p3.mods.all <- rbind(p3.mods[snail %in% p3.used, samp:='1hr'],
 
 #### p3 graphs ####
 speed.all <- readRDS('Data/derived/speed_1-2hr.Rds')
+speed.all[,'ed.spd.before.adj'] <- ifelse(speed.all$ed.spd.before <0, 0, speed.all$ed.spd.before)
+speed.all[,'ed.spd.after.adj'] <- ifelse(speed.all$ed.spd.after <0, 0, speed.all$ed.spd.after)
+speed.all[,'bd.spd.before.adj'] <- ifelse(speed.all$bd.spd.before <0, 0, speed.all$bd.spd.before)
+speed.all[,'bd.spd.after.adj'] <- ifelse(speed.all$bd.spd.after <0, 0, speed.all$bd.spd.after)
+
 direction.all <- readRDS('Data/derived/direction_1-2hr.Rds')
 
-speed.edge.before <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' & ed.spd.before>=0], aes(x=edist, y=ed.spd.before/10)) + 
+speed.edge.before <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' ], aes(x=edist, y=ed.spd.before.adj/10)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = T, show.legend = F, fill = 'purple', color = 'purple')+
+  geom_smooth(size = 2, se = T, show.legend = F, fill = 'purple', color = 'purple', method = 'glm')+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -880,10 +1000,10 @@ speed.edge.before <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' & ed.sp
   xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
 speed.edge.before 
 
-speed.edge.after <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' & ed.spd.after>=0], aes(x=edist, y=ed.spd.after/10, color = disturbance)) + 
+speed.edge.after <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3'], aes(x=edist, y=ed.spd.after.adj/10, color = disturbance)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = T, aes(fill = disturbance))+
+  geom_smooth(size = 2, se = T, aes(fill = disturbance), method = 'glm')+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -896,8 +1016,8 @@ speed.edge.after
 
 
 
-speed.brick.before <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' & bd.spd.before>=0], aes(x=bdist, y=bd.spd.before/10)) + 
-  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
+speed.brick.before <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.spd.before.adj/10)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(size = 2, se = T, fill = 'purple', color = 'purple')+
   theme_classic() +
@@ -910,8 +1030,8 @@ speed.brick.before <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' & bd.s
   xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
 speed.brick.before 
 
-speed.brick.after <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' & bd.spd.after>=0], aes(x=bdist, y=bd.spd.after/10, color = disturbance)) + 
-  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
+speed.brick.after <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.spd.after.adj/10, color = disturbance)) + 
+  geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(size = 2, se = T, aes(fill = disturbance))+
   theme_classic() +
@@ -923,66 +1043,6 @@ speed.brick.after <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' & bd.sp
   ggtitle("after ") +
   xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
 speed.brick.after 
-
-
-
-
-speed.edge.before.dist <- ggplot(data=speed.all[snail!='O11b' & ed.spd.before >=-5 & brick != 'g1' & brick != 'g3'], aes(x=bdist, y=ed.spd.before, color = disturbance)) + 
-  #geom_line( size=1, alpha=.5) +
-  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
-  theme_classic() +
-  theme(text = element_text(size=15)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x =  element_text(size = 15)) + 
-  #  theme(legend.position = "none") +
-  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("a) before ") +
-  xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
-speed.edge.before.dist
-
-speed.edge.after.dist <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=ed.spd.after, color = disturbance)) + 
-  #geom_line( size=1, alpha=.5) +
-  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
-  theme_classic() +
-  theme(text = element_text(size=15)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x =  element_text(size = 15)) + 
-  #  theme(legend.position = "none") +
-  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("b) after ") +
-  xlab("Distance from edge (cm)") + ylab("Speed (m per hour)")
-speed.edge.after.dist
-
-
-speed.brick.before.dist <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.spd.before, color = disturbance)) + 
-  #geom_line( size=1, alpha=.5) +
-  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
-  theme_classic() +
-  theme(text = element_text(size=15)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x =  element_text(size = 15)) + 
-  #  theme(legend.position = "none") +
-  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("a) before ") +
-  xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
-speed.brick.before.dist
-
-speed.brick.after.dist <- ggplot(data=speed.all[snail!='O11b' & brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.spd.after, color = disturbance)) + 
-  #geom_line( size=1, alpha=.5) +
-  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(aes(fill=disturbance),size = 2, method = 'lm')+
-  theme_classic() +
-  theme(text = element_text(size=15)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x =  element_text(size = 15)) + 
-  #  theme(legend.position = "none") +
-  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("b) after ") +
-  xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
-speed.brick.after.dist
 
 
 
