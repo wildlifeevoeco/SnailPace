@@ -1053,6 +1053,17 @@ speed.all[,'ed.spd.after.adj'] <- ifelse(speed.all$ed.spd.after <0, 0, speed.all
 speed.all[,'bd.spd.before.adj'] <- ifelse(speed.all$bd.spd.before <0, 0, speed.all$bd.spd.before)
 speed.all[,'bd.spd.after.adj'] <- ifelse(speed.all$bd.spd.after <0, 0, speed.all$bd.spd.after)
 
+
+speed.mean <- speed.all[brick != 'g1' & brick != 'g3' & bdist %like% 20.3, .(snail, bdist, bd.spd.before, bd.spd.after, disturbance, samp)]
+speed.long <- melt(speed.mean)
+speed.long <- speed.long[variable!='bdist']
+speed.long[,'group'] <- ifelse(speed.long$variable %like% 'before', 'before', speed.long$disturbance)
+speed <- merge(speed.long, goodsnails[nobs==2], by = c('snail', 'group'), all=T)
+speed <- speed[!is.na(nobs)]
+speed <- speed[,.(snail, group, speed = value, samp)]
+speed$speed <- ifelse(is.na(speed$speed), 0, speed$speed)
+speed$speed <- ifelse(speed$speed<0, 0, speed$speed)
+
 direction.all <- readRDS('Data/derived/direction_1-2hr.Rds')
 
 speed.edge.before <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' & snail %in% goods], aes(x=edist, y=ed.spd.before.adj/10)) + 
@@ -1219,6 +1230,21 @@ propmove <- ggplot(dat.obs.prop, aes(group, propmove, color = group))+
   theme(legend.position = "none") +
   scale_color_colorblind() + scale_fill_colorblind()
 propmove
+
+
+meanmove <- ggplot(speed, aes(group, speed, color = group))+
+  geom_boxplot(aes(fill = group), alpha = 0.1, outlier.shape = NA, show.legend = F) + 
+  geom_jitter() +
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  xlab('') + ylab('Mean speed (m per hour)') +
+  ylim(-1, 10) +
+  theme(legend.position = "none") +
+  scale_color_colorblind() + scale_fill_colorblind()
+meanmove
 
 hist(dat$sl_)
 hist(dat.obs$sl_)
