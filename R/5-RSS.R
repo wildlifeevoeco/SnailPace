@@ -98,7 +98,7 @@ calc_loglik <- function(model) {
 }
 
 
-dat <- dat.2hr
+dat <- dat.hr
 
 #### CORE ====
 
@@ -1107,63 +1107,6 @@ direction.brick.after
 
 
 
-direction.edge.before.dist <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=edist, y=ed.dir.before, color = disturbance)) + 
-  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
-  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
-  theme_classic() +
-  theme(text = element_text(size=15)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x =  element_text(size = 15)) + 
-  #  theme(legend.position = "none") +
-  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("a) before ") +
-  xlab("Distance from edge (cm)") + ylab("Concentration of turn angle")
-direction.edge.before.dist 
-
-direction.edge.after.dist <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=edist, y=ed.dir.after, color = disturbance)) + 
-  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
-  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
-  theme_classic() +
-  theme(text = element_text(size=15)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x =  element_text(size = 15)) + 
-  #  theme(legend.position = "none") +
-  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("b) after ") +
-  xlab("Distance from edge (cm)") + ylab("Concentration of turn angle")
-direction.edge.after.dist 
-
-
-
-direction.brick.before.dist <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.dir.before, color = disturbance)) + 
-  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
-  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
-  theme_classic() +
-  theme(text = element_text(size=15)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x =  element_text(size = 15)) + 
-  #  theme(legend.position = "none") +
-  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("a) before ") +
-  xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
-direction.brick.before.dist 
-
-direction.brick.after.dist <- ggplot(data=direction.all[snail != 'O24b' & brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.dir.after, color = disturbance)) + 
-  #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
-  #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(aes(fill=disturbance), size = 2, method = 'lm')+
-  theme_classic() +
-  theme(text = element_text(size=15)) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(axis.text.x =  element_text(size = 15)) + 
-  #  theme(legend.position = "none") +
-  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  ggtitle("b) after ") +
-  xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
-direction.brick.after.dist 
 
 
 #### Disturbance graphs ----
@@ -1172,15 +1115,39 @@ speed.brick.before|speed.brick.after
 direction.edge.before|direction.edge.after
 direction.brick.before|direction.brick.after
 
-speed.edge.before.dist|speed.edge.after.dist
-speed.brick.before.dist|speed.brick.after.dist
-direction.edge.before.dist|direction.edge.after.dist
-direction.brick.before.dist|direction.brick.after.dist
 
 dat[,.(min = min(sl_, na.rm = T), max = max(sl_, na.rm = T), mean = mean(sl_, na.rm = T)), by = .(snail)]
 dat[,.(min = min(ta_, na.rm = T), max = max(ta_, na.rm = T), mean = mean(ta_, na.rm = T)), by = .(snail)]
 
-dat.obs <- dat[case_==TRUE]
+dat.obs <- dat[case_==TRUE & ghostbricks != 'g1' & ghostbricks != 'g3' & ghostbricks != 'C' & !(Stage %like% 'Acc')]
+dat.obs[,group:=ifelse(Stage == 'B', 'before', 
+                       ifelse(Stage=='A' & ghostbricks =='g2', 'undisturbed', 'disturbed'))]
+dat.obs[,moved:= ifelse(sl_==0,0,1)]
+dat.obs[, propmove:=sum(moved)/.N, by = .(snail, group)]
+goodsnails <- dat.obs[,.N, .(snail,group)]
+goodsnails[,dup:=duplicated(snail)]
+goodsnails[N >=20 ,nobs:=.N, by=.(snail)]
+goods <- unique(goodsnails[nobs==2, snail])
+dat.obs <- dat.obs[snail %in% goods]
+
+
+dat.obs.sum <- dat.obs[,.(meanSL = mean(sl_), seSL= se(sl_),meanMove = mean(propmove), seMove= se(unique(propmove))), by = .(group)]
+
+ggplot(dat.obs, aes(group, sl_)) +
+  geom_boxplot()
+
+ggplot(dat.obs.sum, aes(group, meanSL, color = group))+
+  geom_errorbar(aes(ymin=(meanSL - (1.96*seSL)), ymax=(meanSL + (1.96*seSL))))+
+  geom_point()
+
+ggplot(dat.obs.sum, aes(group, meanMove, color = group))+
+  geom_errorbar(aes(ymin=(meanMove - (1.96*seMove)), ymax=(meanMove + (1.96*seMove))))+
+  geom_point()
+
+dat.obs.prop <- dat.obs[, .(propmove =unique(propmove)), by = .(snail, group)]
+ggplot(dat.obs.prop, aes(group, propmove, color = group))+
+  geom_boxplot() + geom_jitter()
+
 hist(dat$sl_)
 hist(dat.obs$sl_)
 hist(dat$ta_)
