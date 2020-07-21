@@ -1257,7 +1257,13 @@ ggplot(dat, aes(sl_, colour = snail)) +
 sl <- ggplot(dat.obs, aes(sl_, colour = snail)) +
   geom_density()
 
-ggplot(dat, aes(ta_, colour = ToD_start)) +
+ggplot(dat, aes(sl_, colour = ToD_start)) +
+  geom_density()
+
+ggplot(dat.obs, aes(sl_, colour = ToD_start)) +
+  geom_density()
+
+ggplot(dat.obs[ToD_start == 'night'], aes(sl_, colour = group)) +
   geom_density()
 
 ta <- ggplot(dat.obs, aes(ta_, colour = snail)) +
