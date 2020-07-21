@@ -39,7 +39,7 @@ dat.2hr.trusted <- merge(dat.2hr,trusted.sl.2hr, by = c('snail', 'step_id_'))
 snails <- unique(dat.hr$snail)
 
 
-dat.obs <- dat[case_==TRUE & ghostbricks != 'g1' & ghostbricks != 'g3' & ghostbricks != 'C' & !(Stage %like% 'Acc')]
+dat.obs <- dat.hr[case_==TRUE & ghostbricks != 'g1' & ghostbricks != 'g3' & ghostbricks != 'C' & !(Stage %like% 'Acc')]
 dat.obs[,group:=ifelse(Stage == 'B', 'before', 
                        ifelse(Stage=='A' & ghostbricks =='g2', 'undisturbed', 'disturbed'))]
 dat.obs[,moved:= ifelse(sl_==0,0,1)]
@@ -110,7 +110,7 @@ calc_loglik <- function(model) {
 }
 
 
-dat <- dat.hr
+dat <- dat.hr[ToD_start == 'night' & snail %in% goods]
 
 #### CORE ====
 
@@ -120,7 +120,7 @@ setup <- data.table(
   snail = unique(dat$snail),
   brick = c("1", "2", "3", "g1", "g2", "g3"),
   response = 'case_',
-  explanatory = 'log_sl + cos_ta + ToD_start:log_sl + Temperature:log_sl + strata(step_id_)'
+  explanatory = 'log_sl + cos_ta + Precipitation:log_sl + Temperature:log_sl + strata(step_id_)'
 )
 
 # Which individuals should be dropped?
@@ -137,7 +137,7 @@ setup <- data.table(
 #corebad <- c('O22a', 'O24a') # exp 1 hr trusted
 
 #corebad <- c('P31a', 'P22b', 'P14a') # exp 1 hr goods all
-corebad <- c('P13a', 'P14a') # 2hr exp goods all
+#corebad <- c('P13a', 'P14a') # 2hr exp goods all
 
 setup[model == 'core', bad := snail %in% corebad]
 
@@ -147,13 +147,13 @@ setup[model == 'core', bad := snail %in% corebad]
 setup[ model == 'core', lsbricks := list(c("C", "1", "2", "3"))]
 
 # Run only on *good* individual
-setup[!(bad), mod :=
+setup[, mod :=
         list_models(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
       by = snail]
 
-setup[!(bad), issa :=
+setup[, issa :=
         list_issa(response, explanatory,
                     dat[ghostbricks %in% unlist(lsbricks) &
                           snail == .BY[[1]]]),
@@ -161,16 +161,21 @@ setup[!(bad), issa :=
 
 # coefs 
 
-setup[!(bad), coef := calc_coef(mod),
+setup[, coef := calc_coef(mod),
       by = .(snail)]
 
 
-setup[!(bad), var := calc_coef_names(mod),
+setup[, var := calc_coef_names(mod),
       by = .(snail)]
 
 
-move <- setup[!(bad),.(coef = unlist(coef), var = unlist(var), model), by = .(snail)]
+move <- setup[,.(coef = unlist(coef), var = unlist(var), model), by = .(snail)]
 move <- merge(move, moveParams, by = 'snail', all.x = T)
+
+core.move.1hr <- copy(move)
+core.issa.1hr <- setup[,.(snail, issa, model = model)]
+core.mods.1hr <- setup[,.(snail, mod, model = model)]
+
 
 core.move.2hr <- copy(move)
 
@@ -224,7 +229,7 @@ setup <- CJ(
   brick = c("1", "2", "3", "g1", "g2", "g3"),
   model = 'p1',
   response = 'case_',
-  explanatory = 'log_sl + cos_ta + ToD_start:log_sl  + log(edgedist_end + 1):Stage + log(brickdist_end + 1):Stage + log_sl:Stage + cos_ta:Stage + strata(step_id_)'
+  explanatory = 'log_sl + cos_ta + log(edgedist_end + 1):Stage + log(brickdist_end + 1):Stage + log_sl:Stage + cos_ta:Stage + strata(step_id_)'
 )
 
 
@@ -253,8 +258,10 @@ setup <- CJ(
 #p1bad <- c('O22a', 'O24a', 'O12b', 'O13a', 'O14a', 'O22b', 'O31a', 'P13a', 'P21a', 'P22a', 'P22b', 'P23a', 'P23b', 'P24a', 'P24b') # exp 1 hr trusted
 
 #dat <- dat.hr
-p1bad <- c('P31a', 'P22b', 'P14a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22a', 'O31a', 'P14a', 'P21a', 'P23b', 'P24b') # exp 1 hr good
+#p1bad <- c('P31a', 'P22b', 'P14a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22a', 'O31a', 'P14a', 'P21a', 'P23b', 'P24b') # exp 1 hr good
 #p1bad <- c('P13a', 'P14a', 'O12b', 'O14a', 'O22a', 'O22b', 'O24b', 'O31a', 'P12a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
+
+p1bad <- c('O13a', 'O14a', 'P24a', 'P24b', 'P31a') #exp 1 hr good nights
 
 setup[model == 'p1', bad := snail %in% p1bad]
 
@@ -435,7 +442,14 @@ p1.rss.1hr <- copy(rss.long)
 
 
 move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = 'p1'), by = .(snail, brick)]
-move <- merge(move, moveParams.2hr, by = 'snail', all.x = T)
+move <- merge(move, moveParams, by = 'snail', all.x = T)
+p1.move.1hr <- copy(move)
+p1.move.1hr <- p1.move.1hr[!(var %like% 'Acc')]
+
+p1.mods.1hr <- setup[!(bad) & n > 0,.(snail, mod, model = paste(model, brick, sep = '.'))]
+
+p1.issa.1hr <- setup[!(bad) & n > 0,.(snail, mod, issa, model = paste(model, brick, sep = '.'))]
+
 
 p1.move.2hr <- copy(move)
 p1.move.2hr <- p1.move[!(var %like% 'Acc')]
@@ -480,7 +494,7 @@ p1.rss.all <- rbind(p1.rss.1hr[snail %in% p1.used],
 p1.rss.all<-readRDS('Data/derived/p1rss_1-2hr.Rds')
 
 
-
+p1.rss.all <- p1.rss.1hr
 
 ### P1 graphs ----
 
@@ -489,7 +503,8 @@ p1.rss.all[,'snails2'] <- paste(p1.rss.all$snail, p1.rss.all$brick, sep = '.')
 p1.rss.all[,disturbance.rss:=mean(rss, na.rm = T), by=.(step, disturbance)]
 p1.rss.all[,brick.rss:=mean(rss), by=.(step, brick)]
 
-p1.rss <- p1.rss.all[brick != 'g1' & brick != 'g3',.(snail, brick, snails2, rss, x, var, BA, samp, disturbance,
+#removed 'samp'
+p1.rss <- p1.rss.all[brick != 'g1' & brick != 'g3',.(snail, brick, snails2, rss, x, var, BA, disturbance,
                                                      treatment = ifelse(BA =='before', 'before', disturbance))]
 p1.rss[var =='brickdist',step:= seq(0, 65, length.out = 100), by=.(snail, treatment)]
 p1.rss[var =='edgedist',step:= seq(0, 32, length.out = 100), by=.(snail, treatment)]
@@ -816,7 +831,7 @@ setup <- CJ(
   brick = c("1", "2", "3", "g1", "g2", "g3"),
   model = 'p3',
   response = 'case_',
-  explanatory = 'log_sl + cos_ta + ToD_start:log_sl +
+  explanatory = 'log_sl + cos_ta + 
   log(edgedist_start + 1):log_sl:Stage + log(edgedist_start + 1):cos_ta:Stage + 
   log(brickdist_start + 1):log_sl:Stage + log(brickdist_start + 1):cos_ta:Stage + 
   log_sl:Stage + cos_ta:Stage + strata(step_id_)'
@@ -850,7 +865,9 @@ setup <- CJ(
 #p3bad <- c('O22a', 'O24a', 'O11b', 'O12b', 'O13a', 'O14a', 'O22b', 'O24b', 'O31a', 'P12a', 'P13a', 'P21a', 'P22a', 'P22b','P23b', 'P24a', 'P24b') # exp 1 hr trusted
 
 #p3bad <- c('P31a', 'P22b', 'P14a', 'P13a', 'O13a', 'P24a','O24a', 'O31a', 'O12b', 'O14a', 'O22a', 'O22b', 'P21a', 'P22b', 'P23a','P23b', 'P24b') # exp 1 hr good
-p3bad <- c('P13a', 'P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24a', 'O24b', 'O31a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
+#p3bad <- c('P13a', 'P14a', 'O12b', 'O13a', 'O14a', 'O22a', 'O24a', 'O24b', 'O31a', 'P21a', 'P22b', 'P23b', 'P24b') # 2hr exp goods all
+
+p3bad <- c('O13a', 'O14a', 'O22a', 'O24a', 'O24b', 'P24b') # exp 1 hr good nights
 
 setup[model == 'p3', bad := snail %in% p3bad]
 
@@ -897,6 +914,9 @@ p3.issa.2hr <- setup[!(bad) & n > 0 & !(is.null(mod)),.(snail, mod, issa, model 
 
 move <- setup[!(bad) & n > 0,.(coef = unlist(coef), var = unlist(var), model = 'p3'), by = .(snail, brick)]
 p3.move.1hr <- copy(move)
+p3.move.1hr[,'BA'] <- ifelse(p3.move.1hr$var %like% 'StageAcc', 'acc', 
+                             ifelse(p3.move.1hr$var %like% 'StageA', 'after',
+                                    ifelse(p3.move.1hr$var %like% 'StageB', 'before', NA)))
 
 p3.move.2hr <- copy(move)
 
@@ -947,11 +967,11 @@ bdist <- seq(0,maxbrick, length.out = 100)
 
 # gamma distribution: shape and scale for speed
 # exponential: shape = 1, scale =1/rate
-p3.wide.1hr[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl_before+logslToDstartnight+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
-p3.wide.1hr[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl_after+logslToDstartnight+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl+logsl_before+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl+logsl_after+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
 
-p3.wide.1hr[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl_before+logslToDstartnight+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
-p3.wide.1hr[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl_after+logslToDstartnight+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl+logsl_before+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl+logsl_after+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
 
 
 p3.wide.1hr[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*edist)))), by=.(snail, brick)]
@@ -1314,10 +1334,18 @@ ggplot(gam.snails[snail==snails[1]]) +
 
 #### ALL MODELS ####
 
-#all.mods <- rbind(core.mods, p1.mods, p3.mods)
+all.mods <- rbind(core.mods.1hr, p1.mods.1hr, p3.mods.1hr)
+#saveRDS(all.mods, 'Data/derived/allMods_hr_night.Rds')
 
-all.mods <- readRDS('Data/derived/allMods_hr.Rds')
+all.mods <- readRDS('Data/derived/allMods_hr_night.Rds')
 
+all.mods[, nMods := .N, by = snail]
+
+tab <- all.mods[nMods > 1, calc_aictab(mod, model), by = .(snail)]
+evi <- all.mods[nMods > 1 & !(model %like% 'g1') & !(model %like% 'g3'), evidence(calc_aictab(mod, model)), by = .(snail)]
+
+
+#####
 all.mods <- rbind(core.mods[,samp:= '1hr'], p1.mods[,samp:= '1hr'], p3.mods[,samp:= '1hr'],
                   core.mods.2hr[,samp:= '2hr'], p1.mods.2hr[,samp:= '2hr'], p3.mods.2hr[,samp:= '2hr'])
 #saveRDS(all.mods, 'Data/derived/allMods_1-2hr.Rds')
