@@ -4,7 +4,7 @@
 
 ### Packages ----
 libs <- c('data.table', 'dplyr', 'amt', 'lubridate', 
-          'tidyr', 'ggplot2','survival','forcats', 'patchwork', 'AICcmodavg')
+          'tidyr', 'ggplot2','survival','forcats', 'patchwork', 'AICcmodavg', 'ggthemes')
 lapply(libs, require, character.only = TRUE)
 
 ### Input data ----
@@ -49,6 +49,55 @@ goodsnails[,dup:=duplicated(snail)]
 goodsnails[N >=20 ,nobs:=.N, by=.(snail)]
 goods <- unique(goodsnails[nobs==2, snail])
 dat.obs <- dat.obs[snail %in% goods]
+
+
+# getting SL and TA distributions
+SLdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
+  #print(ID)
+  #create track from dataset
+  trk <- track(x.col, y.col, date.col, ID, crs) %>%
+    #function turns locs into steps
+    steps()
+  #remove any steps that span more than 2hr
+  trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
+  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T) ### make sure time is right
+  #generate random steps
+  trk %>%
+    random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
+    sl_distr_params()
+}
+
+TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
+  #print(ID)
+  #create track from dataset
+  trk <- track(x.col, y.col, date.col, ID, crs) %>%
+    #function turns locs into steps
+    steps()
+  #remove any steps that span more than 2hr
+  trk$dt_ <- difftime(trk$t2_, trk$t1_, unit='hours')
+  trk <- subset(trk, trk$dt_ > 0.9 & trk$dt_ < 1.1, drop = T)
+  #generate random steps
+  trk %>%
+    random_steps(sl_distr = fit_distr(.$sl_, sl_distr)) %>%
+    ta_distr_params()
+}
+
+utm22T <- "+proj=utm +zone=22 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+bad <- c('P23a', 'O14a', 'P24a', 'P24b', 'O24b')
+slParams.exp <- dat.obs[ToD_start == 'night' & !(snail %in% bad), {
+  print(.BY[[1]])
+  SLdistr(x.col = x1_, y.col = y1_, date.col = t1_, crs = utm22T, ID = snail, 
+          sl_distr = "exp", ta_distr = "vonmises")},
+  by = snail]
+
+taParams.exp <- dat.obs[ToD_start == 'night' & !(snail %in% bad), {
+  print(.BY[[1]])
+  TAdistr(x.col = x1_, y.col = y1_, date.col = t1_, crs = utm22T, ID = snail, 
+          sl_distr = "exp", ta_distr = "vonmises")},
+  by = snail]
+
+Params.exp <- merge(slParams.exp, taParams.exp[,.(snail,kappa)], by = 'snail')
+
 
 
 ### FUNCTIONS ----
@@ -940,26 +989,26 @@ p3.move.1hr[,'snails2'] <- paste(p3.move.1hr$snail, p3.move.1hr$brick, sep = '.'
 
 p3.wide.1hr <- dcast(data =p3.move.1hr, snail + brick ~ var, value.var = 'coef')
 
-p3.wide.1hr <- setDT(merge(p3.wide.1hr, moveParams, by = 'snail', all.x = T))
+p3.wide.1hr <- setDT(merge(p3.wide.1hr, Params.exp, by = 'snail', all.x = T))
 
 
 
-p3.move.2hr <- p3.move.2hr[!(var %like% 'StageAcc')]
-p3.move.2hr$var <- gsub(':', '-', p3.move.2hr$var)
-p3.move.2hr$var <- gsub(' ', '', p3.move.2hr$var)
-p3.move.2hr$var <- gsub('[[:punct:]]', '', p3.move.2hr$var)
-p3.move.2hr$var <- gsub('StageA', '_after', p3.move.2hr$var)
-p3.move.2hr$var <- gsub('StageB', '_before', p3.move.2hr$var)
-p3.move.2hr$var <- gsub('logbrickdiststart1', '_brickdist', p3.move.2hr$var)
-p3.move.2hr$var <- gsub('logedgediststart1', '_edgedist', p3.move.2hr$var)
-unique(p3.move.2hr$var)
-
-p3.move.2hr[,'snails2'] <- paste(p3.move.2hr$snail, p3.move.2hr$brick, sep = '.')
-
-
-p3.wide.2hr <- dcast(data =p3.move.2hr, snail + brick ~ var, value.var = 'coef')
-
-p3.wide.2hr <- setDT(merge(p3.wide.2hr, moveParams.2hr, by = 'snail', all.x = T))
+# p3.move.2hr <- p3.move.2hr[!(var %like% 'StageAcc')]
+# p3.move.2hr$var <- gsub(':', '-', p3.move.2hr$var)
+# p3.move.2hr$var <- gsub(' ', '', p3.move.2hr$var)
+# p3.move.2hr$var <- gsub('[[:punct:]]', '', p3.move.2hr$var)
+# p3.move.2hr$var <- gsub('StageA', '_after', p3.move.2hr$var)
+# p3.move.2hr$var <- gsub('StageB', '_before', p3.move.2hr$var)
+# p3.move.2hr$var <- gsub('logbrickdiststart1', '_brickdist', p3.move.2hr$var)
+# p3.move.2hr$var <- gsub('logedgediststart1', '_edgedist', p3.move.2hr$var)
+# unique(p3.move.2hr$var)
+# 
+# p3.move.2hr[,'snails2'] <- paste(p3.move.2hr$snail, p3.move.2hr$brick, sep = '.')
+# 
+# 
+# p3.wide.2hr <- dcast(data =p3.move.2hr, snail + brick ~ var, value.var = 'coef')
+# 
+# p3.wide.2hr <- setDT(merge(p3.wide.2hr, moveParams.2hr, by = 'snail', all.x = T))
 
 
 edist <- seq(0,maxedge, length.out = 100)
@@ -967,18 +1016,18 @@ bdist <- seq(0,maxbrick, length.out = 100)
 
 # gamma distribution: shape and scale for speed
 # exponential: shape = 1, scale =1/rate
-p3.wide.1hr[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl+logsl_before+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
-p3.wide.1hr[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl+logsl_after+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl+logsl_before+(logsl_before_brickdist*24.65)+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl+logsl_after+(logsl_after_brickdist*24.65)+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
 
-p3.wide.1hr[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl+logsl_before+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
-p3.wide.1hr[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl+logsl_after+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl+logsl_before+(logsl_before_edgedist*5.788)+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl+logsl_after+(logsl_after_edgedist*5.788)+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
 
 
-p3.wide.1hr[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*edist)))), by=.(snail, brick)]
-p3.wide.1hr[!(is.na(logsl)), ed.dir.after:= list(list((kappa + costa_after + (costa_after_edgedist*edist)))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), ed.dir.before:= list(list((kappa +costa+ costa_before+(costa_before_brickdist*24.65) + (costa_before_edgedist*edist)))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), ed.dir.after:= list(list((kappa +costa+ costa_after + (costa_after_brickdist*24.65) +(costa_after_edgedist*edist)))), by=.(snail, brick)]
 
-p3.wide.1hr[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa_before + (costa_before_brickdist*bdist)))), by=.(snail, brick)]
-p3.wide.1hr[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa_after + (costa_after_brickdist*bdist)))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), bd.dir.before:= list(list((kappa +costa+ costa_before+(costa_before_edgedist*5.788) + (costa_before_brickdist*bdist)))), by=.(snail, brick)]
+p3.wide.1hr[!(is.na(logsl)), bd.dir.after:= list(list((kappa +costa+ costa_after+(costa_after_edgedist*5.788) + (costa_after_brickdist*bdist)))), by=.(snail, brick)]
 
 
 p3.wide.1hr[!(is.na(logsl)), edist:= list(list(seq(0,maxedge, length.out = 100))), by=.(snail, brick)]
@@ -1032,7 +1081,7 @@ direction.2hr[,'snails2'] <- paste(direction.2hr$snail, direction.2hr$brick, sep
 direction.2hr[,'brick2'] <-gsub("[^0-9.-]", "", direction.2hr$brick)
 
 ##### check who from each model (1 or 2hr) ----
-unique(p3.wide$snail)
+unique(p3.wide.1hr$snail)
 unique(p3.wide.2hr$snail)
 speed.1hr[ed.spd.before<0, unique(snail)]
 speed.2hr[ed.spd.before<0, unique(snail)]
@@ -1067,20 +1116,21 @@ p3.mods.all <- rbind(p3.mods[snail %in% p3.used, samp:='1hr'],
                      p3.mods.2hr[snail %in% p3.used.2hr, samp:='2hr'])
 
 #### p3 graphs ####
-speed.all <- readRDS('Data/derived/speed_1-2hr.Rds')
+#speed.all <- readRDS('Data/derived/speed_1-2hr.Rds')
+speed.all <- speed.1hr
 speed.all[,'ed.spd.before.adj'] <- ifelse(speed.all$ed.spd.before <0, 0, speed.all$ed.spd.before)
 speed.all[,'ed.spd.after.adj'] <- ifelse(speed.all$ed.spd.after <0, 0, speed.all$ed.spd.after)
 speed.all[,'bd.spd.before.adj'] <- ifelse(speed.all$bd.spd.before <0, 0, speed.all$bd.spd.before)
 speed.all[,'bd.spd.after.adj'] <- ifelse(speed.all$bd.spd.after <0, 0, speed.all$bd.spd.after)
 
 
-speed.mean <- speed.all[brick != 'g1' & brick != 'g3' & bdist %like% 20.3, .(snail, bdist, bd.spd.before, bd.spd.after, disturbance, samp)]
+speed.mean <- speed.all[brick != 'g1' & brick != 'g3' & bdist %like% 20.3, .(snail, bdist, bd.spd.before, bd.spd.after, disturbance)]
 speed.long <- melt(speed.mean)
 speed.long <- speed.long[variable!='bdist']
 speed.long[,'group'] <- ifelse(speed.long$variable %like% 'before', 'before', speed.long$disturbance)
 speed <- merge(speed.long, goodsnails[nobs==2], by = c('snail', 'group'), all=T)
 speed <- speed[!is.na(nobs)]
-speed <- speed[,.(snail, group, speed = value, samp)]
+speed <- speed[,.(snail, group, speed = value)]
 speed$speed <- ifelse(is.na(speed$speed), 0, speed$speed)
 speed$speed <- ifelse(speed$speed<0, 0, speed$speed)
 
@@ -1260,8 +1310,8 @@ meanmove <- ggplot(speed, aes(group, speed, color = group))+
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) + 
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  xlab('') + ylab('Mean speed (m per hour)') +
-  ylim(-1, 10) +
+  xlab('') + ylab('Mean speed (cm per hour)') +
+ # ylim(-1, 10) +
   theme(legend.position = "none") +
   scale_color_colorblind() + scale_fill_colorblind()
 meanmove
