@@ -662,6 +662,7 @@ p1.rss.sum <- p1.rss[, .(rss = mean(rss), se = se(rss)), by = .(var, step, treat
 p1.rss.sum[, upr:= rss + (1.96*se)]
 p1.rss.sum[, lwr:= rss - (1.96*se)]
 p1.rss[,'snails2'] <- paste(p1.rss$snail, p1.rss$treatment, sep = '.')
+p1.rss$treatment <- factor(p1.rss$treatment, levels = c('before', 'undisturbed', 'disturbed'))
 
 p1.rss.sum.edge <- ggplot(data=p1.rss.sum[var == 'edgedist'], 
                              aes(step, rss, color = treatment)) +
@@ -705,8 +706,8 @@ p1.rss.edge<- ggplot(data=p1.rss[var == 'edgedist'],
   ylab("logRSS") + xlab("Distance from edge (cm)") +
  # ggtitle("after")  +
   #ylim(-200, 450) +
-   scale_colour_manual("", values = c("purple", "red", 'blue'))  +  
-  scale_fill_manual("", values = c("purple", "red", 'blue'))  + 
+   scale_colour_colorblind()  +  
+  scale_fill_colorblind()  + 
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 p1.rss.edge
 
@@ -752,8 +753,8 @@ p1.rss.brick<- ggplot(data=p1.rss[var == 'brickdist'],
   ylab("logRSS") + xlab("Distance from brick (cm)") +
   # ggtitle("after")  +
   #ylim(-200, 450) +
-  scale_colour_manual("", values = c("purple", "red", 'blue'))  +  
-  scale_fill_manual("", values = c("purple", "red", 'blue'))  + 
+  scale_colour_colorblind()  +  
+  scale_fill_colorblind()  + 
   theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
 p1.rss.brick
 
@@ -989,9 +990,9 @@ p3.move.1hr[,'snails2'] <- paste(p3.move.1hr$snail, p3.move.1hr$brick, sep = '.'
 
 p3.wide.1hr <- dcast(data =p3.move.1hr, snail + brick ~ var, value.var = 'coef')
 
-p3.wide.1hr <- setDT(merge(p3.wide.1hr, Params.exp, by = 'snail', all.x = T))
+p3.wide.1hr <- setDT(merge(p3.wide.1hr, moveParams, by = 'snail', all.x = T))
 
-
+#move params vs Param.exp
 
 # p3.move.2hr <- p3.move.2hr[!(var %like% 'StageAcc')]
 # p3.move.2hr$var <- gsub(':', '-', p3.move.2hr$var)
@@ -1050,70 +1051,70 @@ direction.1hr[,'brick2'] <-gsub("[^0-9.-]", "", direction.1hr$brick)
 
 
 
-
-p3.wide.2hr[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl_before+logslToDstartnight+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
-p3.wide.2hr[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl_after+logslToDstartnight+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
-
-p3.wide.2hr[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl_before+logslToDstartnight+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
-p3.wide.2hr[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl_after+logslToDstartnight+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
-
-
-p3.wide.2hr[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*edist)))), by=.(snail, brick)]
-p3.wide.2hr[!(is.na(logsl)), ed.dir.after:= list(list((kappa + costa_after + (costa_after_edgedist*edist)))), by=.(snail, brick)]
-
-p3.wide.2hr[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa_before + (costa_before_brickdist*bdist)))), by=.(snail, brick)]
-p3.wide.2hr[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa_after + (costa_after_brickdist*bdist)))), by=.(snail, brick)]
-
-
-p3.wide.2hr[!(is.na(logsl)), edist:= list(list(seq(0,maxedge, length.out = 100))), by=.(snail, brick)]
-p3.wide.2hr[!(is.na(logsl)), bdist:= list(list(seq(0,maxbrick,length.out = 100))), by=.(snail, brick)]
-
-speed.2hr <- p3.wide.2hr[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
-                                   bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
-                                   disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
-speed.2hr[,'snails2'] <- paste(speed.2hr$snail, speed.2hr$brick, sep = '.')
-speed.2hr[,'brick2'] <-gsub("[^0-9.-]", "", speed.2hr$brick)
-
-direction.2hr <- p3.wide.2hr[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.dir.before = unlist(ed.dir.before), ed.dir.after = unlist(ed.dir.after),
-                                   bd.dir.before = unlist(bd.dir.before), bd.dir.after = unlist(bd.dir.after),
-                                   disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
-direction.2hr[,'snails2'] <- paste(direction.2hr$snail, direction.2hr$brick, sep = '.')
-direction.2hr[,'brick2'] <-gsub("[^0-9.-]", "", direction.2hr$brick)
-
-##### check who from each model (1 or 2hr) ----
-unique(p3.wide.1hr$snail)
-unique(p3.wide.2hr$snail)
-speed.1hr[ed.spd.before<0, unique(snail)]
-speed.2hr[ed.spd.before<0, unique(snail)]
-
-p3.used.1hr <- c('O24b', 'O11a', 'P22a')
-p3.used.2hr <- c('O11b', 'P24a', 'O23a', 'P12a', 'O22b', 'P23a', 'P31a')
-
-speed.used <- speed.1hr[snail %in% p3.used.1hr, .(edist, bdist, ed.spd.before = ed.spd.before/100, ed.spd.after = ed.spd.after/100,
-                                          bd.spd.before = bd.spd.before/100, bd.spd.after = bd.spd.after/100,
-                                          disturbance, snail, snails2, brick, brick2, samp = '1hr')]
-
-speed.used.2hr <- speed.2hr[snail %in% p3.used.2hr, .(edist, bdist, ed.spd.before = ed.spd.before/50, ed.spd.after = ed.spd.after/50,
-                                          bd.spd.before = bd.spd.before/50, bd.spd.after = bd.spd.after/50,
-                                          disturbance, snail, snails2, brick, brick2, samp = '2hr')]
-
-speed.all <- rbind(speed.used, speed.used.2hr)
-#saveRDS(speed.all, 'Data/derived/speed_1-2hr.Rds')
-
-direction.used <- direction.1hr[snail %in% p3.used.1hr, .(edist, bdist, ed.dir.before = ed.dir.before, ed.dir.after = ed.dir.after,
-                                          bd.dir.before = bd.dir.before, bd.dir.after = bd.dir.after,
-                                          disturbance, snail, snails2, brick, brick2, samp = '1hr')]
-
-direction.used.2hr <- direction.2hr[snail %in% p3.used.2hr, .(edist, bdist, ed.dir.before = ed.dir.before, ed.dir.after = ed.dir.after,
-                                                      bd.dir.before = bd.dir.before, bd.dir.after = bd.dir.after,
-                                                      disturbance, snail, snails2, brick, brick2, samp = '2hr')]
-
-direction.all <- rbind(direction.used, direction.used.2hr)
-#saveRDS(direction.all, 'Data/derived/direction_1-2hr.Rds')
-
-
-p3.mods.all <- rbind(p3.mods[snail %in% p3.used, samp:='1hr'],
-                     p3.mods.2hr[snail %in% p3.used.2hr, samp:='2hr'])
+# 
+# p3.wide.2hr[!(is.na(logsl)), ed.spd.before:= list(list((1+logsl_before+logslToDstartnight+(logsl_before_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+# p3.wide.2hr[!(is.na(logsl)), ed.spd.after:= list(list((1+logsl_after+logslToDstartnight+(logsl_after_edgedist*edist))*(1/rate))), by=.(snail, brick)]
+# 
+# p3.wide.2hr[!(is.na(logsl)), bd.spd.before:= list(list((1+logsl_before+logslToDstartnight+(logsl_before_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
+# p3.wide.2hr[!(is.na(logsl)), bd.spd.after:= list(list((1+logsl_after+logslToDstartnight+(logsl_after_brickdist*bdist))*(1/rate))), by=.(snail, brick)]
+# 
+# 
+# p3.wide.2hr[!(is.na(logsl)), ed.dir.before:= list(list((kappa + costa_before + (costa_before_edgedist*edist)))), by=.(snail, brick)]
+# p3.wide.2hr[!(is.na(logsl)), ed.dir.after:= list(list((kappa + costa_after + (costa_after_edgedist*edist)))), by=.(snail, brick)]
+# 
+# p3.wide.2hr[!(is.na(logsl)), bd.dir.before:= list(list((kappa + costa_before + (costa_before_brickdist*bdist)))), by=.(snail, brick)]
+# p3.wide.2hr[!(is.na(logsl)), bd.dir.after:= list(list((kappa + costa_after + (costa_after_brickdist*bdist)))), by=.(snail, brick)]
+# 
+# 
+# p3.wide.2hr[!(is.na(logsl)), edist:= list(list(seq(0,maxedge, length.out = 100))), by=.(snail, brick)]
+# p3.wide.2hr[!(is.na(logsl)), bdist:= list(list(seq(0,maxbrick,length.out = 100))), by=.(snail, brick)]
+# 
+# speed.2hr <- p3.wide.2hr[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
+#                                    bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
+#                                    disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
+# speed.2hr[,'snails2'] <- paste(speed.2hr$snail, speed.2hr$brick, sep = '.')
+# speed.2hr[,'brick2'] <-gsub("[^0-9.-]", "", speed.2hr$brick)
+# 
+# direction.2hr <- p3.wide.2hr[!(is.na(logsl)),.(edist = unlist(edist), bdist = unlist(bdist), ed.dir.before = unlist(ed.dir.before), ed.dir.after = unlist(ed.dir.after),
+#                                    bd.dir.before = unlist(bd.dir.before), bd.dir.after = unlist(bd.dir.after),
+#                                    disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(snail, brick)]
+# direction.2hr[,'snails2'] <- paste(direction.2hr$snail, direction.2hr$brick, sep = '.')
+# direction.2hr[,'brick2'] <-gsub("[^0-9.-]", "", direction.2hr$brick)
+# 
+# ##### check who from each model (1 or 2hr) ----
+# unique(p3.wide.1hr$snail)
+# unique(p3.wide.2hr$snail)
+# speed.1hr[ed.spd.before<0, unique(snail)]
+# speed.2hr[ed.spd.before<0, unique(snail)]
+# 
+# p3.used.1hr <- c('O24b', 'O11a', 'P22a')
+# p3.used.2hr <- c('O11b', 'P24a', 'O23a', 'P12a', 'O22b', 'P23a', 'P31a')
+# 
+# speed.used <- speed.1hr[snail %in% p3.used.1hr, .(edist, bdist, ed.spd.before = ed.spd.before/100, ed.spd.after = ed.spd.after/100,
+#                                           bd.spd.before = bd.spd.before/100, bd.spd.after = bd.spd.after/100,
+#                                           disturbance, snail, snails2, brick, brick2, samp = '1hr')]
+# 
+# speed.used.2hr <- speed.2hr[snail %in% p3.used.2hr, .(edist, bdist, ed.spd.before = ed.spd.before/50, ed.spd.after = ed.spd.after/50,
+#                                           bd.spd.before = bd.spd.before/50, bd.spd.after = bd.spd.after/50,
+#                                           disturbance, snail, snails2, brick, brick2, samp = '2hr')]
+# 
+# speed.all <- rbind(speed.used, speed.used.2hr)
+# #saveRDS(speed.all, 'Data/derived/speed_1-2hr.Rds')
+# 
+# direction.used <- direction.1hr[snail %in% p3.used.1hr, .(edist, bdist, ed.dir.before = ed.dir.before, ed.dir.after = ed.dir.after,
+#                                           bd.dir.before = bd.dir.before, bd.dir.after = bd.dir.after,
+#                                           disturbance, snail, snails2, brick, brick2, samp = '1hr')]
+# 
+# direction.used.2hr <- direction.2hr[snail %in% p3.used.2hr, .(edist, bdist, ed.dir.before = ed.dir.before, ed.dir.after = ed.dir.after,
+#                                                       bd.dir.before = bd.dir.before, bd.dir.after = bd.dir.after,
+#                                                       disturbance, snail, snails2, brick, brick2, samp = '2hr')]
+# 
+# direction.all <- rbind(direction.used, direction.used.2hr)
+# #saveRDS(direction.all, 'Data/derived/direction_1-2hr.Rds')
+# 
+# 
+# p3.mods.all <- rbind(p3.mods[snail %in% p3.used, samp:='1hr'],
+#                      p3.mods.2hr[snail %in% p3.used.2hr, samp:='2hr'])
 
 #### p3 graphs ####
 #speed.all <- readRDS('Data/derived/speed_1-2hr.Rds')
@@ -1123,14 +1124,22 @@ speed.all[,'ed.spd.after.adj'] <- ifelse(speed.all$ed.spd.after <0, 0, speed.all
 speed.all[,'bd.spd.before.adj'] <- ifelse(speed.all$bd.spd.before <0, 0, speed.all$bd.spd.before)
 speed.all[,'bd.spd.after.adj'] <- ifelse(speed.all$bd.spd.after <0, 0, speed.all$bd.spd.after)
 
+speed.indivs <- speed.all[brick != 'g1' & brick != 'g3', .(snail, bdist, bd.spd.before.adj, bd.spd.after.adj, disturbance)]
+speed.indivs <- melt(speed.indivs, id.vars = c('snail','bdist', 'disturbance'))
+speed.indivs[,'group'] <- ifelse(speed.indivs$variable %like% 'before', 'before', speed.indivs$disturbance)
+speed.indivs <- merge(speed.indivs, dat.obs[,.(snail,group,disturbance)], by = c('snail', 'group'), all=T)
+speed.indivs <- speed.indivs[!is.na(nobs)]
+speed.indivs <- speed.indivs[,.(snail, group, speed = value, bdist)]
+speed.indivs$speed <- ifelse(is.na(speed.indivs$speed), 0, speed.indivs$speed)
 
-speed.mean <- speed.all[brick != 'g1' & brick != 'g3' & bdist %like% 20.3, .(snail, bdist, bd.spd.before, bd.spd.after, disturbance)]
+
+speed.mean <- speed.all[brick != 'g1' & brick != 'g3' & bdist %like% 20.35, .(snail, bdist, bd.spd.before, bd.spd.after)]
 speed.long <- melt(speed.mean)
 speed.long <- speed.long[variable!='bdist']
 speed.long[,'group'] <- ifelse(speed.long$variable %like% 'before', 'before', speed.long$disturbance)
 speed <- merge(speed.long, goodsnails[nobs==2], by = c('snail', 'group'), all=T)
 speed <- speed[!is.na(nobs)]
-speed <- speed[,.(snail, group, speed = value)]
+speed <- speed[,.(snail, group, speed = value, disturbance)]
 speed$speed <- ifelse(is.na(speed$speed), 0, speed$speed)
 speed$speed <- ifelse(speed$speed<0, 0, speed$speed)
 
@@ -1192,12 +1201,12 @@ speed.brick.after <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3'], aes(x
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   ggtitle("after ") +
-  xlab("Distance from brick (cm)") + ylab("Speed (m per hour)")
+  xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)")
 speed.brick.after 
 
 
 
-direction.edge.before <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=edist, y=ed.dir.before)) + 
+direction.edge.before <- ggplot(data=direction.1hr[brick != 'g1' & brick != 'g3'], aes(x=edist, y=ed.dir.before)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(size = 2, se = FALSE, color= 'purple', fill = 'purple')+
@@ -1211,7 +1220,7 @@ direction.edge.before <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'
   xlab("Distance from edge (cm)") + ylab("Concentration of turn angle")
 direction.edge.before 
 
-direction.edge.after <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=edist, y=ed.dir.after, color = disturbance)) + 
+direction.edge.after <- ggplot(data=direction.1hr[brick != 'g1' & brick != 'g3'], aes(x=edist, y=ed.dir.after, color = disturbance)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(size = 2, se = FALSE, aes(fill = disturbance))+
@@ -1227,7 +1236,7 @@ direction.edge.after
 
 
 
-direction.brick.before <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.dir.before)) + 
+direction.brick.before <- ggplot(data=direction.1hr[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.dir.before)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
  geom_smooth(size = 2, se = FALSE, color = 'purple', fill = 'purple')+
@@ -1241,7 +1250,7 @@ direction.brick.before <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3
   xlab("Distance from brick (cm)") + ylab("Concentration of turn angle")
 direction.brick.before 
 
-direction.brick.after <- ggplot(data=direction.all[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.dir.after, color = disturbance)) + 
+direction.brick.after <- ggplot(data=direction.1hr[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.dir.after, color = disturbance)) + 
   #geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(size = 2, se = FALSE, aes(fill = disturbance))+
@@ -1272,13 +1281,20 @@ dat[,.(min = min(ta_, na.rm = T), max = max(ta_, na.rm = T), mean = mean(ta_, na
 
 
 
-dat.obs.sum <- dat.obs[,.(meanSL = mean(sl_), seSL= se(sl_),meanMove = mean(propmove), seMove= se(unique(propmove))), by = .(group)]
+dat.obs.sum <- dat.obs[,.(meanSL = mean(sl_), geommeanSL = exp(mean(log(sl_+1))), seSL= se(sl_),meanMove = mean(propmove), seMove= se(unique(propmove))), by = .(group)]
+dat.obs.sum$group <- factor(dat.obs.sum$group, levels = c('before','undisturbed', 'disturbed'))
+
+dat.obs[,disturbance:=ifelse(ghostbricks %like% 'g', 'undisturbed','disturbed')]
 
 ggplot(dat.obs, aes(group, sl_)) +
   geom_boxplot()
 
-ggplot(dat.obs.sum, aes(group, meanSL, color = group))+
-  geom_errorbar(aes(ymin=(meanSL - (1.96*seSL)), ymax=(meanSL + (1.96*seSL))))+
+ggplot(dat.obs[Stage!= 'Acc' & sl_>0 & ToD_start =='night'], aes(step_id_, sl_)) +
+  #geom_smooth(aes(color = disturbance, group = snail), alpha= 0.5, linetype = 'twodash', show.legend = F, se = F)+
+  geom_smooth(aes(group = Stage,color=disturbance, fill= disturbance), method = 'loess')
+
+ggplot(dat.obs.sum, aes(group, geommeanSL, color = group))+
+  geom_errorbar(aes(ymin=(geommeanSL - (1.96*seSL)), ymax=(geommeanSL + (1.96*seSL))))+
   geom_point()
 
 ggplot(dat.obs.sum, aes(group, meanMove, color = group))+
@@ -1301,8 +1317,26 @@ propmove <- ggplot(dat.obs.prop, aes(group, propmove, color = group))+
   scale_color_colorblind() + scale_fill_colorblind()
 propmove
 
+speed$group <- factor(speed$group, levels = c('before', 'undisturbed','disturbed'))
+speed[,BA:=ifelse(group=='before','before','after')]
+speed$BA <- factor(speed$BA, levels = c('before', 'after'))
+speed <- merge(speed, speed[group!='before', .(disturbance=group), by=.(snail)])
+speed$disturbance <- factor(speed$disturbance, levels = c('undisturbed', 'disturbed'))
+meanmove.indiv <- ggplot(speed, aes(BA, speed/10, color = disturbance))+
+  geom_line(aes(group = snail, color = disturbance.y), alpha =0.5) + 
+  geom_point()+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  xlab('') + ylab('Mean speed (m per hour)') +
+  # ylim(-1, 10) +
+  #theme(legend.position = "none") +
+  scale_color_colorblind() + scale_fill_colorblind()
+meanmove.indiv
 
-meanmove <- ggplot(speed, aes(group, speed, color = group))+
+meanmove <- ggplot(speed, aes(group, speed/10, color = group))+
   geom_boxplot(aes(fill = group), alpha = 0.1, outlier.shape = NA, show.legend = F) + 
   geom_jitter() +
   theme_classic() +
@@ -1310,11 +1344,40 @@ meanmove <- ggplot(speed, aes(group, speed, color = group))+
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) + 
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  xlab('') + ylab('Mean speed (cm per hour)') +
+  xlab('') + ylab('Mean speed (m per hour)') +
  # ylim(-1, 10) +
   theme(legend.position = "none") +
   scale_color_colorblind() + scale_fill_colorblind()
 meanmove
+
+logmeanmove <- ggplot(speed, aes(group, log(speed+1), color = group))+
+  geom_boxplot(aes(fill = group), alpha = 0.1, outlier.shape = NA, show.legend = F) + 
+  geom_jitter() +
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  xlab('') + ylab('Natural log mean speed (m per hour)') +
+  # ylim(-1, 10) +
+  theme(legend.position = "none") +
+  scale_color_colorblind() + scale_fill_colorblind()
+logmeanmove
+
+speed.indivs[,'snails2']<-paste(speed.indivs$snail, speed.indivs$group, sep = '.')
+brickmove <- ggplot(speed.indivs[speed<=50000], aes(bdist, speed/10, color = group))+
+  #geom_line(aes(group = snails2, color = group), linetype ='twodash', alpha =0.5, size = 1, show.legend = F) + 
+  geom_smooth(size = 2, se = T, aes(fill = group))+
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  xlab('Distance from brick (cm)') + ylab('Speed (m per hour)') +
+  # ylim(-1, 10) +
+  scale_color_colorblind() + scale_fill_colorblind()
+brickmove
+
 
 hist(dat$sl_)
 hist(dat.obs$sl_)
