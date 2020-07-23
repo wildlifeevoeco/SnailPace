@@ -82,21 +82,21 @@ TAdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
     ta_distr_params()
 }
 
-utm22T <- "+proj=utm +zone=22 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
-bad <- c('P23a', 'O14a', 'P24a', 'P24b', 'O24b')
-slParams.exp <- dat.obs[ToD_start == 'night' & !(snail %in% bad), {
-  print(.BY[[1]])
-  SLdistr(x.col = x1_, y.col = y1_, date.col = t1_, crs = utm22T, ID = snail, 
-          sl_distr = "exp", ta_distr = "vonmises")},
-  by = snail]
-
-taParams.exp <- dat.obs[ToD_start == 'night' & !(snail %in% bad), {
-  print(.BY[[1]])
-  TAdistr(x.col = x1_, y.col = y1_, date.col = t1_, crs = utm22T, ID = snail, 
-          sl_distr = "exp", ta_distr = "vonmises")},
-  by = snail]
-
-Params.exp <- merge(slParams.exp, taParams.exp[,.(snail,kappa)], by = 'snail')
+# utm22T <- "+proj=utm +zone=22 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
+# bad <- c('P23a', 'O14a', 'P24a', 'P24b', 'O24b')
+# slParams.exp <- dat.obs[ToD_start == 'night' & !(snail %in% bad), {
+#   print(.BY[[1]])
+#   SLdistr(x.col = x1_, y.col = y1_, date.col = t1_, crs = utm22T, ID = snail, 
+#           sl_distr = "exp", ta_distr = "vonmises")},
+#   by = snail]
+# 
+# taParams.exp <- dat.obs[ToD_start == 'night' & !(snail %in% bad), {
+#   print(.BY[[1]])
+#   TAdistr(x.col = x1_, y.col = y1_, date.col = t1_, crs = utm22T, ID = snail, 
+#           sl_distr = "exp", ta_distr = "vonmises")},
+#   by = snail]
+# 
+# Params.exp <- merge(slParams.exp, taParams.exp[,.(snail,kappa)], by = 'snail')
 
 
 
@@ -735,9 +735,9 @@ p1.rss.sum.brick
 
 p1.rss.brick<- ggplot(data=p1.rss[var == 'brickdist'], 
                      aes(step, rss, colour=treatment)) +
-  geom_line(aes(group = snails2,alpha = .0001), linetype ='twodash', show.legend = F) +
+  geom_line(aes(group = snails2,alpha = .0001), size= .75,alpha = .5, linetype ='twodash', show.legend = F) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  geom_smooth(size = 1.5, aes(fill = treatment), se = F) +
+  geom_smooth(size = 3, aes(fill = treatment), se = F) +
   # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
@@ -755,7 +755,7 @@ p1.rss.brick<- ggplot(data=p1.rss[var == 'brickdist'],
   #ylim(-200, 450) +
   scale_colour_colorblind()  +  
   scale_fill_colorblind()  + 
-  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 18))
 p1.rss.brick
 
 
@@ -1011,6 +1011,11 @@ p3.wide.1hr <- setDT(merge(p3.wide.1hr, moveParams, by = 'snail', all.x = T))
 # 
 # p3.wide.2hr <- setDT(merge(p3.wide.2hr, moveParams.2hr, by = 'snail', all.x = T))
 
+meanedge <- 0 #mean(dat$edgedist_end, na.rm = T)
+maxedge <- max(dat$edgedist_end, na.rm = T)
+meanbrick <- 0 #mean(dat$brickdist_end, na.rm = T)
+maxbrick <- 65
+
 
 edist <- seq(0,maxedge, length.out = 100)
 bdist <- seq(0,maxbrick, length.out = 100)
@@ -1127,23 +1132,23 @@ speed.all[,'bd.spd.after.adj'] <- ifelse(speed.all$bd.spd.after <0, 0, speed.all
 speed.indivs <- speed.all[brick != 'g1' & brick != 'g3', .(snail, bdist, bd.spd.before.adj, bd.spd.after.adj, disturbance)]
 speed.indivs <- melt(speed.indivs, id.vars = c('snail','bdist', 'disturbance'))
 speed.indivs[,'group'] <- ifelse(speed.indivs$variable %like% 'before', 'before', speed.indivs$disturbance)
-speed.indivs <- merge(speed.indivs, dat.obs[,.(snail,group,disturbance)], by = c('snail', 'group'), all=T)
-speed.indivs <- speed.indivs[!is.na(nobs)]
-speed.indivs <- speed.indivs[,.(snail, group, speed = value, bdist)]
+speed.indivs <- merge(speed.indivs, goodsnails[,.(snail,group)], by = c('snail', 'group'), all=T)
+speed.indivs <- speed.indivs[,.(snail, group, speed = value, bdist, disturbance)]
 speed.indivs$speed <- ifelse(is.na(speed.indivs$speed), 0, speed.indivs$speed)
+speed.indivs[,bdist:= ifelse(is.na(bdist), 20.35, bdist)]
 
 
-speed.mean <- speed.all[brick != 'g1' & brick != 'g3' & bdist %like% 20.35, .(snail, bdist, bd.spd.before, bd.spd.after)]
+speed.mean <- speed.all[brick != 'g1' & brick != 'g3' & bdist %like% 20.35, .(snail, bdist, bd.spd.before, bd.spd.after, disturbance)]
 speed.long <- melt(speed.mean)
 speed.long <- speed.long[variable!='bdist']
 speed.long[,'group'] <- ifelse(speed.long$variable %like% 'before', 'before', speed.long$disturbance)
 speed <- merge(speed.long, goodsnails[nobs==2], by = c('snail', 'group'), all=T)
 speed <- speed[!is.na(nobs)]
-speed <- speed[,.(snail, group, speed = value, disturbance)]
+speed <- speed[,.(snail, group, speed = value)]
 speed$speed <- ifelse(is.na(speed$speed), 0, speed$speed)
 speed$speed <- ifelse(speed$speed<0, 0, speed$speed)
 
-direction.all <- readRDS('Data/derived/direction_1-2hr.Rds')
+#direction.all <- readRDS('Data/derived/direction_1-2hr.Rds')
 
 speed.edge.before <- ggplot(data=speed.all[brick != 'g1' & brick != 'g3' & snail %in% goods], aes(x=edist, y=ed.spd.before.adj/10)) + 
   geom_line(aes(group=snails2, linetype = disturbance), size=1, alpha=.5) +
@@ -1286,12 +1291,36 @@ dat.obs.sum$group <- factor(dat.obs.sum$group, levels = c('before','undisturbed'
 
 dat.obs[,disturbance:=ifelse(ghostbricks %like% 'g', 'undisturbed','disturbed')]
 
-ggplot(dat.obs, aes(group, sl_)) +
+ggplot(dat.obs[Stage!= 'Acc'  & ToD_start =='night'], aes(group, sl_)) +
   geom_boxplot()
 
-ggplot(dat.obs[Stage!= 'Acc' & sl_>0 & ToD_start =='night'], aes(step_id_, sl_)) +
-  #geom_smooth(aes(color = disturbance, group = snail), alpha= 0.5, linetype = 'twodash', show.legend = F, se = F)+
-  geom_smooth(aes(group = Stage,color=disturbance, fill= disturbance), method = 'loess')
+dat.time <- dat.obs[Stage!= 'Acc']
+dat.time[,start:=ifelse(snail %like% 'O1'|snail %like% 'P1', '2019-09-27 17:30:00',
+                        ifelse(snail %like% 'P3', '2019-10-24 17:30:00', '2019-10-10 17:30:00'))]
+dat.time[,start:=as.POSIXct(start, tz = 'UTC')]
+dat.time[,hr:=as.duration(start  %--% t1_)/dhours(1) ]
+dat.time[,first:=head(t1_,1), by=.(snail)]
+dat.time[,use:=ifelse(start == first, TRUE, FALSE)]
+dat.time[,day.exact:=as.duration(start  %--% t1_)/ddays(1)]
+dat.time[, day:=as.integer(day.exact)]
+dat.time[,disturbance:=factor(disturbance, levels = c('undisturbed','disturbed'))]
+
+ggplot(dat.time[ToD_start=='night' & sl_>0], aes(as.factor(day), sl_, color = disturbance))+
+  geom_boxplot(aes( fill = disturbance), alpha = 0.1, outlier.shape = NA, show.legend = T) + 
+  geom_jitter(aes(group=disturbance), width = 0.3) +
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  xlab('Night') + ylab('Observed step lengths') +
+  #theme(legend.position = "none") +
+  scale_color_colorblind() + scale_fill_colorblind()
+
+ggplot(dat.time[ToD_start =='night' & use ==TRUE], aes(hr, sl_)) +
+  #geom_smooth(aes(color = disturbance, group = snail), alpha= 0.3, linetype = 'twodash', show.legend = F, se = F)+
+  geom_smooth(aes(color=disturbance, fill= disturbance), method = 'loess')
+
 
 ggplot(dat.obs.sum, aes(group, geommeanSL, color = group))+
   geom_errorbar(aes(ymin=(geommeanSL - (1.96*seSL)), ymax=(geommeanSL + (1.96*seSL))))+
@@ -1301,7 +1330,7 @@ ggplot(dat.obs.sum, aes(group, meanMove, color = group))+
   geom_errorbar(aes(ymin=(meanMove - (1.96*seMove)), ymax=(meanMove + (1.96*seMove))))+
   geom_point()
 
-dat.obs.prop <- dat.obs[, .(propmove =unique(propmove)), by = .(snail, group)]
+dat.obs.prop <- dat.obs[Stage!= 'Acc' & ToD_start =='night', .(propmove =unique(propmove)), by = .(snail, group)]
 
 dat.obs.prop$group <-factor(dat.obs.prop$group, levels = c('before', 'undisturbed', 'disturbed'))
 propmove <- ggplot(dat.obs.prop, aes(group, propmove, color = group))+
@@ -1336,15 +1365,15 @@ meanmove.indiv <- ggplot(speed, aes(BA, speed/10, color = disturbance))+
   scale_color_colorblind() + scale_fill_colorblind()
 meanmove.indiv
 
-meanmove <- ggplot(speed, aes(group, speed/10, color = group))+
+meanmove <- ggplot(speed, aes(group, speed*24, color = group))+
   geom_boxplot(aes(fill = group), alpha = 0.1, outlier.shape = NA, show.legend = F) + 
-  geom_jitter() +
+  geom_jitter(height = 0.5) +
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) + 
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  xlab('') + ylab('Mean speed (m per hour)') +
+  xlab('') + ylab('Mean speed (m per day)') +
  # ylim(-1, 10) +
   theme(legend.position = "none") +
   scale_color_colorblind() + scale_fill_colorblind()
