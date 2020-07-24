@@ -1303,7 +1303,8 @@ dat.time[,first:=head(t1_,1), by=.(snail)]
 dat.time[,use:=ifelse(start == first, TRUE, FALSE)]
 dat.time[,day.exact:=as.duration(start  %--% t1_)/ddays(1)]
 dat.time[, day:=as.integer(day.exact)]
-dat.time[,disturbance:=factor(disturbance, levels = c('undisturbed','disturbed'))]
+#dat.time[,disturbance:=factor(disturbance, levels = c('undisturbed','disturbed'))]
+dat.time[, propmovenight:=sum(moved)/.N, by = .(snail, group, day, ToD_start)]
 
 ggplot(dat.time[ToD_start=='night' & sl_>0], aes(as.factor(day), sl_, color = disturbance))+
   geom_boxplot(aes( fill = disturbance), alpha = 0.1, outlier.shape = NA, show.legend = T) + 
@@ -1314,6 +1315,20 @@ ggplot(dat.time[ToD_start=='night' & sl_>0], aes(as.factor(day), sl_, color = di
   theme(axis.text.x =  element_text(size = 15)) + 
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
   xlab('Night') + ylab('Observed step lengths') +
+  #theme(legend.position = "none") +
+  scale_color_colorblind() + scale_fill_colorblind()
+
+dat.time.prop <- dat.time[Stage!= 'Acc' & ToD_start =='night', .(propmove =unique(propmove), propmovenight =unique(propmovenight)), by = .(snail, disturbance, day)]
+
+ggplot(dat.time.prop, aes(as.factor(day), propmovenight, color = disturbance))+
+  geom_boxplot(aes( fill = disturbance), alpha = 0.1, outlier.shape = NA, show.legend = T) + 
+  geom_jitter(aes(group=disturbance), width = 0.3) +
+  theme_classic() +
+  theme(text = element_text(size=15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) + 
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+  xlab('Night') + ylab('Proportion of steps moved') +
   #theme(legend.position = "none") +
   scale_color_colorblind() + scale_fill_colorblind()
 
@@ -1330,9 +1345,9 @@ ggplot(dat.obs.sum, aes(group, meanMove, color = group))+
   geom_errorbar(aes(ymin=(meanMove - (1.96*seMove)), ymax=(meanMove + (1.96*seMove))))+
   geom_point()
 
-dat.obs.prop <- dat.obs[Stage!= 'Acc' & ToD_start =='night', .(propmove =unique(propmove)), by = .(snail, group)]
+dat.obs.prop <- dat.time[Stage!= 'Acc' & ToD_start =='night', .(propmove =unique(propmove), propmovenight =unique(propmovenight)), by = .(snail, group)]
 
-dat.obs.prop$group <-factor(dat.obs.prop$group, levels = c('before', 'undisturbed', 'disturbed'))
+#dat.obs.prop$group <-factor(dat.obs.prop$group, levels = c('before', 'undisturbed', 'disturbed'))
 propmove <- ggplot(dat.obs.prop, aes(group, propmove, color = group))+
   geom_boxplot(aes(fill = group), alpha = 0.1, outlier.shape = NA, show.legend = F) + 
   geom_jitter() +
@@ -1345,6 +1360,8 @@ propmove <- ggplot(dat.obs.prop, aes(group, propmove, color = group))+
   theme(legend.position = "none") +
   scale_color_colorblind() + scale_fill_colorblind()
 propmove
+
+
 
 speed$group <- factor(speed$group, levels = c('before', 'undisturbed','disturbed'))
 speed[,BA:=ifelse(group=='before','before','after')]
