@@ -1284,7 +1284,7 @@ direction.brick.before|direction.brick.after
 dat[,.(min = min(sl_, na.rm = T), max = max(sl_, na.rm = T), mean = mean(sl_, na.rm = T)), by = .(snail)]
 dat[,.(min = min(ta_, na.rm = T), max = max(ta_, na.rm = T), mean = mean(ta_, na.rm = T)), by = .(snail)]
 
-
+######
 
 dat.obs.sum <- dat.obs[,.(meanSL = mean(sl_), geommeanSL = exp(mean(log(sl_+1))), seSL= se(sl_),meanMove = mean(propmove), seMove= se(unique(propmove))), by = .(group)]
 dat.obs.sum$group <- factor(dat.obs.sum$group, levels = c('before','undisturbed', 'disturbed'))
@@ -1294,9 +1294,9 @@ dat.obs[,disturbance:=ifelse(ghostbricks %like% 'g', 'undisturbed','disturbed')]
 ggplot(dat.obs[Stage!= 'Acc'  & ToD_start =='night'], aes(group, sl_)) +
   geom_boxplot()
 
-dat.time <- dat.obs[Stage!= 'Acc']
-dat.time[,start:=ifelse(snail %like% 'O1'|snail %like% 'P1', '2019-09-27 17:30:00',
-                        ifelse(snail %like% 'P3', '2019-10-24 17:30:00', '2019-10-10 17:30:00'))]
+dat.time <- dat.hr[case_==TRUE & snail %in% goods]
+dat.time[,start:=ifelse(snail %like% 'O1'|snail %like% 'P1', '2019-09-26 17:30:00',
+                        ifelse(snail %like% 'P3', '2019-10-23 17:30:00', '2019-10-09 17:30:00'))]
 dat.time[,start:=as.POSIXct(start, tz = 'UTC')]
 dat.time[,hr:=as.duration(start  %--% t1_)/dhours(1) ]
 dat.time[,first:=head(t1_,1), by=.(snail)]
@@ -1304,7 +1304,9 @@ dat.time[,use:=ifelse(start == first, TRUE, FALSE)]
 dat.time[,day.exact:=as.duration(start  %--% t1_)/ddays(1)]
 dat.time[, day:=as.integer(day.exact)]
 #dat.time[,disturbance:=factor(disturbance, levels = c('undisturbed','disturbed'))]
-dat.time[, propmovenight:=sum(moved)/.N, by = .(snail, group, day, ToD_start)]
+dat.time[,disturbance:=ifelse(ghostbricks %like% 'g', 'undisturbed','disturbed')]
+dat.time[,moved:= ifelse(sl_==0,0,1)]
+dat.time[, propmovenight:=sum(moved)/.N, by = .(snail, disturbance, day, ToD_start)]
 
 ggplot(dat.time[ToD_start=='night' & sl_>0], aes(as.factor(day), sl_, color = disturbance))+
   geom_boxplot(aes( fill = disturbance), alpha = 0.1, outlier.shape = NA, show.legend = T) + 
@@ -1318,7 +1320,7 @@ ggplot(dat.time[ToD_start=='night' & sl_>0], aes(as.factor(day), sl_, color = di
   #theme(legend.position = "none") +
   scale_color_colorblind() + scale_fill_colorblind()
 
-dat.time.prop <- dat.time[Stage!= 'Acc' & ToD_start =='night', .(propmove =unique(propmove), propmovenight =unique(propmovenight)), by = .(snail, disturbance, day)]
+dat.time.prop <- dat.time[ToD_start =='night', .(propmovenight =unique(propmovenight)), by = .(snail, disturbance, day)]
 
 ggplot(dat.time.prop, aes(as.factor(day), propmovenight, color = disturbance))+
   geom_boxplot(aes( fill = disturbance), alpha = 0.1, outlier.shape = NA, show.legend = T) + 
