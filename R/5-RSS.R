@@ -44,12 +44,18 @@ dat.obs[,group:=ifelse(Stage == 'B', 'before',
                        ifelse(Stage=='A' & ghostbricks =='g2', 'undisturbed', 'disturbed'))]
 dat.obs[,moved:= ifelse(sl_==0,0,1)]
 dat.obs[, propmove:=sum(moved)/.N, by = .(snail, group)]
+
+dat.steps <- readRDS('Data/derived/summary_steps.RDS')
+sum.steps <- merge(dat.steps, dat.obs[,.(nMove=sum(moved)), by =.(snail)], all.x = T)
+
+
 goodsnails <- dat.obs[,.N, .(snail,group)]
 goodsnails[,dup:=duplicated(snail)]
 goodsnails[N >=20 ,nobs:=.N, by=.(snail)]
 goods <- unique(goodsnails[nobs==2, snail])
-dat.obs <- dat.obs[snail %in% goods]
+dat.obs.good <- dat.obs[snail %in% goods]
 
+sum.steps[, BnA := ifelse(snail %in% goods, 'y','n')]
 
 # getting SL and TA distributions
 SLdistr <- function(x.col, y.col, date.col, crs, ID, sl_distr, ta_distr) {
