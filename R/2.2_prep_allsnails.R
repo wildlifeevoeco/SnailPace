@@ -28,6 +28,10 @@ DT.prep <- dat %>%
   dplyr::select(x = "x", y = "y", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
 
+DT.sum.hr <- DT.prep[t %like% ':30:' & stage != 'Acc', .(disturbance = unique(ifelse(treatment %like% 'C', 'undisturbed', 'disturbed')), 
+                                                         treatment = unique(treatment), nTotal = .N, nSteps = .SD[!(is.na(x)), .N]), by=.(snail)]
+#saveRDS(DT.sum.hr, paste0(derived, 'summary_steps.RDS'))
+
 DT.prep.hr <- DT.prep[t %like% ':30:' & !(is.na(x))]
 stp.snails <- DT.prep.hr[!(is.na(x)),.(nSteps =uniqueN(t)), by=.(snail)]
 stp.snails.30 <- stp.snails[nSteps >=30, snail]
