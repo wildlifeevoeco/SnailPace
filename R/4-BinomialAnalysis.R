@@ -3,7 +3,7 @@
 # started 17 August 2020
 
 ### Packages ----
-libs <- c('data.table', 'dplyr', 'lubridate', 'lme4', 'broom.mixed',
+libs <- c('data.table', 'dplyr', 'lubridate', 'lme4', 'broom.mixed', 'performance',
           'tidyr', 'ggplot2','survival', 'patchwork', 'AICcmodavg', 'ggthemes')
 lapply(libs, require, character.only = TRUE)
 
@@ -38,20 +38,27 @@ dat.obs.prop <- unique(dat.obs[, .(id, group, disturbance, BnA, propmove=sum(mov
 
 #### ANALYSIS ----
 
-intx.mod <- glmer(moved ~ Stage + Stage:disturbance + Temperature + (1|id), data = dat.obs, family = 'binomial')
-summary(intx.mod)
-tidy(intx.mod)
-indivs <- tidy(intx.mod, effect = 'ran_vals')
-
-
-prop.intx.mod <- glm(propmove ~ Stage + Stage:disturbance + Temperature, data = dat.obs.prop, family = 'binomial')
-summary(prop.intx.mod)
+# intx.mod <- glmer(moved ~ Stage + Stage:disturbance + Temperature + (1|id), data = dat.obs, family = 'binomial')
+# summary(intx.mod)
+# tidy(intx.mod)
+# indivs <- tidy(intx.mod, effect = 'ran_vals')
+# check_model(intx.mod)
+# 
+# prop.intx.mod <- glm(propmove ~ Stage + Stage:disturbance + Temperature, data = dat.obs.prop, family = 'binomial')
+# summary(prop.intx.mod)
+# check_model(prop.intx.mod)
 
 group.mod <- glmer(moved ~ group * Temperature + (1|id), data = dat.obs, family = 'binomial')
 summary(group.mod)
 tidy(group.mod)
 group.indivs <- tidy(group.mod, effect = 'ran_vals')
+check_model(group.mod)
 
+after.mod <- glmer(moved ~ group * Temperature + (1|id), data = dat.obs[group!='before'], family = 'binomial')
+summary(after.mod)
+tidy(after.mod)
+group.indivs <- tidy(after.mod, effect = 'ran_vals')
+check_model(after.mod)
 
 #### GRAPHS ----
 
