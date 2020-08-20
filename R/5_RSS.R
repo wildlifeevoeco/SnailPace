@@ -342,7 +342,7 @@ p1.mods.1hr <- setup[!(bad) & n > 0,.(snail, id, mod, model = paste(model, brick
 p1.issa.1hr <- setup[!(bad) & n > 0,.(snail, id, mod, issa, model = paste(model, brick, sep = '.'))]
 
 
-#saveRDS(p1.rss.1hf, 'Data/derived/p1rss_1hr.Rds')
+#saveRDS(p1.rss.1hr, 'Data/derived/p1rss_1hr.Rds')
 
 p1.rss.all<-readRDS('Data/derived/p1rss_1hr.Rds')
 
@@ -540,7 +540,11 @@ unique(p3.move.1hr$var)
 
 p3.move.1hr[,'snails2'] <- paste(p3.move.1hr$snail, p3.move.1hr$brick, sep = '.')
 
+#saveRDS(p3.move.1hr, 'Data/derived/p3move_1hr.Rds')
 
+p3.move.1hr<-readRDS('Data/derived/p3move_1hr.Rds')
+
+#####
 p3.wide.1hr <- dcast(data =p3.move.1hr, snail + id + brick ~ var, value.var = 'coef')
 
 p3.wide.1hr <- setDT(merge(p3.wide.1hr, moveParams, by = 'snail', all.x = T))
