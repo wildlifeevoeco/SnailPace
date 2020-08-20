@@ -29,13 +29,16 @@ dat.obs[,group:=ifelse(Stage == 'B', 'before',
                        ifelse(Stage=='A' & ghostbricks =='g2', 'undisturbed', 'disturbed'))]
 
 dat.obs[,moved:= ifelse(sl_==0,0,1)]
+dat.obs[,nSteps := .N, by =.(snail)]
 
 
 
-dat.obs.prop <- unique(dat.obs[, .(id, group, disturbance, BnA, propmove=sum(moved)/.N, 
+dat.obs.prop <- unique(dat.obs[, .(id, group, disturbance, BnA, nSteps, propmove=sum(moved)/.N, 
                                    Temperature = mean(Temperature)), by = .(snail, Stage)])
 dat.obs.prop$group <- factor(dat.obs.prop$group, levels = c('before', 'undisturbed', 'disturbed'))
 
+
+dups <- dat.obs.prop[, if (.N>1) .SD, by=id]
 #### ANALYSIS ----
 
 intx.mod <- glmer(moved ~ (Stage + Stage:disturbance) * (Temperature) + (1|id), data = dat.obs, family = 'binomial')
@@ -48,7 +51,7 @@ check_model(intx.mod)
 # summary(prop.intx.mod)
 # check_model(prop.intx.mod)
 
-group.mod <- glmer(moved ~ group * Temperature + (1|id), data = dat.obs, family = 'binomial')
+group.mod <- glmer(moved ~ group * Temperature + (1|id), data = dat.obs[id %in% dups$id], family = 'binomial')
 summary(group.mod)
 tidy(group.mod)
 group.indivs <- tidy(group.mod, effect = 'ran_vals')
@@ -64,10 +67,13 @@ check_model(after.mod)
 pred.intx <- ggpredict(intx.mod, terms = c('Stage', 'disturbance'))
 plot(pred.intx)
 
+pred<- ggpredict(group.mod, terms = c('Temperature', 'group'))
 pred<- ggpredict(group.mod, terms = c('group', 'Temperature'))
+pred<- ggpredict(group.mod, terms = c('group'))
 plot(pred)
 
-propmove <- ggplot(dat.obs.prop, aes(group, (1-propmove), color = group))+
+
+propmove <- ggplot(dups[nSteps>=30], aes(group, (1-propmove), color = group))+
   geom_boxplot(aes(fill = group), alpha = 0.1, outlier.shape = NA, show.legend = F) + 
   geom_jitter() +
   theme_classic() +
