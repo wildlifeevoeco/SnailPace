@@ -138,7 +138,8 @@ core.issa.1hr <- setup[,.(snail, id, issa, model = model)]
 core.mods.1hr <- setup[,.(snail, id, mod, model = model)]
 
 
-### P1 and P2 ----
+### P1 ----
+### Brick Dist ----
 # Setup model name, explanatory and response variables
 # Cross join individuals and bricks of interest
 setup <- CJ(
@@ -339,5 +340,127 @@ p1.move.1hr <- p1.move.1hr[!(var %like% 'Acc')]
 p1.mods.1hr <- setup[!(bad) & n > 0,.(snail, id, mod, model = paste(model, brick, sep = '.'))]
 
 p1.issa.1hr <- setup[!(bad) & n > 0,.(snail, id, mod, issa, model = paste(model, brick, sep = '.'))]
+
+
+#saveRDS(p1.rss.1hf, 'Data/derived/p1rss_1hr.Rds')
+
+p1.rss.all<-readRDS('Data/derived/p1rss_1hr.Rds')
+
+
+p1.rss.all <- p1.rss.1hr
+
+### P1 graphs ----
+
+p1.rss.all[,'disturbance'] <- ifelse(p1.rss.all$brick %like% 'g', 'undisturbed', 'disturbed')
+p1.rss.all[,'snails2'] <- paste(p1.rss.all$snail, p1.rss.all$brick, sep = '.')
+p1.rss.all[,disturbance.rss:=mean(rss, na.rm = T), by=.(step, disturbance)]
+p1.rss.all[,brick.rss:=mean(rss), by=.(step, brick)]
+
+#removed 'samp'
+p1.rss <- p1.rss.all[brick != 'g1' & brick != 'g3',.(snail, brick, snails2, rss, x, var, BA, disturbance,
+                                                     treatment = ifelse(BA =='before', 'before', disturbance))]
+p1.rss[var =='brickdist',step:= seq(0, 65, length.out = 100), by=.(snail, treatment)]
+
+
+p1.rss.brick.before <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='before' & brick != 'g1' & brick != 'g3'], 
+                              aes(x, rss)) +
+  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
+  geom_smooth(size = 1.5, fill = 'purple', colour = 'purple', se = T) +
+  geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
+  #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
+  theme_bw()  + theme(
+    #panel.background =element_rect(colour = "black", fill=NA, size=1),
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", size = .7)) +
+  theme(plot.title=element_text(size=12,hjust = 0.05),axis.text.x = element_text(size=12), axis.title = element_text(size=15),axis.text.y = element_text(size=12)) +
+  theme(axis.text.x = element_text(margin=margin(10,10,10,10,"pt")),
+        axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
+  ylab("logRSS") + xlab("Distance from brick (cm)") +
+  ggtitle("before")  +
+  # ylim(-150,100) +
+  # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
+p1.rss.brick.before
+
+p1.rss.brick.after <- ggplot(data=p1.rss.all[var == 'brickdist'& BA=='after'& brick != 'g1' & brick != 'g3'], 
+                             aes(x, rss, colour=disturbance)) +
+  geom_line(aes(group = snail,alpha = .0001), linetype ='twodash', show.legend = F) +
+  #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
+  #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
+  geom_smooth(size = 1.5, aes(fill = disturbance),  se = T) +
+  geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
+  #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
+  theme_bw()  + theme(
+    #panel.background =element_rect(colour = "black", fill=NA, size=1),
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", size = .7)) +
+  theme(plot.title=element_text(size=12,hjust = 0.05),axis.text.x = element_text(size=12), axis.title = element_text(size=15),axis.text.y = element_text(size=12)) +
+  theme(axis.text.x = element_text(margin=margin(10,10,10,10,"pt")),
+        axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
+  ylab("logRSS") + xlab("Distance from brick (cm)") +
+  ggtitle("after")  +
+  #ylim(-150,100) +
+  # scale_colour_manual("", values = c("gray", "black", "gray33", 'blue'))  +  
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
+p1.rss.brick.after
+
+#### P1 sum graphs ----
+p1.rss.sum <- p1.rss[, .(rss = mean(rss), se = se(rss)), by = .(var, step, treatment)]
+p1.rss.sum[, upr:= rss + (1.96*se)]
+p1.rss.sum[, lwr:= rss - (1.96*se)]
+p1.rss[,'snails2'] <- paste(p1.rss$snail, p1.rss$treatment, sep = '.')
+p1.rss$treatment <- factor(p1.rss$treatment, levels = c('before', 'undisturbed', 'disturbed'))
+
+p1.rss.sum.brick <- ggplot(data=p1.rss.sum[var == 'brickdist'], 
+                           aes(step, rss, color = treatment)) +
+  geom_line(aes(group = treatment), show.legend = T) +
+  geom_ribbon(aes(step, ymin = (lwr), ymax = (upr), fill=treatment), alpha = .2, show.legend = F) +
+  geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
+  theme_bw()  + theme(
+    #panel.background =element_rect(colour = "black", fill=NA, size=1),
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", size = .7)) +
+  theme(plot.title=element_text(size=12,hjust = 0.05),axis.text.x = element_text(size=12), axis.title = element_text(size=15),axis.text.y = element_text(size=12)) +
+  theme(axis.text.x = element_text(margin=margin(10,10,10,10,"pt")),
+        axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
+  ylab("logRSS") + xlab("Distance from brick (cm)") +
+  #ggtitle("before")  +
+  #ylim(-200, 420) +
+  # scale_colour_manual("", values = c('purple'))  +  
+  # scale_fill_manual("", values = c('purple'))  + 
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 10))
+p1.rss.sum.brick
+
+p1.rss.brick<- ggplot(data=p1.rss[var == 'brickdist'], 
+                      aes(step, rss, colour=treatment)) +
+  geom_line(aes(group = snails2,alpha = .0001), size= .75,alpha = .5, linetype ='twodash', show.legend = F) +
+  #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
+  geom_smooth(size = 2, aes(fill = treatment), se = F) +
+  # geom_line(data=logRSS.pop[var == 'forest'& ttd=='1 day'], aes(x, rss, colour=COD)) +
+  geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
+  #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
+  theme_bw()  + theme(
+    #panel.background =element_rect(colour = "black", fill=NA, size=1),
+    panel.border = element_blank(), 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(colour = "black", size = .7)) +
+  theme(plot.title=element_text(size=12,hjust = 0.05),axis.text.x = element_text(size=12), axis.title = element_text(size=15),axis.text.y = element_text(size=12)) +
+  theme(axis.text.x = element_text(margin=margin(10,10,10,10,"pt")),
+        axis.text.y = element_text(margin=margin(10,10,10,10,"pt")))+ theme(axis.ticks.length = unit(-0.25, "cm")) +
+  ylab("logRSS") + xlab("Distance from brick (cm)") +
+  # ggtitle("after")  +
+  #ylim(-200, 450) +
+  scale_colour_colorblind()  +  
+  scale_fill_colorblind()  + 
+  theme(legend.key = element_blank()) + theme(legend.position = 'right') + theme(legend.text = element_text(size = 12))
+p1.rss.brick
 
 
