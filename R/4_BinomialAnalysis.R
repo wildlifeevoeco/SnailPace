@@ -3,7 +3,7 @@
 # started 17 August 2020
 
 ### Packages ----
-libs <- c('data.table', 'dplyr', 'lubridate', 'lme4', 'broom.mixed', 'performance',
+libs <- c('data.table', 'dplyr', 'lubridate', 'lme4', 'broom.mixed', 'performance', 'ggeffects',
           'tidyr', 'ggplot2','survival', 'patchwork', 'AICcmodavg', 'ggthemes')
 lapply(libs, require, character.only = TRUE)
 
@@ -34,15 +34,15 @@ dat.obs[,moved:= ifelse(sl_==0,0,1)]
 
 dat.obs.prop <- unique(dat.obs[, .(id, group, disturbance, BnA, propmove=sum(moved)/.N, 
                                    Temperature = mean(Temperature)), by = .(snail, Stage)])
-
+dat.obs.prop$group <- factor(dat.obs.prop$group, levels = c('before', 'undisturbed', 'disturbed'))
 
 #### ANALYSIS ----
 
-# intx.mod <- glmer(moved ~ Stage + Stage:disturbance + Temperature + (1|id), data = dat.obs, family = 'binomial')
-# summary(intx.mod)
-# tidy(intx.mod)
-# indivs <- tidy(intx.mod, effect = 'ran_vals')
-# check_model(intx.mod)
+intx.mod <- glmer(moved ~ (Stage + Stage:disturbance) * (Temperature) + (1|id), data = dat.obs, family = 'binomial')
+summary(intx.mod)
+tidy(intx.mod)
+indivs <- tidy(intx.mod, effect = 'ran_vals')
+check_model(intx.mod)
 # 
 # prop.intx.mod <- glm(propmove ~ Stage + Stage:disturbance + Temperature, data = dat.obs.prop, family = 'binomial')
 # summary(prop.intx.mod)
@@ -61,10 +61,15 @@ group.indivs <- tidy(after.mod, effect = 'ran_vals')
 check_model(after.mod)
 
 #### GRAPHS ----
+pred.intx <- ggpredict(intx.mod, terms = c('Stage', 'disturbance'))
+plot(pred.intx)
+
+pred<- ggpredict(group.mod, terms = c('group', 'Temperature'))
+plot(pred)
 
 propmove <- ggplot(dat.obs.prop, aes(group, (1-propmove), color = group))+
   geom_boxplot(aes(fill = group), alpha = 0.1, outlier.shape = NA, show.legend = F) + 
-  geom_jitter(aes(shape = BnA)) +
+  geom_jitter() +
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
