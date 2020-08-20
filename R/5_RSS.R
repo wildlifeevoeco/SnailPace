@@ -694,17 +694,6 @@ diffmove
 #### Disturbance graphs ----
 speed.brick.before|speed.brick.after
 
-dat[,.(min = min(sl_, na.rm = T), max = max(sl_, na.rm = T), mean = mean(sl_, na.rm = T)), by = .(snail)]
-dat[,.(min = min(ta_, na.rm = T), max = max(ta_, na.rm = T), mean = mean(ta_, na.rm = T)), by = .(snail)]
-
-######
-
-dat.obs.sum <- dat.obs[,.(meanSL = mean(sl_), geommeanSL = exp(mean(log(sl_+1))), seSL= se(sl_),meanMove = mean(propmove), seMove= se(unique(propmove))), by = .(group)]
-dat.obs.sum$group <- factor(dat.obs.sum$group, levels = c('before','undisturbed', 'disturbed'))
-
-dat.obs[,disturbance:=ifelse(ghostbricks %like% 'g', 'undisturbed','disturbed')]
-
-
 
 #### ALL MODELS ####
 
