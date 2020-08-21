@@ -57,7 +57,7 @@ tidy(group.mod)
 group.indivs <- tidy(group.mod, effect = 'ran_vals')
 check_model(group.mod)
 
-after.mod <- glmer(moved ~ group * Temperature + (1|id), data = dat.obs[group!='before'], family = 'binomial')
+after.mod <- glmer(moved ~ group * Temperature + (1|id), data = dat.obs[group!='before' & id %in% dups$id], family = 'binomial')
 summary(after.mod)
 tidy(after.mod)
 group.indivs <- tidy(after.mod, effect = 'ran_vals')
