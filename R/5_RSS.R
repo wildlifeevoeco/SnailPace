@@ -692,7 +692,7 @@ diffmove <- ggplot(speed.diff, aes(disturbance, diff.value, color = disturbance)
   xlab('') + ylab('Difference in mean speed (cm per hour)') +
   #ylim(-1, 50) +
   theme(legend.position = "none") +
-  scale_color_colorblind() + scale_fill_colorblind()
+  scale_color_manual(values = c("#E69F00", "#56B4E9")) + scale_fill_manual(values = c("#E69F00", "#56B4E9"))
 diffmove
 
 #### Disturbance graphs ----
