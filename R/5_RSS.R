@@ -347,7 +347,7 @@ p1.issa.1hr <- setup[!(bad) & n > 0,.(snail, id, mod, issa, model = paste(model,
 p1.rss.all<-readRDS('Data/derived/p1rss_1hr.Rds')
 
 
-p1.rss.all <- p1.rss.1hr
+#p1.rss.all <- p1.rss.1hr
 
 ### P1 graphs ----
 
