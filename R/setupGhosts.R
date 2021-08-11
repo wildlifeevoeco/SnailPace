@@ -13,6 +13,7 @@ stepID.10 <- stepID2[iter <=11]
 
 dat.raw <- fread(paste0(raw, 'SnailDataUTM.csv'))
 meta <- dat.raw[,.(id = Snail, treatment = Treatment, stage = Stage, 
+                   temp = Temperature, precip = Precipitation, 
                    t1_ = as.POSIXct(paste(Date, paste(Time, "00", sep=":"), sep = ' '), 
                                     tz = 'UTC', "%Y-%m-%d %H:%M:%S"))]
 
@@ -33,7 +34,8 @@ bricktreatments <- function(data, treat){
   data.sub[,"ghostbricks"] <- treat
   
   output <- data.sub[,.(burst_, step_id_, case_, id,  x1_, y1_, x2_, y2_, t1_, t2_, dt_, sl_, ta_, tod_start_,
-                        edgedist_start, edgedist_end, brickdist_start, brickdist_end, ghostbricks, treatment, stage)]
+                        edgedist_start, edgedist_end, brickdist_start, brickdist_end, ghostbricks, treatment, stage,
+                        temp, precip, indiv_step_id)]
   return(output)}
 
 treat1 <- bricktreatments(steps, "1")
@@ -70,7 +72,8 @@ controltreats <- function(data){
   data.merge <- rbind(data.c, data.g1, data.g2, data.g3)
   
   output <- data.merge[,.(burst_, step_id_, case_, id,  x1_, y1_, x2_, y2_, t1_, t2_, dt_, sl_, ta_, tod_start_,
-                          edgedist_start, edgedist_end, brickdist_start, brickdist_end, ghostbricks, treatment, stage)]
+                          edgedist_start, edgedist_end, brickdist_start, brickdist_end, ghostbricks, treatment, stage,
+                          temp, precip, indiv_step_id)]
   return(output)}
 
 control <- controltreats(steps)
