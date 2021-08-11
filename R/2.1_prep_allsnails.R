@@ -27,6 +27,22 @@ crs22 <- sp::CRS("+init=epsg:32621")
 DT.prep <- dat %>% 
   dplyr::select(x = "x", y = "y", t = 'datetime', snail = 'Snail', temp = "Temperature",
                                  precip = "Precipitation", treatment = "Treatment", stage = "Stage") 
+saveRDS(DT.prep, paste0(derived, 'baseSnail.RDS'))
+# nesting data by id
+dat_all <- DT.prep %>% group_by(snail) %>% nest()
+
+#making the track
+dat_all <- dat_all %>%
+  mutate(trk = map(data, function(d) {
+    amt::make_track(d, x, y, t, crs = sp::CRS("+init=epsg:32621")) 
+  }))  
+
+#summary of track sampling rate for each individual
+dat_all %>% mutate(sr = lapply(trk, summarize_sampling_rate)) %>%
+  dplyr::select(snail, sr) %>% unnest(cols = c(sr))
+ ##################33
+
+
 
 DT.sum.hr <- DT.prep[t %like% ':30:' & stage != 'Acc', .(disturbance = unique(ifelse(treatment %like% 'C', 'undisturbed', 'disturbed')), 
                                                          treatment = unique(treatment), nTotal = .N, nSteps = .SD[!(is.na(x)), .N]), by=.(snail)]
