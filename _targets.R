@@ -1,0 +1,158 @@
+# === Targets workflow: iSSA with amt -------------------------------------
+# Julie Turner
+# adapted from code by Alec L. Robitaille
+
+
+# Packages ----------------------------------------------------------------
+library(targets)
+
+library(amt)
+library(data.table)
+library(sf)
+library(sp)
+library(ggplot2)
+library(glmmTMB)
+library(raster)
+
+# Functions ---------------------------------------------------------------
+source('R/functions.R')
+
+
+# Options -----------------------------------------------------------------
+tar_option_set(format = 'qs', 
+               error = 'workspace')
+
+
+# Variables ---------------------------------------------------------------
+path <- file.path('Data', 'derived', 'baseSnail.RDS')
+# load proximity rasters
+raw <- 'Data/raw/' # folder I store raw data here
+derived <- 'Data/derived/' #this is the folder where I'll put my new data after I extract the covariates, as we'll be doing here
+
+edge <- raster(paste0(raw, 'edgedist.tif'), )
+brickedge1 <- raster(paste0(raw, 'brickedge1.tif'), )
+brickedge2 <- raster(paste0(raw, 'brickedge2.tif'), )
+brickedge3 <- raster(paste0(raw, 'brickedge3.tif'), )
+
+
+id <- 'snail'
+datetime <- 't'
+longlat = FALSE
+#not actually longitude and latitude, just don't want to change code
+long <- 'x'
+lat <- 'y'
+crs <- CRS(st_crs(32621)$wkt)
+
+
+# Split by: within which column or set of columns (eg. c(id, yr))
+#  do we want to split our analysis?
+splitBy <- id
+
+
+# Resampling rate 
+rate <- hours(1)
+
+# Tolerance
+tolerance <- minutes(2)
+
+# columns to rename
+# oldname <- c('becomes')
+# newname <- c('lc_end')
+
+# build iSSA 
+# response <- 'case_'
+# explanatory <- "I(log(sl_)) + I(log(sl_)):tod_start_ + 
+#   lc_end +lc_end:I(log(sl_)) +
+#   (1|indiv_step_id) +
+#   (0|I(log(sl_)):id) + (0:I(log(sl_)):tod_start_:id) +
+#   (0|lc_end:id) + (0|lc_end:I(log(sl_)):id)"
+
+# Targets -----------------------------------------------------------------
+list(
+  # Read input data
+  tar_target(
+    input,
+    readRDS(path)
+  ),
+  
+  # Remove duplicated and incomplete observations
+  tar_target(
+    mkunique,
+    make_unique_complete(input, id, datetime, long, lat)
+  ),
+  
+
+  # # load land raster
+  # tar_target(
+  #   lc,
+  #   raster(land)
+  # ),
+  # 
+  # Extract land cover
+  # tar_target(
+  #   extracts,
+  #   extract_lc(mkunique, lc, long, lat, landclass)
+  # ),
+  
+  # Set up split -- these are our iteration units
+  tar_target(
+    splits,
+    mkunique[, tar_group := .GRP, by = splitBy],
+    iteration = 'group'
+  ),
+  
+  tar_target(
+    splitsnames,
+    unique(mkunique[, .(path = path), by = splitBy])
+  ),
+  
+
+  # Make tracks. Note from here on, when we want to iterate use pattern = map(x)
+  #  where x is the upstream target name
+  tar_target(
+    tracks,
+    make_track(splits, x, y, t, crs = crs, id = snail),
+    pattern = map(splits)
+  ),
+  
+  # Resample sampling rate
+  tar_target(
+    resamples,
+    resample_tracks(tracks, rate, tolerance),
+    pattern = map(tracks)
+  ),
+  
+  # Check step distributions
+  #  iteration = 'list' used for returning a list of ggplots,
+  #  instead of the usual combination with vctrs::vec_c()
+  tar_target(
+    distributions,
+    ggplot(resamples, aes(sl_)) + geom_density(alpha = 0.4),
+    pattern = map(resamples),
+    iteration = 'list'
+  ),
+  
+  # create random steps and extract covariates
+  tar_target(
+    randsteps,
+    make_random_steps(resamples, brickedge1, brickedge2, brickedge3, edge),
+    pattern = map(resamples)
+  ),
+  
+  
+  # Distribution parameters
+  tar_target(
+    distparams,
+    calc_distribution_parameters(randsteps),
+    pattern = map(randsteps)
+  ),
+  
+ 
+
+  # create step ID across individuals
+  tar_target(
+    stepID,
+    setDT(randsteps)[,indiv_step_id := paste(id, step_id_, sep = '_')]
+  )
+  
+)
