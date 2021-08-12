@@ -15,7 +15,7 @@ library(glmmTMB)
 library(raster)
 
 # Functions ---------------------------------------------------------------
-source('R/functions.R')
+lapply(dir('R', '*.R', full.names = TRUE), source)
 
 
 # Options -----------------------------------------------------------------
