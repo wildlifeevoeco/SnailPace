@@ -77,10 +77,16 @@ targets_prep <- c(
     readRDS(path)
   ),
   
+  # Prep columns
+  tar_target(
+    prepared,
+    prep_cols(input)
+  ),
+  
   # Remove duplicated and incomplete observations
   tar_target(
     mkunique,
-    make_unique_complete(input, id, datetime, long, lat)
+    make_unique_complete(prepared, id, datetime, long, lat)
   )
 )
 
