@@ -26,13 +26,13 @@ tar_option_set(format = 'qs',
 # Variables ---------------------------------------------------------------
 path <- file.path('Data', 'derived', 'baseSnail.RDS')
 # load proximity rasters
-raw <- 'Data/raw/' # folder I store raw data here
-derived <- 'Data/derived/' #this is the folder where I'll put my new data after I extract the covariates, as we'll be doing here
+raw <- file.path('Data', 'raw') # folder I store raw data here
+derived <- file.path('Data', 'derived') #this is the folder where I'll put my new data after I extract the covariates, as we'll be doing here
 
-edge <- raster(paste0(raw, 'edgedist.tif'), )
-brickedge1 <- raster(paste0(raw, 'brickedge1.tif'), )
-brickedge2 <- raster(paste0(raw, 'brickedge2.tif'), )
-brickedge3 <- raster(paste0(raw, 'brickedge3.tif'), )
+edge <- raster(file.path(raw, 'edgedist.tif'))
+brickedge1 <- raster(file.path(raw, 'brickedge1.tif'))
+brickedge2 <- raster(file.path(raw, 'brickedge2.tif'))
+brickedge3 <- raster(file.path(raw, 'brickedge3.tif'))
 
 
 id <- 'snail'
