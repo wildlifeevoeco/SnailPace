@@ -7,7 +7,7 @@ tar_load(stepID)
 
 stepID[,uniqueN(brickedge1_end), by = id]
 
-stepID2 <- stepID[!is.na(brickedge1_end)]
+stepID2 <- stepID[case_== TRUE | !is.na(brickedge1_end)]
 stepID2[,iter:=1:.N, by = .(id, step_id_)]
 stepID.10 <- stepID2[iter <=11]
 
