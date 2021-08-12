@@ -24,7 +24,7 @@ tar_option_set(format = 'qs',
 
 
 # Variables ---------------------------------------------------------------
-path <- file.path('Data', 'derived', 'baseSnail.RDS')
+path <- file.path('Data', 'raw', 'SnailDataUTM.csv')
 # load proximity rasters
 raw <- file.path('Data', 'raw') # folder I store raw data here
 derived <- file.path('Data', 'derived') #this is the folder where I'll put my new data after I extract the covariates, as we'll be doing here
@@ -74,7 +74,7 @@ targets_prep <- c(
   # Read input data
   tar_target(
     input,
-    readRDS(path)
+    fread(path)
   ),
   
   # Prep columns
