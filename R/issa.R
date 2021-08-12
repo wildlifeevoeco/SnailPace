@@ -68,3 +68,18 @@ make_iSSA <- function(DT,resp, expl) {
   glmmTMB:::fitTMB(mod.tmp)
   
 }
+
+
+
+# Merge steps onto prep data ----------------------------------------------
+merge_steps <- function(DT, prepDT) {
+  subDT <- DT[case_ == TRUE | !is.na(brickedge1_end)]
+  subDT[, iter := seq.int(.N), by = .(id, step_id_)]
+  
+  subsubDT <- subDT[iter <= 11]
+  
+  setnames(prepDT, c('t', 'snail'), c('t1_', 'id'))
+  
+  merge(subsubDT, prepDT, by = c('id', 't1_'))
+}
+
