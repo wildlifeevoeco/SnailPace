@@ -67,8 +67,10 @@ tolerance <- minutes(2)
 #   (0|I(log(sl_)):id) + (0:I(log(sl_)):tod_start_:id) +
 #   (0|lc_end:id) + (0|lc_end:I(log(sl_)):id)"
 
-# Targets -----------------------------------------------------------------
-list(
+
+
+# Targets: prep -----------------------------------------------------------
+targets_prep <- c(
   # Read input data
   tar_target(
     input,
@@ -79,21 +81,13 @@ list(
   tar_target(
     mkunique,
     make_unique_complete(input, id, datetime, long, lat)
-  ),
-  
+  )
+)
 
-  # # load land raster
-  # tar_target(
-  #   lc,
-  #   raster(land)
-  # ),
-  # 
-  # Extract land cover
-  # tar_target(
-  #   extracts,
-  #   extract_lc(mkunique, lc, long, lat, landclass)
-  # ),
-  
+
+
+# Targets: splits ---------------------------------------------------------
+targets_splits <- c(
   # Set up split -- these are our iteration units
   tar_target(
     splits,
@@ -104,9 +98,11 @@ list(
   tar_target(
     splitsnames,
     unique(mkunique[, .(path = path), by = splitBy])
-  ),
-  
+  )
+)
 
+# Targets: iSSA -----------------------------------------------------------
+targets_issa <- c(
   # Make tracks. Note from here on, when we want to iterate use pattern = map(x)
   #  where x is the upstream target name
   tar_target(
@@ -122,6 +118,24 @@ list(
     pattern = map(tracks)
   ),
   
+  # create random steps and extract covariates
+  tar_target(
+    randsteps,
+    make_random_steps(resamples, brickedge1, brickedge2, brickedge3, edge),
+    pattern = map(resamples)
+  ),
+  
+  # create step ID across individuals
+  tar_target(
+    stepID,
+    setDT(randsteps)[,indiv_step_id := paste(id, step_id_, sep = '_')]
+  )
+)
+
+
+
+# Targets: distributions --------------------------------------------------
+targets_distributions <- c(
   # Check step distributions
   #  iteration = 'list' used for returning a list of ggplots,
   #  instead of the usual combination with vctrs::vec_c()
@@ -131,28 +145,10 @@ list(
     pattern = map(resamples),
     iteration = 'list'
   ),
-  
-  # create random steps and extract covariates
-  tar_target(
-    randsteps,
-    make_random_steps(resamples, brickedge1, brickedge2, brickedge3, edge),
-    pattern = map(resamples)
-  ),
-  
-  
   # Distribution parameters
   tar_target(
     distparams,
     calc_distribution_parameters(randsteps),
     pattern = map(randsteps)
-  ),
-  
- 
-
-  # create step ID across individuals
-  tar_target(
-    stepID,
-    setDT(randsteps)[,indiv_step_id := paste(id, step_id_, sep = '_')]
   )
-  
 )
