@@ -36,7 +36,8 @@ bricktreatments <- function(data, treat){
   output <- data.sub[,.(burst_, step_id_, case_, id,  x1_, y1_, x2_, y2_, t1_, t2_, dt_, sl_, ta_, tod_start_,
                         edgedist_start, edgedist_end, brickdist_start, brickdist_end, ghostbricks, treatment, stage,
                         temp, precip, indiv_step_id)]
-  return(output)}
+  return(output)
+}
 
 treat1 <- bricktreatments(steps, "1")
 treat2 <- bricktreatments(steps, "2")
