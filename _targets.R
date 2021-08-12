@@ -134,7 +134,15 @@ targets_issa <- c(
   # create step ID across individuals
   tar_target(
     stepID,
-    setDT(randsteps)[,indiv_step_id := paste(id, step_id_, sep = '_')]
+    setDT(randsteps)[,indiv_step_id := paste(id, step_id_, sep = '_')],
+    pattern = map(resamples)
+  ),
+  
+  # Merge prep data back
+  tar_target(
+    mergeprep,
+    merge_steps(stepID, splits),
+    pattern = map(stepID, splits)
   )
 )
 
