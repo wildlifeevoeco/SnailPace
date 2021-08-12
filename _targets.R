@@ -152,3 +152,14 @@ targets_distributions <- c(
     pattern = map(randsteps)
   )
 )
+
+
+
+# Targets: all ------------------------------------------------------------
+# Automatically grab all the "targets_*" lists above
+lapply(grep('targets', ls(), value = TRUE), get)
+
+# This is equivalent to 
+# c(targets_distribution, targets_issa, ...)
+# Because remember - the _targets.R file always needs to end 
+# in a list of targets tar_target objects
