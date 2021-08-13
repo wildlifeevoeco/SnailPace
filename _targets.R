@@ -161,6 +161,10 @@ targets_treatments <- c(
     control_treatments(
       mergeprep
     )
+  ),
+  tar_target(
+    combtreats,
+    rbindlist(list(bricktreats, controltreats))
   )
 )
 
