@@ -1,27 +1,26 @@
 
 # === Treatments ----------------------------------------------------------
 brick_treatments <- function(DT) {
-  treatments <- c(1, 2, 3)
-  new_names <- c('brickdist_start', 'brickdist_end')
-  drop_names <- c(paste0('brickedge', treatments, rep(c('_start', '_end'), each = 3)))
+  m1 <- melt(
+    DT,
+    measure.vars = paste0('brickedge', c(1, 2, 3), '_start'),
+    # variable.factor = FALSE,
+    variable.name = 'treatment_start',
+    value.name = 'brickdist_start'
+  )
   
-  # For each treatment, lapply over the DT and rename the columns 
-  # of specific brickdist to new_names
-  # and drop old named columns
-  # Then rbindlist together
-  l <- lapply(treatments, function(treat) {
-    zz <- copy(DT)[treatment == treat]
-    zz[, ghostbricks := treat]
-    setnames(
-      zz, 
-      c(paste0('brickedge', treat, '_start'), paste0('brickedge', treat, '_end')), 
-      new_names
-    )
-    zz[, (drop_names) := NULL]
-    zz
-  })
+  m2 <- melt(
+    DT,
+    measure.vars = paste0('brickedge', c(1, 2, 3), '_end'),
+    # variable.factor = FALSE,
+    variable.name = 'treatment_end',
+    value.name = 'brickdist_end'
+  )
   
-  rbindlist(l)
+  zz <- cbind(m1, m2[, .(treatment_end, brickdist_end)])
+  
+  zz[, treatment_start := gsub('brickedge|_start', '', treatment_start)]
+  zz[, treatment_end := gsub('brickedge|_end', '', treatment_end)]
 }
 
 
