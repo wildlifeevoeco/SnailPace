@@ -152,15 +152,20 @@ targets_issa <- c(
 # Targets: treatments -----------------------------------------------------
 targets_treatments <- c(
   tar_target(
+    filterNAs,
+    mergeprep[!is.na(ghostbricks)]
+  ),
+  
+  tar_target(
     bricktreats,
     brick_treatments(
-      mergeprep
+      filterNAs
     )
   ),
   tar_target(
     controltreats,
     control_treatments(
-      mergeprep
+      filterNAs
     )
   ),
   tar_target(
