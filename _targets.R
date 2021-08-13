@@ -148,6 +148,20 @@ targets_issa <- c(
 
 
 
+# Targets: treatments -----------------------------------------------------
+targets_treatments <- c(
+  tar_target(
+    bricktreats,
+    brick_treatments(
+      mergeprep,
+      c(1, 2, 3)
+    )
+  )
+)
+
+
+
+
 # Targets: distributions --------------------------------------------------
 targets_distributions <- c(
   # Check step distributions
