@@ -196,8 +196,13 @@ targets_models <- c(
 # Targets: RSS ------------------------------------------------------------
 targets_rss <- c(
   tar_target(
-    predictsetup,
-    predict_model_setup(combtreats[!is.na(ghostbricks)])
+    setfactors,
+    set_factors(combtreats)
+  ),
+  
+  tar_target(
+    predictmeans,
+    predict_means(combtreats, modelp1)
   )
 )
 
