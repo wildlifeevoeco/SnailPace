@@ -66,6 +66,7 @@ set_factors <- function(DT) {
 }
 
 predict_means <- function(DT, model) {
+  # Take DT, return means for all variables
   means <- DT[, .(
     sl_ = mean(sl_, na.rm = TRUE),
     temp = mean(temp, na.rm = TRUE),
@@ -77,6 +78,9 @@ predict_means <- function(DT, model) {
     id_treat = id_treat
   ), by = .(ghostbricks, stage)]
   
+  # Predict hab for each ghostbricks*stage combination
+  # Uses cbind with .BY[[N]] to retain ghostbricks and stage in the model
+  # Be careful with .BY[[N]], depends on the order specified in by = 
   means[, hab := predict(model,
                          newdata = cbind(.SD, 
                                          ghostbricks = .BY[[1]],
@@ -89,6 +93,7 @@ predict_means <- function(DT, model) {
 
 
 predict_brickdist <- function(DT, model) {
+  # Take DT, return means for all variables except for seq 0:max brickdist 
   bdist <- DT[, .(
     sl_ = mean(sl_, na.rm = TRUE),
     temp = mean(temp, na.rm = TRUE),
@@ -100,6 +105,9 @@ predict_brickdist <- function(DT, model) {
     id_treat = id_treat
   ), by = .(ghostbricks, stage, id)]
   
+  # Predict hab for each ghostbricks*stage combination
+  # Uses cbind with .BY[[N]] to retain ghostbricks and stage in the model
+  # Be careful with .BY[[N]], depends on the order specified in by = 
   bdist[, hab := predict(model,
                          newdata = cbind(.SD, 
                                          ghostbricks = .BY[[1]],
@@ -112,6 +120,7 @@ predict_brickdist <- function(DT, model) {
 
 
 predict_edgedist <- function(DT, model) {
+  # Take DT, return means for all variables except for seq 0:max edgedist 
   edist <- DT[, .(
     sl_ = mean(sl_, na.rm = TRUE),
     temp = mean(temp, na.rm = TRUE),
@@ -123,6 +132,9 @@ predict_edgedist <- function(DT, model) {
     id_treat = id_treat
   ), by = .(ghostbricks, stage, id)]
   
+  # Predict hab for each ghostbricks*stage combination
+  # Uses cbind with .BY[[N]] to retain ghostbricks and stage in the model
+  # Be careful with .BY[[N]], depends on the order specified in by = 
   edist[, hab := predict(model,
                          newdata = cbind(.SD, 
                                          ghostbricks = .BY[[1]],
