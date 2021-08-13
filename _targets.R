@@ -153,8 +153,13 @@ targets_treatments <- c(
   tar_target(
     bricktreats,
     brick_treatments(
-      mergeprep,
-      c(1, 2, 3)
+      mergeprep
+    )
+  ),
+  tar_target(
+    controltreats,
+    control_treatments(
+      mergeprep
     )
   )
 )
