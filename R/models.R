@@ -60,3 +60,13 @@ predict_model_setup <- function(DT) {
   )
   , by = .(id, ghostbricks, stage)]
 }
+
+
+set_factors <- function(DT) {
+  stagelevels <- c("B","A")
+  ghostbricklevels <- c("g1", "g2","g3", 
+                        '1','2', '3')
+  DT[, stage := factor(stage, levels = stagelevels)]
+  DT[, ghostbricks := factor(ghostbricks, levels = ghostbricklevels)]
+  
+}
