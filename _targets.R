@@ -203,14 +203,17 @@ targets_rss <- c(
   tar_target(
     predictmeans,
     predict_means(combtreats, modelp1)
+    # predict_means(combtreats[subset with i?], modelp1)
   ),
   tar_target(
     predictbricks,
     predict_brickdist(combtreats, modelp1)
+    # predict_brickdist(combtreats[subset with i?], modelp1)
   ),
   tar_target(
     predictedges,
     predict_edgedist(combtreats, modelp1)
+    # predict_edgedist(combtreats[subset with i?], modelp1)
   )
 )
 
