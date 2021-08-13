@@ -180,7 +180,13 @@ targets_models <- c(
   tar_target(
     tidymodelp1,
     tidy_model(modelp1, effect = 'ran_vals')
-  )
+  ),
+  
+  tar_target(
+    modelp3,
+    model_p3(combtreats),
+    iteration = 'list'
+  ),
 )
 
 
