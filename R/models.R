@@ -70,3 +70,25 @@ set_factors <- function(DT) {
   DT[, ghostbricks := factor(ghostbricks, levels = ghostbricklevels)]
   
 }
+
+predict_means <- function(DT, model) {
+  means <- DT[, .(
+    sl_ = mean(sl_, na.rm = TRUE),
+    temp = mean(temp, na.rm = TRUE),
+    
+    brickdist_end = mean(brickdist_end, na.rm = TRUE),
+    edgedist_end = mean(edgedist_end, na.rm = TRUE),
+    
+    indiv_treat_step_id = NA,
+    id_treat = id_treat
+  ), by = .(ghostbricks, stage)]
+  
+  means[, hab := predict(model,
+                         newdata = cbind(.SD, 
+                                         ghostbricks = .BY[[1]],
+                                         stage = .BY[[2]]),
+                         type = "link",
+                         re.form = NULL),
+        by = .(ghostbricks, stage)]
+  means
+}
