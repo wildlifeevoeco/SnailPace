@@ -186,7 +186,7 @@ targets_models <- c(
     modelp3,
     model_p3(combtreats),
     iteration = 'list'
-  ),
+  )
 )
 
 
