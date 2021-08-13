@@ -50,18 +50,6 @@ model_p3 <- function(DT) {
 
 
 
-predict_model_setup <- function(DT) {
-  DT[, .(
-    brickdist_end = mean(brickdist_end, na.rm = TRUE),
-    edgedist_end = mean(edgedist_end, na.rm = TRUE),
-    
-    brickdist_end_seq = seq(0, max(brickdist_end), length.out = 100),
-    edgedist_end_seq = seq(0, max(edgedist_end), length.out = 100)
-  )
-  , by = .(id, ghostbricks, stage)]
-}
-
-
 set_factors <- function(DT) {
   stagelevels <- c("B","A")
   ghostbricklevels <- c("g1", "g2","g3", 
