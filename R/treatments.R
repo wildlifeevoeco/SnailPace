@@ -19,10 +19,10 @@ brick_treatments <- function(DT) {
     value.name = 'brickdist_end'
   )
   
-  zz <- cbind(m1, m2[, .(treatment_end, brickdist_end)])
+  zz <- cbind(m1, m2[, .(brickdist_end)])
   
-  zz[, treatment_start := gsub('brickedge|_start', '', treatment_start)]
-  zz[, treatment_end := gsub('brickedge|_end', '', treatment_end)]
+  zz[, ghostbricks := gsub('brickedge|_start', '', treatment_start)]
+  # zz[, treatment_end := gsub('brickedge|_end', '', treatment_end)]
   zz
 }
 
@@ -45,10 +45,10 @@ control_treatments <- function(DT) {
     value.name = 'brickdist_end'
   )
   
-  zz <- cbind(m1, m2[, .(treatment_end, brickdist_end)])
+  zz <- cbind(m1, m2[, .(brickdist_end)])
   
-  zz[, treatment_start := paste0('c', gsub('brickedge|_start', '', treatment_start))]
-  zz[, treatment_end := paste0('c', gsub('brickedge|_end', '', treatment_end))]
+  zz[, ghostbricks := paste0('g', gsub('brickedge|_start', '', treatment_start))]
+  # zz[, treatment_end := paste0('g', gsub('brickedge|_end', '', treatment_end))]
   zz
 }
 
