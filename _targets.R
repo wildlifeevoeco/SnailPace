@@ -164,9 +164,25 @@ targets_treatments <- c(
   ),
   tar_target(
     combtreats,
-    rbindlist(list(bricktreats, controltreats))
+    combine_treatments(bricktreats, controltreats)
   )
 )
+
+
+
+# Targets: model ----------------------------------------------------------
+targets_models <- c(
+  tar_target(
+    modelp1,
+    model_p1(combtreats),
+    iteration = 'list'
+  ),
+  tar_target(
+    tidymodelp1,
+    tidy_model(modelp1, effect = 'ran_vals')
+  )
+)
+
 
 
 
