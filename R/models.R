@@ -80,3 +80,49 @@ predict_means <- function(DT, model) {
         by = .(ghostbricks, stage)]
   means
 }
+
+
+predict_brickdist <- function(DT, model) {
+  means <- DT[, .(
+    sl_ = mean(sl_, na.rm = TRUE),
+    temp = mean(temp, na.rm = TRUE),
+    
+    brickdist_end = seq(0, max(brickdist_end), length.out = 100),
+    edgedist_end = mean(edgedist_end, na.rm = TRUE),
+    
+    indiv_treat_step_id = NA,
+    id_treat = id_treat
+  ), by = .(ghostbricks, stage)]
+  
+  means[, hab := predict(model,
+                         newdata = cbind(.SD, 
+                                         ghostbricks = .BY[[1]],
+                                         stage = .BY[[2]]),
+                         type = "link",
+                         re.form = NULL),
+        by = .(ghostbricks, stage)]
+  means
+}
+
+
+predict_edgedist <- function(DT, model) {
+  means <- DT[, .(
+    sl_ = mean(sl_, na.rm = TRUE),
+    temp = mean(temp, na.rm = TRUE),
+    
+    brickdist_end = mean(brickdist_end, na.rm = TRUE),
+    edgedist_end = seq(0, max(edgedist_end), length.out = 100),
+    
+    indiv_treat_step_id = NA,
+    id_treat = id_treat
+  ), by = .(ghostbricks, stage, id)]
+  
+  means[, hab := predict(model,
+                         newdata = cbind(.SD, 
+                                         ghostbricks = .BY[[1]],
+                                         stage = .BY[[2]]),
+                         type = "link",
+                         re.form = NULL),
+        by = .(ghostbricks, stage, id)]
+  means
+}
