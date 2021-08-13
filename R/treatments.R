@@ -49,3 +49,17 @@ control_treatments <- function(DT){
   rbindlist(c(l, list(subDT)), use.names = TRUE)
 }
   
+
+
+combine_treatments <- function(bricktreats, controltreats) {
+  DT <- rbindlist(list(bricktreats, controltreats))
+  
+  DT[, indiv_treat_step_id := paste(indiv_step_id, ghostbricks, sep = '_')]
+  DT[, id_treat := paste(id, ghostbricks, sep = '_')]
+  
+  subDT <- DT[stage!='Acc']
+  subDT[, stage := factor(stage, levels = c("B","A"))]
+  subDT[, ghostbricks := factor(ghostbricks, levels = c("g1", "g2","g3", 
+                                                        '1','2', '3'))]
+  return(subDT)  
+}
