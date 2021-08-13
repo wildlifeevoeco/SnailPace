@@ -13,7 +13,7 @@ library(sp)
 library(ggplot2)
 library(glmmTMB)
 library(raster)
-library(broom)
+library(broom.mixed)
 
 # Functions ---------------------------------------------------------------
 lapply(dir('R', '*.R', full.names = TRUE), source)
