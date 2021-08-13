@@ -47,3 +47,16 @@ model_p3 <- function(DT) {
                 map = list(theta=factor(c(NA,1:10))), 
                 start = list(theta=c(log(1000), seq(0,0, length.out = 10))))
 }
+
+
+
+predict_model_setup <- function(DT) {
+  DT[, .(
+    brickdist_end = mean(brickdist_end, na.rm = TRUE),
+    edgedist_end = mean(edgedist_end, na.rm = TRUE),
+    
+    brickdist_end_seq = seq(0, max(brickdist_end), length.out = 100),
+    edgedist_end_seq = seq(0, max(edgedist_end), length.out = 100)
+  )
+  , by = .(id, ghostbricks, stage)]
+}

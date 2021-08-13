@@ -165,6 +165,7 @@ targets_treatments <- c(
   ),
   tar_target(
     combtreats,
+    # TODO: move ghostbricks into combine treatments?
     combine_treatments(bricktreats, controltreats)
   )
 )
@@ -187,6 +188,16 @@ targets_models <- c(
     modelp3,
     model_p3(combtreats),
     iteration = 'list'
+  )
+)
+
+
+
+# Targets: RSS ------------------------------------------------------------
+targets_rss <- c(
+  tar_target(
+    predictsetup,
+    predict_model_setup(combtreats[!is.na(ghostbricks)])
   )
 )
 
