@@ -1,8 +1,10 @@
 
 # === Treatments ----------------------------------------------------------
 brick_treatments <- function(DT) {
+  subDT <- DT[treatment != 'C']
+  
   m1 <- melt(
-    DT,
+    subDT,
     measure.vars = paste0('brickedge', c(1, 2, 3), '_start'),
     # variable.factor = FALSE,
     variable.name = 'treatment_start',
@@ -10,7 +12,7 @@ brick_treatments <- function(DT) {
   )
   
   m2 <- melt(
-    DT,
+    subDT,
     measure.vars = paste0('brickedge', c(1, 2, 3), '_end'),
     # variable.factor = FALSE,
     variable.name = 'treatment_end',
