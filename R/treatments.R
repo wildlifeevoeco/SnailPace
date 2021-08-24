@@ -2,6 +2,8 @@
 # === Treatments ----------------------------------------------------------
 brick_treatments <- function(DT) {
   subDT <- DT[treatment != 'C']
+  subDT[, treatment := ifelse(treatment=="4", "3", treatment)]
+  
   
   m1 <- melt(
     subDT,
@@ -23,6 +25,7 @@ brick_treatments <- function(DT) {
   
   zz[, ghostbricks := gsub('brickedge|_start', '', treatment_start)]
   # zz[, treatment_end := gsub('brickedge|_end', '', treatment_end)]
+  zz<- zz[treatment == ghostbricks]
   zz
 }
 
