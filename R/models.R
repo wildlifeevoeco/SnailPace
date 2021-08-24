@@ -83,11 +83,12 @@ predict_means <- function(DT, model) {
   # Be careful with .BY[[N]], depends on the order specified in by = 
   means[, hab := predict(model,
                          newdata = cbind(.SD, 
-                                         ghostbricks = .BY[[1]],
-                                         stage = .BY[[2]]),
+                                         id_treat = .BY[[1]],
+                                         ghostbricks = .BY[[2]],
+                                         stage = .BY[[3]]),
                          type = "link",
                          re.form = NULL),
-        by = .(ghostbricks, stage)]
+        by = .(id_treat, ghostbricks, stage)]
   means
 }
 
@@ -103,18 +104,19 @@ predict_brickdist <- function(DT, model) {
     
     indiv_treat_step_id = NA,
     id_treat = id_treat
-  ), by = .(ghostbricks, stage, id)]
+  ), by = .(ghostbricks, stage, id_treat)]
   
   # Predict hab for each ghostbricks*stage combination
   # Uses cbind with .BY[[N]] to retain ghostbricks and stage in the model
   # Be careful with .BY[[N]], depends on the order specified in by = 
   bdist[, hab := predict(model,
                          newdata = cbind(.SD, 
-                                         ghostbricks = .BY[[1]],
-                                         stage = .BY[[2]]),
+                                         id_treat = .BY[[1]],
+                                         ghostbricks = .BY[[2]],
+                                         stage = .BY[[3]]),
                          type = "link",
                          re.form = NULL),
-        by = .(ghostbricks, stage, id)]
+        by = .(id_treat, ghostbricks, stage)]
   bdist
 }
 
@@ -128,19 +130,20 @@ predict_edgedist <- function(DT, model) {
     brickdist_end = mean(brickdist_end, na.rm = TRUE),
     edgedist_end = seq(0, max(edgedist_end), length.out = 100),
     
-    indiv_treat_step_id = NA,
-    id_treat = id_treat
-  ), by = .(ghostbricks, stage, id)]
+    indiv_treat_step_id = NA #,
+    #id_treat = id_treat
+  ), by = .(ghostbricks, stage, id_treat)]
   
   # Predict hab for each ghostbricks*stage combination
   # Uses cbind with .BY[[N]] to retain ghostbricks and stage in the model
   # Be careful with .BY[[N]], depends on the order specified in by = 
   edist[, hab := predict(model,
                          newdata = cbind(.SD, 
-                                         ghostbricks = .BY[[1]],
-                                         stage = .BY[[2]]),
+                                         id_treat = .BY[[1]],
+                                         ghostbricks = .BY[[2]],
+                                         stage = .BY[[3]]),
                          type = "link",
                          re.form = NULL),
-        by = .(ghostbricks, stage, id)]
+        by = .(id_treat, ghostbricks, stage)]
   edist
 }
