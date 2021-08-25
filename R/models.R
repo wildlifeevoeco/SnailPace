@@ -74,9 +74,8 @@ predict_means <- function(DT, model) {
     brickdist_end = mean(brickdist_end, na.rm = TRUE),
     edgedist_end = mean(edgedist_end, na.rm = TRUE),
     
-    indiv_treat_step_id = NA,
-    id_treat = id_treat
-  ), by = .(ghostbricks, stage)]
+    indiv_treat_step_id = NA
+  ), by = .(id_treat, ghostbricks, stage)]
   
   # Predict hab for each ghostbricks*stage combination
   # Uses cbind with .BY[[N]] to retain ghostbricks and stage in the model
@@ -102,8 +101,7 @@ predict_brickdist <- function(DT, model) {
     brickdist_end = seq(0, max(brickdist_end), length.out = 100),
     edgedist_end = mean(edgedist_end, na.rm = TRUE),
     
-    indiv_treat_step_id = NA,
-    id_treat = id_treat
+    indiv_treat_step_id = NA
   ), by = .(ghostbricks, stage, id_treat)]
   
   # Predict hab for each ghostbricks*stage combination
@@ -130,9 +128,8 @@ predict_edgedist <- function(DT, model) {
     brickdist_end = mean(brickdist_end, na.rm = TRUE),
     edgedist_end = seq(0, max(edgedist_end), length.out = 100),
     
-    indiv_treat_step_id = NA #,
-    #id_treat = id_treat
-  ), by = .(ghostbricks, stage, id_treat)]
+    indiv_treat_step_id = NA 
+  ), by = .(id_treat, ghostbricks, stage)]
   
   # Predict hab for each ghostbricks*stage combination
   # Uses cbind with .BY[[N]] to retain ghostbricks and stage in the model
@@ -147,3 +144,13 @@ predict_edgedist <- function(DT, model) {
         by = .(id_treat, ghostbricks, stage)]
   edist
 }
+
+calc_rss <- function(prededge, predbrick, means){
+  preds <- rbind(prededge[,.(id_treat, ghostbricks, stage, var = 'edge', x = edgedist_end, h1 = hab)],
+                    predbrick[,.(id_treat, ghostbricks, stage, var = 'brick', x = brickdist_end, h1 = hab)])
+  rss <- merge(preds, 
+               means[,.(id_treat, ghostbricks, stage, h2 = hab)], 
+               by = c('id_treat', 'ghostbricks', 'stage'))
+  rss[,rss := h1 - h2]
+}
+
