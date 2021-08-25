@@ -3,7 +3,8 @@ tar_load(modelp3)
 tar_load(combtreats)
 tar_load(distparams)
 
-tidy_model <- function(model) {
+# TODO: make this consistent with other tidy_model?
+clean_model <- function(model) {
   # making names easier to deal with
   model$term <- gsub(':', '-', model$term)
   model$term <- gsub(' ', '', model$term)
