@@ -24,22 +24,30 @@ tidy_coefs <- function(model, distparams) {
   
 }
 
-# TODO
-logsltemp <- pop.coef$estimate[[2]]
+make_predict_seq <- function(model, combtreats) {
+  meanedge <- mean(combtreats$edgedist_end, na.rm = T)
+  maxedge <- max(combtreats$edgedist_end, na.rm = T)
+  meanbrick <- mean(combtreats$brickdist_end, na.rm = T)
+  maxbrick <- 65
+  meantemp <- mean(combtreats$temp, na.rm = T)
+  
+  bdist <- seq(0,maxbrick, length.out = 100)
+  edist <- seq(0,maxedge, length.out = 100)
+  logsltemp <- model$estimate[[2]]
+  
+  list(
+    bdist = bdist,
+    edist = edist,
+    logsltemp = logsltemp
+  )
+}
 
-# -------------------------------------------------------------------------
 
 
 
-meanedge <- mean(combtreats$edgedist_end, na.rm = T)
-maxedge <- max(combtreats$edgedist_end, na.rm = T)
-meanbrick <- mean(combtreats$brickdist_end, na.rm = T)
-maxbrick <- 65
-meantemp <- mean(combtreats$temp, na.rm = T)
 
 
-bdist <- seq(0,maxbrick, length.out = 100)
-edist <- seq(0,maxedge, length.out = 100)
+
 
 coefs[, bd.spd.before:= list(list((1+logsl_+logsl_before+(logsltemp*meantemp)+(brickdist_logsl_before*bdist)+(edgedist_logsl_before*meanedge))*(1/rate))), by=.(id, brick)]
 coefs[, bd.spd.after:= list(list((1+logsl_+logsl_after+(logsltemp*meantemp)+(brickdist_logsl_after*bdist)+(edgedist_logsl_before*meanedge))*(1/rate))), by=.(id, brick)]
