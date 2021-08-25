@@ -38,10 +38,10 @@ coefs[, ed.spd.after:= list(list((1+logsl_+logsl_after+(logsltemp*meantemp)+(edg
 coefs[, edist:= list(list(seq(0,maxedge,length.out = 100))), by=.(id, brick)]
 
 speed <- coefs[,.(bdist = unlist(bdist), 
-                  bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
-                  edist = unlist(edist),
-                  ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
-                  disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(id, brick)]
+                bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
+                edist = unlist(edist),
+                ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
+                disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(id, brick)]
 #speed.1hr[,'brick2'] <-gsub("[^0-9.-]", "", speed.1hr$brick)
 speed[, id_treat := paste(id, brick, sep = '_')]
 speed[bd.spd.before <0, bd.spd.before:=0]
