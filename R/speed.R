@@ -17,13 +17,20 @@ tidy_model <- function(model) {
   tidy(modelp3)
 }
 
+tidy_coefs <- function(model, distparams) {
+  coefs <- dcast(model, level ~ term, value.var = 'estimate')
+  coefs <- coefs %>% tidyr::separate((level), c('id', 'brick'), sep = '_')
+  coefs <- merge(coefs, distparams, by = 'id')
+  
+}
 
-
+# TODO
 logsltemp <- pop.coef$estimate[[2]]
 
-coefs <- dcast(tidymodelp3, level ~ term, value.var = 'estimate')
-coefs <- coefs %>% tidyr::separate((level), c('id', 'brick'), sep = '_')
-coefs <- merge(coefs, distparams, by = 'id')
+# -------------------------------------------------------------------------
+
+
+
 meanedge <- mean(combtreats$edgedist_end, na.rm = T)
 maxedge <- max(combtreats$edgedist_end, na.rm = T)
 meanbrick <- mean(combtreats$brickdist_end, na.rm = T)
