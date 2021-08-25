@@ -3,18 +3,22 @@ tar_load(modelp3)
 tar_load(combtreats)
 tar_load(distparams)
 
+tidy_model <- function(model) {
+  # making names easier to deal with
+  model$term <- gsub(':', '-', model$term)
+  model$term <- gsub(' ', '', model$term)
+  model$term <- gsub('[[:punct:]]', '', model$term)
+  model$term <- gsub('stageA', 'after', model$term)
+  model$term <- gsub('stageB', 'before', model$term)
+  model$term <- gsub('Ilogsl1', 'logsl_', model$term)
+  model$term <- gsub('Ilogbrickdiststart1', 'brickdist_', model$term)
+  model$term <- gsub('Ilogedgediststart1', 'edgedist_', model$term)
+  
+  tidy(modelp3)
+}
 
-# making names easier to deal with
-tidymodelp3$term <- gsub(':', '-', tidymodelp3$term)
-tidymodelp3$term <- gsub(' ', '', tidymodelp3$term)
-tidymodelp3$term <- gsub('[[:punct:]]', '', tidymodelp3$term)
-tidymodelp3$term <- gsub('stageA', 'after', tidymodelp3$term)
-tidymodelp3$term <- gsub('stageB', 'before', tidymodelp3$term)
-tidymodelp3$term <- gsub('Ilogsl1', 'logsl_', tidymodelp3$term)
-tidymodelp3$term <- gsub('Ilogbrickdiststart1', 'brickdist_', tidymodelp3$term)
-tidymodelp3$term <- gsub('Ilogedgediststart1', 'edgedist_', tidymodelp3$term)
 
-pop.coef <- tidy(modelp3)
+
 logsltemp <- pop.coef$estimate[[2]]
 
 coefs <- dcast(tidymodelp3, level ~ term, value.var = 'estimate')
