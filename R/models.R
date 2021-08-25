@@ -71,8 +71,8 @@ predict_means <- function(DT, model) {
     sl_ = mean(sl_, na.rm = TRUE),
     temp = mean(temp, na.rm = TRUE),
     
-    brickdist_end = mean(brickdist_end, na.rm = TRUE),
-    edgedist_end = mean(edgedist_end, na.rm = TRUE),
+    brickdist_end = 0,
+    edgedist_end = 0,
     
     indiv_treat_step_id = NA
   ), by = .(id_treat, ghostbricks, stage)]
@@ -154,3 +154,6 @@ calc_rss <- function(prededge, predbrick, means){
   rss[,rss := h1 - h2]
 }
 
+calc_speed <- function(){
+  
+}
