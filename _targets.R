@@ -193,6 +193,11 @@ targets_models <- c(
     modelp3,
     model_p3(combtreats),
     iteration = 'list'
+  ),
+  
+  tar_target(
+    tidymodelp3,
+    tidy_model(modelp3, effect = 'ran_vals')
   )
 )
 

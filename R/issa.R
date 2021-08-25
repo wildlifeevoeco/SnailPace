@@ -43,7 +43,7 @@ make_step_id <- function(DT) {
 # Calculate distribution parameters ---------------------------------------
 calc_distribution_parameters <- function(steps) {
   if (is.null(steps)) return()
-  c(ta_distr_params(steps), sl_distr_params(steps, sl_distr = fit_distr(.$sl_, 'exp')))
+  data.table(id = unique(steps$id), kappa = ta_distr_params(steps)$kappa, rate =sl_distr_params(steps, sl_distr = fit_distr(.$sl_, 'exp'))$rate)
 }
 
 # rename mergelc column
