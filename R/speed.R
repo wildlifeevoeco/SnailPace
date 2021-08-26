@@ -15,17 +15,16 @@ clean_model_name <- function(model) {
   model$term <- gsub('Ilogbrickdiststart1', 'brickdist_', model$term)
   model$term <- gsub('Ilogedgediststart1', 'edgedist_', model$term)
   
-  tidy(modelp3)
+  model
 }
 
 tidy_coefs <- function(model, distparams) {
   coefs <- dcast(model, level ~ term, value.var = 'estimate')
   coefs <- coefs %>% tidyr::separate((level), c('id', 'brick'), sep = '_')
   coefs <- merge(coefs, distparams, by = 'id')
-  
 }
 
-make_predict_seq <- function(model, combtreats) {
+make_predict_seq <- function(combtreats, modelp3) {
   meanedge <- mean(combtreats$edgedist_end, na.rm = T)
   maxedge <- max(combtreats$edgedist_end, na.rm = T)
   meanbrick <- mean(combtreats$brickdist_end, na.rm = T)
