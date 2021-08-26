@@ -203,6 +203,47 @@ targets_models <- c(
 
 
 
+# Targets: speed ----------------------------------------------------------
+targets_speed <- c(
+  tar_target(
+    cleaned_names,
+    clean_model_names(tidymodelp3),
+    pattern = map(tidymodelp3)
+  ),
+  
+  tar_target(
+    coefs,
+    tidy_coefs(cleaned_names, distparams),
+    pattern = map(cleaned_names, distparams)
+  ),
+  
+  tar_target(
+    predict_seq,
+    make_predict_seq(combtreats, tidy(modelp3)),
+    pattern = map(combtreats, modelp3)
+  ),
+  
+  tar_target(
+    predicted_speed,
+    predict_speed(coefs, predict_seq),
+    pattern = map(coefs, predict_seq)
+  ),
+  
+  tar_target(
+    plotted_speed_brick,
+    plot_speed_brick(predicted_speed),
+    pattern = map(predicted_speed)
+  ),
+  
+  tar_target(
+    plotted_speed_edge,
+    plot_speed_edge(predicted_speed),
+    pattern = map(predicted_speed)
+  )
+)
+
+
+
 # Targets: RSS ------------------------------------------------------------
 targets_rss <- c(
   tar_target(
