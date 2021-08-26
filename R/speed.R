@@ -19,7 +19,7 @@ tidy_coefs <- function(model, distparams) {
   coefs <- merge(coefs, distparams, by = 'id')
 }
 
-make_predict_seq <- function(combtreats, modelp3) {
+make_predict_seq <- function(combtreats, model) {
   meanedge <- mean(combtreats$edgedist_end, na.rm = T)
   maxedge <- max(combtreats$edgedist_end, na.rm = T)
   meanbrick <- mean(combtreats$brickdist_end, na.rm = T)
@@ -28,7 +28,7 @@ make_predict_seq <- function(combtreats, modelp3) {
   
   bdist <- seq(0,maxbrick, length.out = 100)
   edist <- seq(0,maxedge, length.out = 100)
-  logsltemp <- modelp3$estimate[[2]]
+  logsltemp <- model$estimate[[2]]
   
   list(
     bdist = bdist,
