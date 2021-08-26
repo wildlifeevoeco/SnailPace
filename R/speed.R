@@ -4,7 +4,7 @@ tar_load(combtreats)
 tar_load(distparams)
 
 # TODO: make this consistent with other tidy_model?
-clean_model <- function(model) {
+clean_model_name <- function(model) {
   # making names easier to deal with
   model$term <- gsub(':', '-', model$term)
   model$term <- gsub(' ', '', model$term)
