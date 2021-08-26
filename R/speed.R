@@ -42,7 +42,34 @@ make_predict_seq <- function(combtreats, modelp3) {
   )
 }
 
-
+predict_speed <- function(coefs) {
+  coefs[, bd.spd.before := 
+          (1 + logsl_ + logsl_before + (logsltemp * meantemp) + 
+             (brickdist_logsl_before * bdist) + 
+             (edgedist_logsl_before * meanedge)) * (1 / rate),
+        by = .(id, brick)]
+  coefs[, bd.spd.after := 
+          (1 + logsl_ + logsl_after + (logsltemp * meantemp) + 
+             (brickdist_logsl_after * bdist) + 
+             (edgedist_logsl_before * meanedge)) * (1 / rate), 
+        by = .(id, brick)]
+  coefs[, bdist := seq(0, maxbrick, length.out = 100), 
+        by = .(id, brick)]
+  coefs[, ed.spd.before := 
+          (1 + logsl_ + logsl_before + (logsltemp * meantemp) + 
+             (edgedist_logsl_before * edist) + 
+             (brickdist_logsl_after * meanbrick)) * (1 / rate), 
+        by = .(id, brick)]
+  coefs[, ed.spd.after := 
+          (1 + logsl_ + logsl_after + (logsltemp * meantemp) + 
+             (edgedist_logsl_after * edist) + 
+             (brickdist_logsl_after * meanbrick)) * (1 / rate),
+        by = .(id, brick)]
+  coefs[, edist := seq(0, maxedge, length.out = 100), 
+        by = .(id, brick)]
+  coefs
+  
+}
 
 
 
