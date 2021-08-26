@@ -37,7 +37,11 @@ make_predict_seq <- function(combtreats, model) {
   )
 }
 
-predict_speed <- function(coefs) {
+predict_speed <- function(coefs, seqs) {
+  bdist <- seqs$bdist
+  edist <- seqs$edist
+  logsltemp <- seqs$logsltemp
+  
   coefs[, bd.spd.before := 
           (1 + logsl_ + logsl_before + (logsltemp * meantemp) + 
              (brickdist_logsl_before * bdist) + 
