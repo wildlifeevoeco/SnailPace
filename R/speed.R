@@ -1,8 +1,3 @@
-tar_load(tidymodelp3)
-tar_load(modelp3)
-tar_load(combtreats)
-tar_load(distparams)
-
 # TODO: make this consistent with other tidy_model?
 clean_model_name <- function(model) {
   # making names easier to deal with
