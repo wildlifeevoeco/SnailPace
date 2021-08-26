@@ -48,34 +48,38 @@ predict_speed <- function(coefs, seqs) {
   maxbrick <- seqs$maxbrick
   meantemp <- seqs$meantemp
   
+  pred_length <- 100
+  repcoef <- coefs[rep(.N, pred_length)]
   
-  coefs[, bd.spd.before := 
+  repcoef[, bd.spd.before := 
           (1 + logsl_ + logsl_before + (logsltemp * meantemp) + 
              (brickdist_logsl_before * bdist) + 
              (edgedist_logsl_before * meanedge)) * (1 / rate),
         by = .(id, brick)]
-  coefs[, bd.spd.after := 
+  repcoef[, bd.spd.after := 
           (1 + logsl_ + logsl_after + (logsltemp * meantemp) + 
              (brickdist_logsl_after * bdist) + 
              (edgedist_logsl_before * meanedge)) * (1 / rate), 
         by = .(id, brick)]
-  coefs[, bdist := seq(0, maxbrick, length.out = 100), 
+  repcoef[, bdist := seq(0, maxbrick, length.out = 100), 
         by = .(id, brick)]
-  coefs[, ed.spd.before := 
+  repcoef[, ed.spd.before := 
           (1 + logsl_ + logsl_before + (logsltemp * meantemp) + 
              (edgedist_logsl_before * edist) + 
              (brickdist_logsl_after * meanbrick)) * (1 / rate), 
         by = .(id, brick)]
-  coefs[, ed.spd.after := 
+  repcoef[, ed.spd.after := 
           (1 + logsl_ + logsl_after + (logsltemp * meantemp) + 
              (edgedist_logsl_after * edist) + 
              (brickdist_logsl_after * meanbrick)) * (1 / rate),
         by = .(id, brick)]
-  coefs[, edist := seq(0, maxedge, length.out = 100), 
+  repcoef[, edist := seq(0, maxedge, length.out = 100), 
         by = .(id, brick)]
   
-  coefs[, disturbance := ifelse(brick %like% 'g', 'undisturbed', 'disturbed'), 
+  repcoef[, disturbance := ifelse(brick %like% 'g', 'undisturbed', 'disturbed'), 
         by = .(id, brick)]
+  
+  repcoef
   
 }
 
