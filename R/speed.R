@@ -33,7 +33,7 @@ make_predict_seq <- function(combtreats, modelp3) {
   
   bdist <- seq(0,maxbrick, length.out = 100)
   edist <- seq(0,maxedge, length.out = 100)
-  logsltemp <- model$estimate[[2]]
+  logsltemp <- modelp3$estimate[[2]]
   
   list(
     bdist = bdist,
