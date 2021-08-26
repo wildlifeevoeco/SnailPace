@@ -14,6 +14,7 @@ library(ggplot2)
 library(glmmTMB)
 library(raster)
 library(broom.mixed)
+library(patchwork)
 
 # Functions ---------------------------------------------------------------
 lapply(dir('R', '*.R', full.names = TRUE), source)
