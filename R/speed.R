@@ -14,6 +14,8 @@ clean_model_names <- function(model) {
 }
 
 tidy_coefs <- function(model, distparams) {
+  if (is.null(distparams)) return(NULL)
+  
   coefs <- dcast(model, level ~ term, value.var = 'estimate')
   coefs <- coefs %>% tidyr::separate((level), c('id', 'brick'), sep = '_')
   coefs <- merge(coefs, distparams, by = 'id')
