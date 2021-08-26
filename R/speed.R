@@ -20,20 +20,19 @@ tidy_coefs <- function(model, distparams) {
 }
 
 make_predict_seq <- function(combtreats, model) {
-  meanedge <- mean(combtreats$edgedist_end, na.rm = T)
   maxedge <- max(combtreats$edgedist_end, na.rm = T)
-  meanbrick <- mean(combtreats$brickdist_end, na.rm = T)
   maxbrick <- 65
-  meantemp <- mean(combtreats$temp, na.rm = T)
   
-  bdist <- seq(0,maxbrick, length.out = 100)
-  edist <- seq(0,maxedge, length.out = 100)
-  logsltemp <- model$estimate[[2]]
   
   list(
-    bdist = bdist,
-    edist = edist,
-    logsltemp = logsltemp
+    bdist = seq(0, maxbrick, length.out = 100),
+    edist = seq(0, maxedge, length.out = 100),
+    logsltemp = model$estimate[[2]],
+    meanedge = mean(combtreats$edgedist_end, na.rm = TRUE),
+    maxedge = maxedge,
+    meanbrick = mean(combtreats$brickdist_end, na.rm = TRUE),
+    maxbrick = maxbrick,
+    meantemp = mean(combtreats$temp, na.rm = TRUE)
   )
 }
 
