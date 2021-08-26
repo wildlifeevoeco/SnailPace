@@ -224,7 +224,7 @@ targets_speed <- c(
   tar_target(
     predicted_speed,
     predict_speed(tidied_coefs, predict_seq),
-    pattern = map(tidied_coefs, predict_seq)
+    pattern = map(tidied_coefs)
   ),
   
   tar_target(
