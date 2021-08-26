@@ -40,6 +40,12 @@ predict_speed <- function(coefs, seqs) {
   bdist <- seqs$bdist
   edist <- seqs$edist
   logsltemp <- seqs$logsltemp
+  meanedge <- seqs$meanedge
+  maxedge <- seqs$maxedge
+  meanbrick <- seqs$meanbrick
+  maxbrick <- seqs$maxbrick
+  meantemp <- seqs$meantemp
+  
   
   coefs[, bd.spd.before := 
           (1 + logsl_ + logsl_before + (logsltemp * meantemp) + 
