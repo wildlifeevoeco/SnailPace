@@ -25,7 +25,6 @@ make_predict_seq <- function(combtreats, model) {
   maxedge <- max(combtreats$edgedist_end, na.rm = T)
   maxbrick <- 65
   
-  
   list(
     bdist = seq(0, maxbrick, length.out = 100),
     edist = seq(0, maxedge, length.out = 100),
@@ -39,6 +38,8 @@ make_predict_seq <- function(combtreats, model) {
 }
 
 predict_speed <- function(coefs, seqs) {
+  if (is.null(coefs)) return(NULL)
+  
   bdist <- seqs$bdist
   edist <- seqs$edist
   logsltemp <- seqs$logsltemp
