@@ -207,26 +207,24 @@ targets_models <- c(
 targets_speed <- c(
   tar_target(
     cleaned_names,
-    clean_model_names(tidymodelp3),
-    pattern = map(tidymodelp3)
+    clean_model_names(tidymodelp3)
   ),
   
   tar_target(
-    coefs,
+    tidied_coefs,
     tidy_coefs(cleaned_names, distparams),
-    pattern = map(cleaned_names, distparams)
+    pattern = map(distparams)
   ),
   
   tar_target(
     predict_seq,
-    make_predict_seq(combtreats, tidy(modelp3)),
-    pattern = map(combtreats, modelp3)
+    make_predict_seq(combtreats, tidy(modelp3))
   ),
   
   tar_target(
     predicted_speed,
-    predict_speed(coefs, predict_seq),
-    pattern = map(coefs, predict_seq)
+    predict_speed(tidied_coefs, predict_seq),
+    pattern = map(tidied_coefs, predict_seq)
   ),
   
   tar_target(
