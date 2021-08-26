@@ -75,14 +75,6 @@ predict_speed <- function(coefs) {
 
 
 
-
-coefs[, bd.spd.before:= list(list((1+logsl_+logsl_before+(logsltemp*meantemp)+(brickdist_logsl_before*bdist)+(edgedist_logsl_before*meanedge))*(1/rate))), by=.(id, brick)]
-coefs[, bd.spd.after:= list(list((1+logsl_+logsl_after+(logsltemp*meantemp)+(brickdist_logsl_after*bdist)+(edgedist_logsl_before*meanedge))*(1/rate))), by=.(id, brick)]
-coefs[, bdist:= list(list(seq(0,maxbrick,length.out = 100))), by=.(id, brick)]
-coefs[, ed.spd.before:= list(list((1+logsl_+logsl_before+(logsltemp*meantemp)+(edgedist_logsl_before*edist)+(brickdist_logsl_after*meanbrick))*(1/rate))), by=.(id, brick)]
-coefs[, ed.spd.after:= list(list((1+logsl_+logsl_after+(logsltemp*meantemp)+(edgedist_logsl_after*edist) + (brickdist_logsl_after*meanbrick))*(1/rate))), by=.(id, brick)]
-coefs[, edist:= list(list(seq(0,maxedge,length.out = 100))), by=.(id, brick)]
-
 speed <- coefs[,.(bdist = unlist(bdist), 
                   bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
                   edist = unlist(edist),
