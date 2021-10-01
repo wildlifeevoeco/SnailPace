@@ -104,10 +104,16 @@ predict_speed <- function(coefs, seqs) {
 
 # input: speed
 plot_speed_brick <- function(DT) {
-  before <- ggplot(data=DT[brick != 'g1' & brick != 'g3'], aes(x=bdist, y=bd.spd.before, color = brick)) + 
+  DT[,'brick2'] <-gsub("[^0-9.-]", "", DT$brick)
+  DT[, id_treat := paste(id, brick, sep = '_')]
+  DT[bd.spd.before <0, bd.spd.before:=0]
+  DT[bd.spd.after <0, bd.spd.after:=0]
+  DT[ed.spd.before <0, ed.spd.before:=0]
+  DT[ed.spd.after <0, ed.spd.after:=0]
+  before <- ggplot(data=DT, aes(x=bdist, y=bd.spd.before, color = brick)) + 
     geom_line(aes(group= id_treat, linetype = brick), size=1, alpha=.5) +
     #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-    geom_smooth(size = 2, se = T, method = 'glm')+
+    geom_smooth(size = 2, se = F, method = 'glm')+
     theme_classic() +
     theme(text = element_text(size=15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
@@ -115,12 +121,13 @@ plot_speed_brick <- function(DT) {
     #  theme(legend.position = "none") +
     theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
     ggtitle("before ") +
+    scale_color_colorblind() +
     xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)")
   
-  after <- ggplot(data=DT[brick != 'g1' & brick != 'g3' & id != 'O24b'], aes(x=bdist, y=bd.spd.after, color = brick)) + 
+  after <- ggplot(data=DT, aes(x=bdist, y=bd.spd.after, color = brick)) + 
     geom_line(aes(group= id_treat, linetype = brick), size=1, alpha=.5) +
     #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-    geom_smooth(size = 2, se = T, method = 'glm')+
+    geom_smooth(size = 2, se = F, method = 'glm')+
     theme_classic() +
     theme(text = element_text(size=15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
@@ -129,16 +136,17 @@ plot_speed_brick <- function(DT) {
     theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
     ggtitle("after ") +
     #ylim(0,1200) +
+    scale_color_colorblind() +
     xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)")
   
   before + after
 }
 
 plot_speed_edge <- function(DT) {
-  before <- ggplot(data=DT[brick != 'g1' & brick != 'g3' & id != 'O24b'], aes(x=edist, y=ed.spd.before, color = brick)) + 
+  before <- ggplot(data=DT, aes(x=edist, y=ed.spd.before, color = brick)) + 
     geom_line(aes(group= id_treat, linetype = brick), size=1, alpha=.5) +
     #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-    geom_smooth(size = 2, se = T, method = 'glm')+
+    geom_smooth(size = 2, se = F, method = 'glm')+
     theme_classic() +
     theme(text = element_text(size=15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
@@ -147,12 +155,13 @@ plot_speed_edge <- function(DT) {
     theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
     ggtitle("before ") +
     ylim(0,5000)+
+    scale_color_colorblind() +
     xlab("Distance from edge (cm)") + ylab("Speed (cm per hour)")
   
-  after <- ggplot(data=DT[brick != 'g1' & brick != 'g3' & id != 'O24b'], aes(x=edist, y=ed.spd.after, color = brick)) + 
+  after <- ggplot(data=DT, aes(x=edist, y=ed.spd.after, color = brick)) + 
     geom_line(aes(group= id_treat, linetype = brick), size=1, alpha=.5) +
     #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-    geom_smooth(size = 2, se = T, method = 'glm')+
+    geom_smooth(size = 2, se = F, method = 'glm')+
     theme_classic() +
     theme(text = element_text(size=15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
@@ -161,6 +170,7 @@ plot_speed_edge <- function(DT) {
     theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
     ggtitle("after ") +
     ylim(0,5000) +
+    scale_color_colorblind() +
     xlab("Distance from edge (cm)") + ylab("Speed (cm per hour)")
   
   before + after

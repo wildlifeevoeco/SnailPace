@@ -16,6 +16,16 @@ resample_tracks <- function(tracks, rate, tolerance) {
   t %>% steps_by_burst(., keep_cols = 'start') 
 }
 
+resample_tracks_full <- function(tracks, rate, tolerance) {
+  t <- track_resample(tracks, rate = rate, tolerance = tolerance) %>%
+    filter_min_n_burst()
+  
+  # Cancel if there are not at least 2 observed steps
+  # this is for binomial move/not
+  if (nrow(t) < 20) return()
+  t %>% steps_by_burst(., keep_cols = 'start') 
+}
+
 
 
 # Make random steps ------------------------------------------------------
@@ -73,10 +83,15 @@ make_iSSA <- function(DT,resp, expl) {
 
 # Merge steps onto prep data ----------------------------------------------
 merge_steps <- function(DT, prepDT) {
-  subDT <- DT[case_ == TRUE | !is.na(brickedge1_end)]
+  if (is.null(DT)) return()
+  if (nrow(DT) == 0) return()
+  
+  subDT <- setDT(DT)[case_ == TRUE | !is.na(brickedge1_end)]
   subDT[, iter := seq.int(.N), by = .(id, step_id_)]
   
   subsubDT <- subDT[iter <= 11]
+  
+  #setnames(subsubDT, c('snail'), c('id'))
   
   setnames(prepDT, c('t', 'snail'), c('t1_', 'id'))
   

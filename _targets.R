@@ -133,11 +133,32 @@ targets_issa <- c(
     pattern = map(resamples)
   ),
   
+  # Resample steps for binomial move/not
+  tar_target(
+    binomialresamples,
+    resample_tracks_full(tracks, rate, tolerance),
+    pattern = map(tracks)
+  ),
+  
+  # create binomial random steps and extract covariates
+  tar_target(
+    binomialrandsteps,
+    make_random_steps(binomialresamples, brickedge1, brickedge2, brickedge3, edge),
+    pattern = map(binomialresamples)
+  ),
+  
+  # Merge prep data back
+  tar_target(
+    binomialmergeprep,
+    merge_steps(binomialrandsteps, splits),
+    pattern = map(binomialrandsteps, splits)
+  ),
+  
   # create step ID across individuals
   tar_target(
     stepID,
-    setDT(randsteps)[,indiv_step_id := paste(id, step_id_, sep = '_')],
-    pattern = map(resamples)
+    make_step_id(setDT(randsteps)),
+    pattern = map(randsteps)
   ),
   
   # Merge prep data back
@@ -230,14 +251,12 @@ targets_speed <- c(
   
   tar_target(
     plotted_speed_brick,
-    plot_speed_brick(predicted_speed),
-    pattern = map(predicted_speed)
+    plot_speed_brick(predicted_speed)
   ),
   
   tar_target(
     plotted_speed_edge,
-    plot_speed_edge(predicted_speed),
-    pattern = map(predicted_speed)
+    plot_speed_edge(predicted_speed)
   )
 )
 
