@@ -1,20 +1,3 @@
-# === Targets workflow: iSSA with amt -------------------------------------
-# Julie Turner
-# adapted from code by Alec L. Robitaille
-
-
-# Packages ----------------------------------------------------------------
-library(targets)
-
-library(amt)
-library(data.table)
-library(sf)
-library(sp)
-library(ggplot2)
-library(glmmTMB)
-library(raster)
-library(broom.mixed)
-library(patchwork)
 
 # Functions ---------------------------------------------------------------
 lapply(dir('R', '*.R', full.names = TRUE), source)
