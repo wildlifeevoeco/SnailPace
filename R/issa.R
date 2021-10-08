@@ -54,7 +54,12 @@ make_step_id <- function(DT) {
 # Calculate distribution parameters ---------------------------------------
 calc_distribution_parameters <- function(steps) {
   if (is.null(steps)) return()
-  data.table(id = unique(steps$id), kappa = ta_distr_params(steps)$kappa, rate =sl_distr_params(steps, sl_distr = fit_distr(.$sl_, 'exp'))$rate)
+    
+  data.table(
+    id = unique(steps$id),
+    kappa = ta_distr_params(steps)$kappa,
+    rate = sl_distr_params(steps, sl_distr = fit_distr(.$sl_, 'exp'))$rate
+  )
 }
 
 # rename mergelc column
@@ -66,18 +71,23 @@ make_good_names <- function(DT, old, new){
 }
 
 # iSSA ------------------------------------------------------
-make_iSSA <- function(DT,resp, expl) {
-  if (is.null(DT)) return()
-  if (nrow(DT) == 0) return()
+make_iSSA <- function(DT, resp, expl) {
+  if (is.null(DT))
+    return()
+  if (nrow(DT) == 0)
+    return()
   
-  mod.tmp <- glmmTMB(reformulate(expl, resp), data = DT, family = Poisson(), 
-                     doFit=FALSE)
+  mod.tmp <- glmmTMB(
+    formula = reformulate(expl, resp),
+    data = DT,
+    family = Poisson(),
+    doFit = FALSE
+  )
   
   mod.tmp$parameters$theta[1] <- log(1e3)
-  nvarparm<-length(mod.tmp$parameters$theta)
-  mod.tmp$mapArg <- list(theta=factor(c(NA,1:(nvarparm-1))))
+  nvarparm <- length(mod.tmp$parameters$theta)
+  mod.tmp$mapArg <- list(theta = factor(c(NA, 1:(nvarparm - 1))))
   glmmTMB:::fitTMB(mod.tmp)
-  
 }
 
 
