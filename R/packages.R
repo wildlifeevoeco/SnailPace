@@ -1,14 +1,26 @@
+# TODO: do we use all these
 library(targets)
 
-library(amt)
 library(data.table)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+library(ggthemes)
+
+library(amt)
+
+library(glmmTMB)
+library(broom.mixed)
+library(lme4)
+library(performance)
+library(ggeffects)
+library(tidyr)
+library(survival)
+library(AICcmodavg)
+
+library(raster)
 library(sf)
 library(sp)
-library(ggplot2)
-library(glmmTMB)
-library(raster)
-library(broom.mixed)
-library(patchwork)
 
 library(conflicted)
 
