@@ -1,6 +1,10 @@
+# === Snails --------------------------------------------------------------
+
+
 
 # Functions ---------------------------------------------------------------
 lapply(dir('R', '*.R', full.names = TRUE), source)
+
 
 
 # Options -----------------------------------------------------------------
@@ -8,42 +12,46 @@ tar_option_set(format = 'qs',
                error = 'workspace')
 
 
-# Variables ---------------------------------------------------------------
-path <- file.path('Data', 'raw', 'SnailDataUTM.csv')
-# load proximity rasters
-raw <- file.path('Data', 'raw') # folder I store raw data here
-derived <- file.path('Data', 'derived') #this is the folder where I'll put my new data after I extract the covariates, as we'll be doing here
 
+# Data --------------------------------------------------------------------
+path <- file.path('Data', 'raw', 'SnailDataUTM.csv')
+
+# Path to raw, derived
+raw <- file.path('Data', 'raw')
+derived <- file.path('Data', 'derived')
+
+# Proximity rasters
 edge <- raster(file.path(raw, 'edgedist.tif'))
 brickedge1 <- raster(file.path(raw, 'brickedge1.tif'))
 brickedge2 <- raster(file.path(raw, 'brickedge2.tif'))
 brickedge3 <- raster(file.path(raw, 'brickedge3.tif'))
 
 
+
+# Variables ---------------------------------------------------------------
+# Columns
 id <- 'snail'
 datetime <- 't'
-longlat = FALSE
-#not actually longitude and latitude, just don't want to change code
-long <- 'x'
-lat <- 'y'
+x <- 'x'
+y <- 'y'
+
+# CRS
 crs <- CRS(st_crs(32621)$wkt)
 
-
-# Split by: within which column or set of columns (eg. c(id, yr))
-#  do we want to split our analysis?
+# Column to split analysis by
 splitBy <- id
 
-
-# Resampling rate 
+## resample_tracks(): 
+# resampling rate 
 rate <- hours(1)
-
-# Tolerance
+# tolerance rate 
 tolerance <- minutes(2)
 
+# TODO: not needed?
+# longlat <- FALSE
 # columns to rename
 # oldname <- c('becomes')
 # newname <- c('lc_end')
-
 # build iSSA 
 # response <- 'case_'
 # explanatory <- "I(log(sl_)) + I(log(sl_)):tod_start_ + 
@@ -71,7 +79,7 @@ targets_prep <- c(
   # Remove duplicated and incomplete observations
   tar_target(
     mkunique,
-    make_unique_complete(prepared, id, datetime, long, lat)
+    make_unique_complete(prepared, id, datetime, x, y)
   )
 )
 
@@ -109,7 +117,7 @@ targets_issa <- c(
     pattern = map(tracks)
   ),
   
-  # create random steps and extract covariates
+  # Create random steps and extract covariates
   tar_target(
     randsteps,
     make_random_steps(resamples, brickedge1, brickedge2, brickedge3, edge),
@@ -123,7 +131,7 @@ targets_issa <- c(
     pattern = map(tracks)
   ),
   
-  # create binomial random steps and extract covariates
+  # Create binomial random steps and extract covariates
   tar_target(
     binomialrandsteps,
     make_random_steps(binomialresamples, brickedge1, brickedge2, brickedge3, edge),
@@ -137,7 +145,7 @@ targets_issa <- c(
     pattern = map(binomialrandsteps, splits)
   ),
   
-  # create step ID across individuals
+  # Create step ID across individuals
   tar_target(
     stepID,
     make_step_id(setDT(randsteps)),
@@ -156,6 +164,7 @@ targets_issa <- c(
 
 # Targets: treatments -----------------------------------------------------
 targets_treatments <- c(
+  # TODO: rm?
   # tar_target(
   #   filterNAs,
   #   mergeprep[!is.na(ghostbrick)]
