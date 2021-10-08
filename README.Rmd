@@ -22,7 +22,7 @@ This repository contains the code accompanying the paper "At a snail’s pace: t
 influence of habitat disturbance on terrestrial snail movement using
 experimentally manipulated mesocosms".
 
-TODO: describe 
+TODO: describe pkgs etc
 
 ## Abstract
 
