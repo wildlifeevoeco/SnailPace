@@ -11,3 +11,5 @@ library(broom.mixed)
 library(patchwork)
 
 library(conflicted)
+
+conflict_prefer('shift', 'data.table')
