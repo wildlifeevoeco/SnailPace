@@ -8,7 +8,7 @@ manipulated mesocosms
 
 
 TODO: fix numbers
-[![DOI](https://zenodo.org/badge/TODO.svg)](https://zenodo.org/badge/latestdoi/TODO)
+[![DOI](https://zenodo.org/badge/ZZZ.svg)](https://zenodo.org/badge/latestdoi/ZZZ)
 
 
 * Authors:
@@ -27,3 +27,10 @@ TODO: describe
 ## Abstract
 
 TODO: add abstract
+
+
+## TODOs
+
+```{bash}
+grep --include=\*.{Rmd,R} -rnw '.' -e 'TODO'
+```
