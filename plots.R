@@ -78,6 +78,7 @@ speed[ed.spd.after<0, ed.spd.after:=0]
 speed[,brick:= factor(brick, levels = c('g3', '1', '2', '3'), labels = c('control', '1', '2', '4'))]
 
 #### SPEED PLOTS ####
+
 brick.spd.before <- ggplot(data=speed, aes(x=bdist, y=bd.spd.before, color = brick)) + 
   geom_line(aes(group= id_treat, linetype = 'dashed'), linetype = 'dashed', size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
@@ -114,7 +115,7 @@ brick.spd.before + brick.spd.after
 
 
 edge.spd.before <- ggplot(data=speed[id != 'O24b'], aes(x=edist, y=ed.spd.before, color = brick)) + 
-  geom_line(aes(group= id_treat), linetype = brick, size=1, alpha=.5) +
+  geom_line(aes(group= id_treat), linetype = 'dashed', size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
   geom_smooth(size = 2, se = F, method = 'glm')+
   theme_classic() +
@@ -123,16 +124,17 @@ edge.spd.before <- ggplot(data=speed[id != 'O24b'], aes(x=edist, y=ed.spd.before
   theme(axis.text.x =  element_text(size = 15)) + 
   #  theme(legend.position = "none") +
   theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-  scale_color_colorblind() +
-  ggtitle("before ") +
+  ggtitle("before") +
   ylim(0,5000) +
+  scale_color_colorblind() +
   xlab("Distance from edge (cm)") + ylab("Speed (cm per hour)")
+
 edge.spd.before
 
 edge.spd.after <- ggplot(data=speed[id != 'O24b'], aes(x=edist, y=ed.spd.after, color = brick)) + 
   geom_line(aes(group= id_treat), linetype = 'dashed', size=1, alpha=.5) +
   #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-  geom_smooth(size = 2, se = T, method = 'glm')+
+  geom_smooth(size = 2, se = F, method = 'glm')+
   theme_classic() +
   theme(text = element_text(size=15)) +
   theme(plot.title = element_text(hjust = 0.5)) +

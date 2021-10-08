@@ -35,6 +35,7 @@ model_p3 <- function(DT) {
   p3 <- glmmTMB(
     case_ ~
       I(log(sl_ + 1)):temp +
+      I(log(sl_ + 1)):tod_start_ +
       I(log(sl_ + 1)):stage:ghostbricks +
       I(log(brickdist_start + 1)):I(log(sl_ + 1)):stage:ghostbricks +
       I(log(edgedist_start + 1)):I(log(sl_ + 1)):stage:ghostbricks +
@@ -154,6 +155,4 @@ calc_rss <- function(prededge, predbrick, means){
   rss[,rss := h1 - h2]
 }
 
-calc_speed <- function(){
-  
-}
+

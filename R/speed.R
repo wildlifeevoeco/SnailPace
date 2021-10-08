@@ -29,6 +29,7 @@ make_predict_seq <- function(combtreats, model) {
     bdist = seq(0, maxbrick, length.out = 100),
     edist = seq(0, maxedge, length.out = 100),
     logsltemp = model$estimate[[2]],
+    logsltod = model$estimate[[3]],
     meanedge = mean(combtreats$edgedist_end, na.rm = TRUE),
     maxedge = maxedge,
     meanbrick = mean(combtreats$brickdist_end, na.rm = TRUE),
@@ -43,6 +44,7 @@ predict_speed <- function(coefs, seqs) {
   bdist <- seqs$bdist
   edist <- seqs$edist
   logsltemp <- seqs$logsltemp
+  logsltod <- seqs$logsltod
   meanedge <- seqs$meanedge
   maxedge <- seqs$maxedge
   meanbrick <- seqs$meanbrick
@@ -53,24 +55,24 @@ predict_speed <- function(coefs, seqs) {
   repcoef <- coefs[rep(.N, pred_length)]
   
   repcoef[, bd.spd.before := 
-          (1 + logsl_ + logsl_before + (logsltemp * meantemp) + 
+          (1 + logsl_ + logsl_before + (logsltemp * meantemp) + logsltod +
              (brickdist_logsl_before * bdist) + 
              (edgedist_logsl_before * meanedge)) * (1 / rate),
         by = .(id, brick)]
   repcoef[, bd.spd.after := 
-          (1 + logsl_ + logsl_after + (logsltemp * meantemp) + 
+          (1 + logsl_ + logsl_after + (logsltemp * meantemp) + logsltod +
              (brickdist_logsl_after * bdist) + 
              (edgedist_logsl_before * meanedge)) * (1 / rate), 
         by = .(id, brick)]
   repcoef[, bdist := seq(0, maxbrick, length.out = 100), 
         by = .(id, brick)]
   repcoef[, ed.spd.before := 
-          (1 + logsl_ + logsl_before + (logsltemp * meantemp) + 
+          (1 + logsl_ + logsl_before + (logsltemp * meantemp) + logsltod +
              (edgedist_logsl_before * edist) + 
              (brickdist_logsl_after * meanbrick)) * (1 / rate), 
         by = .(id, brick)]
   repcoef[, ed.spd.after := 
-          (1 + logsl_ + logsl_after + (logsltemp * meantemp) + 
+          (1 + logsl_ + logsl_after + (logsltemp * meantemp) + logsltod +
              (edgedist_logsl_after * edist) + 
              (brickdist_logsl_after * meanbrick)) * (1 / rate),
         by = .(id, brick)]
