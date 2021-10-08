@@ -16,6 +16,7 @@ resample_tracks <- function(tracks, rate, tolerance) {
   t %>% steps_by_burst(., keep_cols = 'start') 
 }
 
+# TODO: remove this function is the same as above?
 resample_tracks_full <- function(tracks, rate, tolerance) {
   t <- track_resample(tracks, rate = rate, tolerance = tolerance) %>%
     filter_min_n_burst()
