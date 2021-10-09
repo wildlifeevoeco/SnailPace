@@ -1,5 +1,8 @@
-
 # === Treatments ----------------------------------------------------------
+
+
+
+# Brick treatments --------------------------------------------------------
 brick_treatments <- function(DT) {
   subDT <- DT[treatment != 'C']
   subDT[, treatment := ifelse(treatment=="4", "3", treatment)]
@@ -29,6 +32,8 @@ brick_treatments <- function(DT) {
   zz
 }
 
+
+# Control treatments ------------------------------------------------------
 control_treatments <- function(DT) {
   subDT <- DT[treatment == 'C']
   
@@ -57,8 +62,7 @@ control_treatments <- function(DT) {
 
 
 
-
-
+# Combine treatments ------------------------------------------------------
 combine_treatments <- function(bricktreats, controltreats) {
   DT <- rbindlist(list(bricktreats, controltreats))
   
