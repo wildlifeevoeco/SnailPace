@@ -6,7 +6,6 @@
 #' Prepare data
 #'
 #' @param DT 
-#' @author Alec L. Robitaille
 #'
 #' @return
 #' @export
@@ -36,8 +35,6 @@ prep_cols <- function(DT) {
 #' @param long longitude column name
 #' @param lat latitude column name
 #' 
-#' @author Alec L. Robitaille
-#'
 #' @return
 #' @export
 #'
