@@ -2,8 +2,6 @@
 
 
 
-
-
 # Check resamples ---------------------------------------------------------
 resample_tracks <- function(tracks, rate, tolerance) {
   t <- track_resample(tracks, rate = rate, tolerance = tolerance) %>%
@@ -12,17 +10,6 @@ resample_tracks <- function(tracks, rate, tolerance) {
   # Cancel if there are not at least 20 observed steps after resample
   # this is semi-arbitrary, but this should be enough for robust estimates in the model 
   # (Street et al preprint 2021)
-  if (nrow(t) < 20) return()
-  t %>% steps_by_burst(., keep_cols = 'start') 
-}
-
-# TODO: remove this function is the same as above?
-resample_tracks_full <- function(tracks, rate, tolerance) {
-  t <- track_resample(tracks, rate = rate, tolerance = tolerance) %>%
-    filter_min_n_burst()
-  
-  # Cancel if there are not at least 2 observed steps
-  # this is for binomial move/not
   if (nrow(t) < 20) return()
   t %>% steps_by_burst(., keep_cols = 'start') 
 }
