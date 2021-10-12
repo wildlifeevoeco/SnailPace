@@ -21,7 +21,8 @@ prep_cols <- function(DT) {
   new_names <- c('x', 'y', 't', 'snail', 'temp', 'precip', 'treatment', 'stage')
   DTsubcols <- DT[, .SD, .SDcols = old_names]
   setnames(DTsubcols, old_names, new_names)
-  DTsubcols
+  
+  return(DTsubcols)
 }
 
 

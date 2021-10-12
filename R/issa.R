@@ -55,6 +55,8 @@ make_good_names <- function(DT, old, new){
   if (nrow(DT) == 0) return()
   
   setnames(DT, old, new)
+  
+  return(DT)
 }
 
 # iSSA ------------------------------------------------------
@@ -74,7 +76,7 @@ make_iSSA <- function(DT, resp, expl) {
   mod.tmp$parameters$theta[1] <- log(1e3)
   nvarparm <- length(mod.tmp$parameters$theta)
   mod.tmp$mapArg <- list(theta = factor(c(NA, 1:(nvarparm - 1))))
-  glmmTMB:::fitTMB(mod.tmp)
+  fitTMB(mod.tmp)
 }
 
 
