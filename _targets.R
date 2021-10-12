@@ -9,7 +9,7 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 
 # Options -----------------------------------------------------------------
 tar_option_set(format = 'qs', 
-               error = 'workspace')
+               workspace_on_error = FALSE)
 
 
 
