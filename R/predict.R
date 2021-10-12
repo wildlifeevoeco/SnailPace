@@ -26,7 +26,8 @@ predict_means <- function(DT, model) {
                          type = "link",
                          re.form = NULL),
         by = .(id_treat, ghostbricks, stage)]
-  means
+  
+  return(means)
 }
 
 
@@ -55,7 +56,8 @@ predict_brickdist <- function(DT, model) {
                          type = "link",
                          re.form = NULL),
         by = .(id_treat, ghostbricks, stage)]
-  bdist
+  
+  return(bdist)
 }
 
 
@@ -84,7 +86,8 @@ predict_edgedist <- function(DT, model) {
                          type = "link",
                          re.form = NULL),
         by = .(id_treat, ghostbricks, stage)]
-  edist
+  
+  return(edist)
 }
 
 
@@ -134,8 +137,7 @@ predict_speed <- function(coefs, seqs) {
   repcoef[, disturbance := ifelse(brick %like% 'g', 'undisturbed', 'disturbed'), 
           by = .(id, brick)]
   
-  repcoef
-  
+  return(repcoef)
 }
 
 
