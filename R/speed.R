@@ -1,3 +1,8 @@
+# === Speed ---------------------------------------------------------------
+
+
+
+# TODO: clean -------------------------------------------------------------
 # TODO: necessary?
 # speed <- coefs[,.(bdist = unlist(bdist), 
 #                   bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
@@ -13,6 +18,9 @@
 # speed[ed.spd.before <0, ed.spd.before:=0]
 # speed[ed.spd.after <0, ed.spd.after:=0]
 
+
+
+# Plot speed: brick -------------------------------------------------------
 # input: speed
 plot_speed_brick <- function(DT) {
   DT[,'brick2'] <-gsub("[^0-9.-]", "", DT$brick)
@@ -53,6 +61,9 @@ plot_speed_brick <- function(DT) {
   before + after
 }
 
+
+
+# Plot speed: edge --------------------------------------------------------
 plot_speed_edge <- function(DT) {
   before <- ggplot(data=DT, aes(x=edist, y=ed.spd.before, color = brick)) + 
     geom_line(aes(group= id_treat, linetype = brick), size=1, alpha=.5) +
@@ -86,4 +97,3 @@ plot_speed_edge <- function(DT) {
   
   before + after
 }
-
