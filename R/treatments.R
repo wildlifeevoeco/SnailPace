@@ -28,8 +28,9 @@ brick_treatments <- function(DT) {
   
   zz[, ghostbricks := gsub('brickedge|_start', '', treatment_start)]
   # zz[, treatment_end := gsub('brickedge|_end', '', treatment_end)]
-  zz<- zz[treatment == ghostbricks]
-  zz
+  zz <- zz[treatment == ghostbricks]
+  
+  return(zz)
 }
 
 
@@ -57,7 +58,8 @@ control_treatments <- function(DT) {
   
   zz[, ghostbricks := paste0('g', gsub('brickedge|_start', '', treatment_start))]
   # zz[, treatment_end := paste0('g', gsub('brickedge|_end', '', treatment_end))]
-  zz
+  
+  return(zz)
 }
 
 
