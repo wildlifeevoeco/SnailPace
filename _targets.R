@@ -14,11 +14,14 @@ tar_option_set(format = 'qs',
 
 
 # Data --------------------------------------------------------------------
-path <- file.path('Data', 'raw', 'SnailDataUTM.csv')
-
-# Path to raw, derived
+# Path to raw, derived directories
 raw <- file.path('Data', 'raw')
 derived <- file.path('Data', 'derived')
+
+
+# Snail movement
+path <- file.path(raw, 'SnailDataUTM.csv')
+
 
 # Proximity rasters
 edge <- raster(file.path(raw, 'edgedist.tif'))
@@ -99,6 +102,8 @@ targets_splits <- c(
     unique(mkunique[, .(path = path), by = splitBy])
   )
 )
+
+
 
 # Targets: iSSA -----------------------------------------------------------
 targets_issa <- c(
