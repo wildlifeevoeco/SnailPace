@@ -3,6 +3,15 @@
 
 
 # Set up columns ----------------------------------------------------------
+#' Prepare data
+#'
+#' @param DT 
+#' @author Alec L. Robitaille
+#'
+#' @return
+#' @export
+#'
+#' @examples
 prep_cols <- function(DT) {
   DT[, datetime := as.POSIXct(paste(Date, Time, tz = 'UTC', format = '%Y-%m-%d %H:%M'))]
   DT[, x := round(x_cm + 370194, 2)]
@@ -19,6 +28,20 @@ prep_cols <- function(DT) {
 
 
 # Make unique and complete ------------------------------------------------
+#' Make unique and complete
+#'
+#' @param DT data.table
+#' @param id id column name
+#' @param datetime datetime column name
+#' @param long longitude column name
+#' @param lat latitude column name
+#' 
+#' @author Alec L. Robitaille
+#'
+#' @return
+#' @export
+#'
+#' @examples
 make_unique_complete <- function(DT, id, datetime, long, lat) {
   na.omit(unique(DT, by = c(id, datetime)),
           cols = c(long, lat, datetime))
