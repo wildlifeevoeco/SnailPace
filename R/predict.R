@@ -1,3 +1,8 @@
+# === Predictions ---------------------------------------------------------
+
+
+
+# Predict: means ----------------------------------------------------------
 predict_means <- function(DT, model) {
   # Take DT, return means for all variables
   means <- DT[, .(
@@ -25,6 +30,8 @@ predict_means <- function(DT, model) {
 }
 
 
+
+# Predict: brick dist ------------------------------------------------------
 predict_brickdist <- function(DT, model) {
   # Take DT, return means for all variables except for seq 0:max brickdist 
   bdist <- DT[, .(
@@ -52,6 +59,8 @@ predict_brickdist <- function(DT, model) {
 }
 
 
+
+# Predict: edge dist ------------------------------------------------------
 predict_edgedist <- function(DT, model) {
   # Take DT, return means for all variables except for seq 0:max edgedist 
   edist <- DT[, .(
@@ -78,6 +87,9 @@ predict_edgedist <- function(DT, model) {
   edist
 }
 
+
+
+# Predict: speed ----------------------------------------------------------
 predict_speed <- function(coefs, seqs) {
   if (is.null(coefs)) return(NULL)
   
@@ -126,6 +138,9 @@ predict_speed <- function(coefs, seqs) {
   
 }
 
+
+
+# Make prediction sequence ------------------------------------------------
 make_predict_seq <- function(combtreats, model) {
   maxedge <- max(combtreats$edgedist_end, na.rm = T)
   maxbrick <- 65
