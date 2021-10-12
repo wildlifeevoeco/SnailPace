@@ -21,6 +21,8 @@ model_p1 <- function(DT) {
     map = list(theta = factor(c(NA, 1:10))),
     start = list(theta = c(log(1000), seq(0, 0, length.out = 10)))
   )
+  
+  return(p1)
 }
 
 
@@ -48,4 +50,6 @@ model_p3 <- function(DT) {
     map = list(theta = factor(c(NA, 1:10))),
     start = list(theta = c(log(1000), seq(0, 0, length.out = 10)))
   )
+  
+  return(p3)
 }
