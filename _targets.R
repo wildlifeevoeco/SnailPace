@@ -126,7 +126,7 @@ targets_issa <- c(
   # Binomial move/not
   tar_target(
     binomial_resamples,
-    resample_tracks(tracks, rate, tolerance),
+    resample_tracks(tracks, rate, tolerance, binomial = TRUE),
     pattern = map(tracks)
   ),
   
