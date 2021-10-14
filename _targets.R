@@ -302,6 +302,20 @@ targets_rss <- c(
 
 
 
+# Targets: plots ----------------------------------------------------------
+targets_plots <- c(
+  tar_target(
+    fig_rss_edge,
+    plot_rss_edge(rss)
+  ),
+  tar_target(
+    fig_rss_brick,
+    plot_rss_brick(rss)
+  )
+)
+
+
+
 
 # Targets: distributions --------------------------------------------------
 targets_distributions <- c(
