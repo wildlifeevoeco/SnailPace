@@ -93,15 +93,14 @@ merge_steps <- function(DT, prepDT) {
   if (is.null(DT)) return()
   if (nrow(DT) == 0) return()
   
-  subDT <- setDT(DT)[case_ == TRUE | !is.na(brickedge1_end)]
+  subDT <- setDT(DT)[(case_) | !is.na(brickedge1_end)]
   subDT[, iter := seq.int(.N), by = .(id, step_id_)]
   
+  # TODO: check this
   subsubDT <- subDT[iter <= 11]
+  # TODO: check these
+  # setnames(subsubDT, c('snail'), c('id'))
   
-  #setnames(subsubDT, c('snail'), c('id'))
-  
-  setnames(prepDT, c('t', 'snail'), c('t1_', 'id'))
-  
-  merge(subsubDT, prepDT, by = c('id', 't1_'))
+  merge(subsubDT, prepDT, by.x = c('id', 't1_'), by.y = c('snail', 't'))
 }
 
