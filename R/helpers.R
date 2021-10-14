@@ -26,12 +26,9 @@ tidy_model <- function(model, effect) {
 
 
 # Set factors -------------------------------------------------------------
-set_factors <- function(DT) {
-  stagelevels <- c("B","A")
-  ghostbricklevels <- c("g1", "g2","g3", 
-                        '1','2', '3')
-  DT[, stage := factor(stage, levels = stagelevels)]
-  DT[, ghostbricks := factor(ghostbricks, levels = ghostbricklevels)]
+set_factors <- function(DT, stage_levels, ghostbrick_levels) {
+  DT[, stage := factor(stage, levels = stage_levels)]
+  DT[, ghostbricks := factor(ghostbricks, levels = stage_levels)]
   
   return(DT)
 }
@@ -39,7 +36,6 @@ set_factors <- function(DT) {
 
 
 # Clean model names -------------------------------------------------------
-# TODO: make this consistent with other tidy_model?
 clean_model_names <- function(model) {
   # making names easier to deal with
   model$term <- gsub(':', '-', model$term)

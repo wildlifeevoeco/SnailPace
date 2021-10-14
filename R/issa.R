@@ -24,11 +24,11 @@ resample_tracks <- function(tracks, rate, tolerance, binomial = FALSE) {
 
 
 # Make random steps ------------------------------------------------------
-make_random_steps <- function(DT, brick1, brick2, brick3, edgeDist) {
+make_random_steps <- function(DT, n_random_steps, brick1, brick2, brick3, edgeDist) {
   if (is.null(DT)) return()
   if (nrow(DT) == 0) return()
   
-  DT %>% random_steps(n = 40, sl_distr = fit_distr(.$sl_, 'exp')) %>%
+  DT %>% random_steps(n = n_random_steps, sl_distr = fit_distr(.$sl_, 'exp')) %>%
     extract_covariates(brick1, where = "both") %>%
     extract_covariates(brick2, where = "both") %>%
     extract_covariates(brick3, where = "both") %>%
@@ -57,6 +57,7 @@ calc_distribution_parameters <- function(steps) {
 }
 
 # rename mergelc column
+# TODO: remove, not used
 make_good_names <- function(DT, old, new){
   if (is.null(DT)) return()
   if (nrow(DT) == 0) return()
@@ -67,6 +68,7 @@ make_good_names <- function(DT, old, new){
 }
 
 # iSSA ------------------------------------------------------
+# TODO: remove, not used
 make_iSSA <- function(DT, resp, expl) {
   if (is.null(DT)) return()
   if (nrow(DT) == 0) return()
@@ -91,6 +93,7 @@ merge_steps <- function(DT, prepDT) {
   if (is.null(DT)) return()
   if (nrow(DT) == 0) return()
   
+  # TODO: check
   subDT <- setDT(DT)[(case_) | !is.na(brickedge1_end)]
   subDT[, iter := seq.int(.N), by = .(id, step_id_)]
   

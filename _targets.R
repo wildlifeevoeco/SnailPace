@@ -138,13 +138,15 @@ targets_issa <- c(
   # Regular
   tar_target(
     randsteps,
-    make_random_steps(resamples, brickedge1, brickedge2, brickedge3, edge),
+    # TODO: check 40 random steps?
+    make_random_steps(resamples, 40, brickedge1, brickedge2, brickedge3, edge),
     pattern = map(resamples)
   ),
   # Binomial
   tar_target(
     binomial_randsteps,
-    make_random_steps(binomial_resamples, brickedge1, brickedge2, brickedge3, edge),
+    # TODO: check 40 random steps?
+    make_random_steps(binomial_resamples, 40, brickedge1, brickedge2, brickedge3, edge),
     pattern = map(binomial_resamples)
   ),
   
@@ -181,12 +183,6 @@ targets_issa <- c(
 
 # Targets: treatments -----------------------------------------------------
 targets_treatments <- c(
-  # TODO: rm?
-  # tar_target(
-  #   filterNAs,
-  #   merge_prep[!is.na(ghostbrick)]
-  # ),
-  
   tar_target(
     brick_treats,
     brick_treatments(
@@ -274,7 +270,7 @@ targets_speed <- c(
 targets_rss <- c(
   tar_target(
     setfactors,
-    set_factors(combined_treatments)
+    set_factors(combined_treatments, stage_levels, ghostbrick_levels)
   ),
   
   tar_target(

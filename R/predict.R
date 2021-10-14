@@ -144,7 +144,7 @@ predict_speed <- function(coefs, seqs) {
 
 # Make prediction sequence ------------------------------------------------
 make_predict_seq <- function(combtreats, model) {
-  maxedge <- max(combtreats$edgedist_end, na.rm = T)
+  maxedge <- max(combtreats$edgedist_end, na.rm = TRUE)
   maxbrick <- 65
   
   list(

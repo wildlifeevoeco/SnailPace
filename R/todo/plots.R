@@ -7,7 +7,7 @@ p1.rss.edge<- ggplot(data=rss[var == 'edge' & ghostbricks != 'g2' & ghostbricks 
   geom_line(aes(group = id_treat,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  geom_smooth(size = 1.5, aes(fill = ghostbricks),  se = T, method = 'glm') +
+  geom_smooth(size = 1.5, aes(fill = ghostbricks),  se = TRUE, method = 'glm') +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
   theme_bw()  + theme(
@@ -31,7 +31,7 @@ p1.rss.brick<- ggplot(data=rss[var == 'brick' & ghostbricks != 'g2' & ghostbrick
   geom_line(aes(group = id_treat,alpha = .0001), linetype ='twodash', show.legend = F) +
   #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
   #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  geom_smooth(size = 1.5, aes(fill = ghostbricks),  se = T, method = 'glm') +
+  geom_smooth(size = 1.5, aes(fill = ghostbricks),  se = TRUE, method = 'glm') +
   geom_hline(yintercept = 0,colour = "black",lty = 2, size = .7) +
   #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
   theme_bw()  + theme(
