@@ -180,19 +180,19 @@ targets_treatments <- c(
   # TODO: rm?
   # tar_target(
   #   filterNAs,
-  #   mergeprep[!is.na(ghostbrick)]
+  #   merge_prep[!is.na(ghostbrick)]
   # ),
   
   tar_target(
     bricktreats,
     brick_treatments(
-      mergeprep
+      merge_prep
     )
   ),
   tar_target(
     controltreats,
     control_treatments(
-      mergeprep
+      merge_prep
     )
   ),
   tar_target(
