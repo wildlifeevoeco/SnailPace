@@ -29,7 +29,7 @@ tidy_model <- function(model, effect) {
 set_factors <- function(DT, stage_levels = c('B', 'A'), 
                         ghostbrick_levels = c('g1', 'g2', 'g3', '1', '2', '3')) {
   DT[, stage := factor(stage, levels = stage_levels)]
-  DT[, ghostbricks := factor(ghostbricks, levels = stage_levels)]
+  DT[, ghostbricks := factor(ghostbricks, levels = ghostbrick_levels)]
   
   return(DT)
 }
