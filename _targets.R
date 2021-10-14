@@ -269,11 +269,6 @@ targets_speed <- c(
 # Targets: RSS ------------------------------------------------------------
 targets_rss <- c(
   tar_target(
-    setfactors,
-    set_factors(combined_treatments, stage_levels, ghostbrick_levels)
-  ),
-  
-  tar_target(
     predictmeans,
     predict_means(combined_treatments, modelp1)
     # predict_means(combined_treatments[subset with i?], modelp1)
