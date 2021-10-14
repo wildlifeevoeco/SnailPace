@@ -68,10 +68,8 @@ make_good_names <- function(DT, old, new){
 
 # iSSA ------------------------------------------------------
 make_iSSA <- function(DT, resp, expl) {
-  if (is.null(DT))
-    return()
-  if (nrow(DT) == 0)
-    return()
+  if (is.null(DT)) return()
+  if (nrow(DT) == 0) return()
   
   mod.tmp <- glmmTMB(
     formula = reformulate(expl, resp),

@@ -50,6 +50,10 @@ rate <- hours(1)
 # tolerance rate 
 tolerance <- minutes(2)
 
+# Levels
+stage_levels <- c('B', 'A')
+ghostbrick_levels <- c('g1', 'g2', 'g3', '1', '2', '3')
+
 # TODO: not needed?
 # longlat <- FALSE
 # columns to rename
@@ -57,11 +61,11 @@ tolerance <- minutes(2)
 # newname <- c('lc_end')
 # build iSSA 
 # response <- 'case_'
-# explanatory <- "I(log(sl_)) + I(log(sl_)):tod_start_ + 
+# explanatory <- 'I(log(sl_)) + I(log(sl_)):tod_start_ + 
 #   lc_end +lc_end:I(log(sl_)) +
 #   (1|indiv_step_id) +
 #   (0|I(log(sl_)):id) + (0:I(log(sl_)):tod_start_:id) +
-#   (0|lc_end:id) + (0|lc_end:I(log(sl_)):id)"
+#   (0|lc_end:id) + (0|lc_end:I(log(sl_)):id)'
 
 
 
@@ -184,21 +188,20 @@ targets_treatments <- c(
   # ),
   
   tar_target(
-    bricktreats,
+    brick_treats,
     brick_treatments(
       merge_prep
     )
   ),
   tar_target(
-    controltreats,
+    control_treats,
     control_treatments(
       merge_prep
     )
   ),
   tar_target(
-    combtreats,
-    # TODO: move ghostbricks into combine treatments?
-    combine_treatments(bricktreats, controltreats)
+    combined_treatments,
+    merge_treatments(brick_treats, control_treats)
   )
 )
 
@@ -208,17 +211,17 @@ targets_treatments <- c(
 targets_models <- c(
   tar_target(
     modelp1,
-    model_p1(combtreats),
+    model_p1(combined_treatments),
     iteration = 'list'
   ),
   tar_target(
-    tidymodelp1,
+    tidy_model_p1,
     tidy_model(modelp1, effect = 'ran_vals')
   ),
   
   tar_target(
     modelp3,
-    model_p3(combtreats),
+    model_p3(combined_treatments),
     iteration = 'list'
   ),
   
@@ -245,7 +248,7 @@ targets_speed <- c(
   
   tar_target(
     predict_seq,
-    make_predict_seq(combtreats, tidy(modelp3))
+    make_predict_seq(combined_treatments, tidy(modelp3))
   ),
   
   tar_target(
@@ -271,13 +274,13 @@ targets_speed <- c(
 targets_rss <- c(
   tar_target(
     setfactors,
-    set_factors(combtreats)
+    set_factors(combined_treatments)
   ),
   
   tar_target(
     predictmeans,
-    predict_means(combtreats, modelp1)
-    # predict_means(combtreats[subset with i?], modelp1)
+    predict_means(combined_treatments, modelp1)
+    # predict_means(combined_treatments[subset with i?], modelp1)
   ),
   
   # TODO: need to fix error of mismatching lengths
@@ -286,13 +289,13 @@ targets_rss <- c(
   #       within these functions
   tar_target(
     predictbricks,
-    predict_brickdist(combtreats, modelp1)
-    # predict_brickdist(combtreats[subset with i?], modelp1)
+    predict_brickdist(combined_treatments, modelp1)
+    # predict_brickdist(combined_treatments[subset with i?], modelp1)
   ),
   tar_target(
     predictedges,
-    predict_edgedist(combtreats, modelp1)
-    # predict_edgedist(combtreats[subset with i?], modelp1)
+    predict_edgedist(combined_treatments, modelp1)
+    # predict_edgedist(combined_treatments[subset with i?], modelp1)
   ),
   tar_target(
     rss,
@@ -326,7 +329,7 @@ targets_distributions <- c(
 
 
 # Targets: all ------------------------------------------------------------
-# Automatically grab all the "targets_*" lists above
+# Automatically grab all the 'targets_*' lists above
 lapply(grep('targets', ls(), value = TRUE), get)
 
 # This is equivalent to 

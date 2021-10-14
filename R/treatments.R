@@ -4,14 +4,14 @@
 
 # Brick treatments --------------------------------------------------------
 brick_treatments <- function(DT) {
+  # TODO: check
   subDT <- DT[treatment != 'C']
-  subDT[, treatment := ifelse(treatment=="4", "3", treatment)]
+  subDT[, treatment := ifelse(treatment == "4", "3", treatment)]
   
   
   m1 <- melt(
     subDT,
     measure.vars = paste0('brickedge', c(1, 2, 3), '_start'),
-    # variable.factor = FALSE,
     variable.name = 'treatment_start',
     value.name = 'brickdist_start'
   )
@@ -19,7 +19,6 @@ brick_treatments <- function(DT) {
   m2 <- melt(
     subDT,
     measure.vars = paste0('brickedge', c(1, 2, 3), '_end'),
-    # variable.factor = FALSE,
     variable.name = 'treatment_end',
     value.name = 'brickdist_end'
   )
@@ -27,7 +26,6 @@ brick_treatments <- function(DT) {
   zz <- cbind(m1, m2[, .(brickdist_end)])
   
   zz[, ghostbricks := gsub('brickedge|_start', '', treatment_start)]
-  # zz[, treatment_end := gsub('brickedge|_end', '', treatment_end)]
   zz <- zz[treatment == ghostbricks]
   
   return(zz)
@@ -36,12 +34,12 @@ brick_treatments <- function(DT) {
 
 # Control treatments ------------------------------------------------------
 control_treatments <- function(DT) {
+  # TODO: check
   subDT <- DT[treatment == 'C']
   
   m1 <- melt(
     subDT,
     measure.vars = paste0('brickedge', c(1, 2, 3), '_start'),
-    # variable.factor = FALSE,
     variable.name = 'treatment_start',
     value.name = 'brickdist_start'
   )
@@ -49,7 +47,6 @@ control_treatments <- function(DT) {
   m2 <- melt(
     subDT,
     measure.vars = paste0('brickedge', c(1, 2, 3), '_end'),
-    # variable.factor = FALSE,
     variable.name = 'treatment_end',
     value.name = 'brickdist_end'
   )
@@ -57,24 +54,24 @@ control_treatments <- function(DT) {
   zz <- cbind(m1, m2[, .(brickdist_end)])
   
   zz[, ghostbricks := paste0('g', gsub('brickedge|_start', '', treatment_start))]
-  # zz[, treatment_end := paste0('g', gsub('brickedge|_end', '', treatment_end))]
   
   return(zz)
 }
 
 
 
-# Combine treatments ------------------------------------------------------
-combine_treatments <- function(bricktreats, controltreats) {
+
+# Bind treatments ---------------------------------------------------------
+bind_treatments <- function(bricktreats, controltreats) {
   DT <- rbindlist(list(bricktreats, controltreats))
   
   DT[, indiv_treat_step_id := paste(indiv_step_id, ghostbricks, sep = '_')]
   DT[, id_treat := paste(id, ghostbricks, sep = '_')]
   
+  # TODO: check
   subDT <- DT[stage != 'Acc']
-  subDT[, stage := factor(stage, levels = c("B","A"))]
-  subDT[, ghostbricks := factor(ghostbricks, levels = c("g1", "g2","g3", 
-                                                        '1','2', '3'))]
+  subDT[, stage := factor(stage, stage_levels)]
+  subDT[, ghostbricks := factor(ghostbricks, ghostbricks_levels)]
   
   # TODO: drop where ghostbricks are NA?
   return(subDT)  
