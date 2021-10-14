@@ -197,7 +197,7 @@ targets_treatments <- c(
   ),
   tar_target(
     combined_treatments,
-    merge_treatments(brick_treats, control_treats)
+    bind_treatments(brick_treats, control_treats)
   )
 )
 
