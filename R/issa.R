@@ -11,12 +11,14 @@ resample_tracks <- function(tracks, rate, tolerance, binomial = FALSE) {
   # this is semi-arbitrary, but this should be enough for robust estimates in the model 
   # (Street et al preprint 2021)
   
-  # But keep all for binomial
-  if (!binomial) {
-    if (nrow(t) < 20) return()  
+  # But keep > 3 for binomial
+  if (binomial) {
+    if (nrow(t) <= 3) return()
+  } else {
+    if (nrow(t) < 20) return()
   }
-  
-  t %>% steps_by_burst(., keep_cols = 'start') 
+
+  t %>% steps_by_burst(., keep_cols = 'start')
 }
 
 
