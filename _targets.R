@@ -107,61 +107,69 @@ targets_splits <- c(
 
 # Targets: iSSA -----------------------------------------------------------
 targets_issa <- c(
-  # Make tracks. Note from here on, when we want to iterate use pattern = map(x)
-  #  where x is the upstream target name
+  ## Make tracks 
+  # Note from here on, when we want to iterate use pattern = map(x)
+  # where x is the upstream target name
   tar_target(
     tracks,
     make_track(splits, x, y, t, crs = crs, id = snail),
     pattern = map(splits)
   ),
   
-  # Resample sampling rate
+  ## Resample sampling rate
+  # Regular
   tar_target(
     resamples,
+    resample_tracks(tracks, rate, tolerance, binomial = FALSE),
+    pattern = map(tracks)
+  ),
+  # Binomial move/not
+  tar_target(
+    binomial_resamples,
     resample_tracks(tracks, rate, tolerance),
     pattern = map(tracks)
   ),
   
-  # Create random steps and extract covariates
+  ## Create random steps and extract covariates
+  # Regular
   tar_target(
     randsteps,
     make_random_steps(resamples, brickedge1, brickedge2, brickedge3, edge),
     pattern = map(resamples)
   ),
-  
-  # Resample steps for binomial move/not
+  # Binomial
   tar_target(
-    binomialresamples,
-    resample_tracks(tracks, rate, tolerance),
-    pattern = map(tracks)
+    binomial_randsteps,
+    make_random_steps(binomial_resamples, brickedge1, brickedge2, brickedge3, edge),
+    pattern = map(binomial_resamples)
   ),
   
-  # Create binomial random steps and extract covariates
+  ## Create step ID across individuals
+  # Regular
   tar_target(
-    binomialrandsteps,
-    make_random_steps(binomialresamples, brickedge1, brickedge2, brickedge3, edge),
-    pattern = map(binomialresamples)
-  ),
-  
-  # Merge prep data back
-  tar_target(
-    binomialmergeprep,
-    merge_steps(binomialrandsteps, splits),
-    pattern = map(binomialrandsteps, splits)
-  ),
-  
-  # Create step ID across individuals
-  tar_target(
-    stepID,
-    make_step_id(setDT(randsteps)),
+    step_id,
+    make_step_id(randsteps),
     pattern = map(randsteps)
   ),
-  
-  # Merge prep data back
+  # Binomial
   tar_target(
-    mergeprep,
-    merge_steps(stepID, splits),
-    pattern = map(stepID, splits)
+    binomial_step_id,
+    make_step_id(binomial_randsteps),
+    pattern = map(binomial_randsteps)
+  ),
+  
+  ## Merge prep data back
+  # Regular
+  tar_target(
+    merge_prep,
+    merge_steps(step_id, splits),
+    pattern = map(step_id, splits)
+  ),
+  # Binomial
+  tar_target(
+    binomial_merge_prep,
+    merge_steps(binomial_step_id, splits),
+    pattern = map(binomial_step_id, splits)
   )
 )
 
