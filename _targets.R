@@ -205,10 +205,6 @@ targets_models <- c(
     model_selection(combined_treatments),
     iteration = 'list'
   ),
-  tar_target(
-    tidy_model_select,
-    tidy_model(model_select, effect = 'ran_vals')
-  ),
   
   tar_target(
     model_move,
@@ -251,16 +247,6 @@ targets_speed <- c(
     predicted_speed,
     predict_speed(tidied_coefs, predict_seq),
     pattern = map(tidied_coefs)
-  ),
-  
-  tar_target(
-    plotted_speed_brick,
-    plot_speed_brick(predicted_speed)
-  ),
-  
-  tar_target(
-    plotted_speed_edge,
-    plot_speed_edge(predicted_speed)
   )
 )
 
@@ -302,6 +288,14 @@ targets_plots <- c(
   tar_target(
     fig_binomial,
     plot_binomial(model_binom)
+  ),
+  tar_target(
+    plotted_speed_brick,
+    plot_speed_brick(predicted_speed)
+  ),
+  tar_target(
+    plotted_speed_edge,
+    plot_speed_edge(predicted_speed)
   )
 )
 
