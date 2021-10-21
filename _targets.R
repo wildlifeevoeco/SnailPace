@@ -142,13 +142,7 @@ targets_issa <- c(
     make_random_steps(resamples, 40, brickedge1, brickedge2, brickedge3, edge),
     pattern = map(resamples)
   ),
-  # Binomial
-  tar_target(
-    binomial_randsteps,
-    # TODO: check 40 random steps?
-    make_random_steps(binomial_resamples, 40, brickedge1, brickedge2, brickedge3, edge),
-    pattern = map(binomial_resamples)
-  ),
+
   
   ## Create step ID across individuals
   # Regular
