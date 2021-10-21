@@ -26,10 +26,23 @@ tidy_model <- function(model, effect) {
 
 
 # Set factors -------------------------------------------------------------
-set_factors <- function(DT, stage_levels = c('B', 'A'), 
-                        ghostbrick_levels = c('g1', 'g2', 'g3', '1', '2', '3')) {
-  DT[, stage := factor(stage, levels = stage_levels)]
-  DT[, ghostbricks := factor(ghostbricks, levels = ghostbrick_levels)]
+set_factors <- function(DT, 
+                        treatment_levels = c('C', '1', '2', '4'),
+                        stage_levels = c('B', 'A'), 
+                        ghostbrick_levels = c('g1', 'g2', 'g3', '1', '2', '3')
+                        ) {
+  
+  if ('stage' %in% colnames(DT)) {
+    DT[, stage := factor(stage, levels = stage_levels)]
+  }
+  
+  if ('ghostbricks' %in% colnames(DT)) {
+    DT[, ghostbricks := factor(ghostbricks, levels = ghostbrick_levels)]
+  }
+  
+  if ('treatment' %in% colnames(DT)) {
+    DT[, treatment:= factor(treatment, levels = treatment_levels)]
+  }
   
   return(DT)
 }
