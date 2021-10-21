@@ -78,7 +78,7 @@ prep_model_binomial <- function(DT) {
 
 model_binomial <- function(DT) {
   glmer(moved ~ (stage) * (treatment) + temp + (1 | id),
-        data = dat.obs[id %in% dups$id],
+        data = DT,
         family = 'binomial')
 }
 
