@@ -171,5 +171,6 @@ plot_binomial <- function(model) {
   
   plot(pred.intx) + 
     scale_color_colorblind() + 
-    scale_fill_colorblind()
+    scale_fill_colorblind() + 
+    theme_bw()
 }
