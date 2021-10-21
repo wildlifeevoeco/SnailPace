@@ -88,3 +88,16 @@ plot_rss_brick <- function(rss) {
       
       
 }
+
+
+
+
+# Binomial ----------------------------------------------------------------
+plot_binomial <- function(model) {
+  pred.intx <-
+    ggpredict(model, terms = c('temp', 'stage', 'treatment'))
+  
+  plot(pred.intx) + 
+    scale_color_colorblind() + 
+    scale_fill_colorblind()
+}
