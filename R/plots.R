@@ -42,15 +42,6 @@ plot_rss_edge <- function(rss) {
     labs(x = 'Distance from edge (cm)', y = 'logRSS') +
     facet_wrap('stage') +
     theme_rss
-  
-  # TODO: remove?
-  #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
-  #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-  #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
-  #ylim(-150,100) +
-  # scale_colour_manual('', values = c('gray', 'black', 'gray33', 'blue'))  +  
-
-  
 }
 
 
@@ -78,15 +69,6 @@ plot_rss_brick <- function(rss) {
     labs(x = 'Distance from edge (cm)', y = 'logRSS') +
     facet_wrap('stage') +
     theme_rss
-      
-    # TODO: remove?
-    #geom_line(data=p1.rss[var == 'brickdist'& BA=='after'],aes(step,disturbance.rss, group = disturbance), size = 1) +
-    #geom_point(shape = 1, aes(alpha = .001), show.legend = F) +
-    #geom_ribbon(aes(x, ymin = (rss - 1.96*se), ymax = (rss + 1.96*se), fill=COD, alpha = .2))+
-    #ylim(-150,100) +
-    # scale_colour_manual('', values = c('gray', 'black', 'gray33', 'blue'))  +  
-      
-      
 }
 
 
