@@ -302,6 +302,31 @@ targets_plots <- c(
 
 
 
+
+# Targets: tables ---------------------------------------------------------
+targets_tables <- c(
+  tar_target(
+    move_model_table,
+    tidy_model_tables(
+      model_move
+    )
+  ),
+  tar_target(
+    select_model_table,
+    tidy_model_tables(
+      model_select
+    )
+  ),
+  tar_target(
+    binom_model_table,
+    tidy_model_tables(
+      model_binom
+    )
+  )
+)
+
+
+
 # Targets: distributions --------------------------------------------------
 targets_distributions <- c(
   # Check step distributions
