@@ -73,6 +73,5 @@ bind_treatments <- function(bricktreats, controltreats) {
   subDT <- DT[stage != 'Acc']
   set_factors(subDT)
   
-  # TODO: drop where ghostbricks are NA?
   return(subDT)  
 }
