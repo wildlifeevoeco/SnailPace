@@ -16,6 +16,7 @@ tar_option_set(format = 'qs',
 # Data --------------------------------------------------------------------
 if(!dir.exists('input')) dir.create('input')
 if(!dir.exists('output')) dir.create('output')
+if(!dir.exists('figures')) dir.create('figures')
 
 # Snail movement
 path <- file.path('input', 'SnailDataUTM.csv')
