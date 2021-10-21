@@ -64,3 +64,30 @@ clean_model_names <- function(model) {
   
   return(model)
 }
+
+
+
+# Tidy model tables -------------------------------------------------------
+tidy_model_tables <- function(model) {
+  tidied <- tidy(model, effect = 'fixed')
+  setDT(tidied)
+  
+  tidied <- tidied[, .(term, estimate, std.error, statistic, p.value)]
+  
+  to_edit <- colnames(tidied)[vapply(tidied, is.numeric, TRUE)]
+  
+  tidied[, (to_edit) := lapply(.SD, function(x) round(x, 2)), 
+         .SDcols = to_edit]
+  
+  tidied[, term := gsub('temp', 'temperature', term, fixed = TRUE)]
+  tidied[, term := gsub('I(log(sl_ + 1))', 'log(SL)', term, fixed = TRUE)]
+  tidied[, term := gsub('I(log(brickdist_start + 1))', 'log(brick distance)', term, fixed = TRUE)]
+  tidied[, term := gsub('I(log(brickdist_end + 1))', 'log(brick distance)', term, fixed = TRUE)]
+  tidied[, term := gsub('I(log(edgedist_start + 1))', 'log(edge distance)', term, fixed = TRUE)]
+  tidied[, term := gsub('I(log(edgedist_end + 1))', 'log(edge distance)', term, fixed = TRUE)]
+  tidied[, term := gsub('ghostbricksg', 'control ', term, fixed = TRUE)]
+  tidied[, term := gsub('ghostbricks', 'brick ', term, fixed = TRUE)]
+  
+  tidied
+}
+
