@@ -123,7 +123,7 @@ targets_issa <- c(
   ## Create random steps and extract covariates
   # Regular
   tar_target(
-    randsteps,
+    random_steps,
     make_random_steps(resamples, 45, brickedge1, brickedge2, brickedge3, edge),
     pattern = map(resamples)
   ),
@@ -133,8 +133,8 @@ targets_issa <- c(
   # Regular
   tar_target(
     step_id,
-    make_step_id(randsteps),
-    pattern = map(randsteps)
+    make_step_id(random_steps),
+    pattern = map(random_steps)
   ),
 
   
@@ -219,8 +219,8 @@ targets_speed <- c(
   
   tar_target(
     tidied_coefs,
-    tidy_coefs(cleaned_names, distparams),
-    pattern = map(distparams)
+    tidy_coefs(cleaned_names, distribution_parameters),
+    pattern = map(distribution_parameters)
   ),
   
   tar_target(
@@ -240,20 +240,20 @@ targets_speed <- c(
 # Targets: RSS ------------------------------------------------------------
 targets_rss <- c(
   tar_target(
-    predictmeans,
+    predicted_means,
     predict_means(combined_treatments, model_select)
   ),
   tar_target(
-    predictbricks,
+    predicted_bricks,
     predict_brickdist(combined_treatments, model_select)
   ),
   tar_target(
-    predictedges,
+    predicted_edges,
     predict_edgedist(combined_treatments, model_select)
   ),
   tar_target(
     rss,
-    calc_rss(predictedges, predictbricks, predictmeans)
+    calc_rss(predicted_edges, predicted_bricks, predicted_means)
   ) 
 )
 
@@ -340,9 +340,9 @@ targets_distributions <- c(
   ),
   # Distribution parameters
   tar_target(
-    distparams,
-    calc_distribution_parameters(randsteps),
-    pattern = map(randsteps)
+    distribution_parameters,
+    calc_distribution_parameters(random_steps),
+    pattern = map(random_steps)
   )
 )
 
