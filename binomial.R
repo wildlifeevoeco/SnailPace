@@ -1,16 +1,3 @@
-### Binomial ###
-# Julie Turner
-# started 17 August 2020
-
-### Packages ----
-libs <- c('data.table', 'dplyr', 'lubridate', 'lme4', 'broom.mixed', 'performance', 'ggeffects',
-          'tidyr', 'ggplot2','survival', 'patchwork', 'AICcmodavg', 'ggthemes', 'targets')
-lapply(libs, require, character.only = TRUE)
-
-### Input data ----
-raw <- 'Data/raw/'
-derived <- 'Data/derived/'
-
 tar_load(binomialmergeprep)
 dat.hr <- binomialmergeprep
 tar_load(distparams)
