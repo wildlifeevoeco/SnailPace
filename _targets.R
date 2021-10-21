@@ -138,8 +138,7 @@ targets_issa <- c(
   # Regular
   tar_target(
     randsteps,
-    # TODO: check 40 random steps?
-    make_random_steps(resamples, 40, brickedge1, brickedge2, brickedge3, edge),
+    make_random_steps(resamples, 45, brickedge1, brickedge2, brickedge3, edge),
     pattern = map(resamples)
   ),
 
@@ -157,14 +156,14 @@ targets_issa <- c(
   # Regular
   tar_target(
     merge_prep,
-    merge_steps(step_id, splits),
+    merge_steps(step_id, splits, limit_edge = TRUE),
     pattern = map(step_id, splits)
   ),
   # Binomial
   tar_target(
     binomial_merge_prep,
-    merge_steps(binomial_step_id, splits),
-    pattern = map(binomial_step_id, splits)
+    merge_steps(binomial_resamples, splits, limit_edge = FALSE),
+    pattern = map(binomial_resamples, splits)
   )
 )
 
