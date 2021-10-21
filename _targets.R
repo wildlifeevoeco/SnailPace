@@ -300,16 +300,31 @@ targets_tables <- c(
     )
   ),
   tar_target(
+    write_move_tab,
+    fwrite(move_model_table, 
+           file.path('output', 'movel_model_table.csv'))
+  ),
+  tar_target(
     select_model_table,
     tidy_model_tables(
       model_select
     )
   ),
   tar_target(
+    write_select_tab,
+    fwrite(select_model_table, 
+           file.path('output', 'select_model_table.csv'))
+  ),
+  tar_target(
     binom_model_table,
     tidy_model_tables(
       model_binom
     )
+  ),
+  tar_target(
+    write_binom_tab,
+    fwrite(binom_model_table, 
+           file.path('output', 'binom_model_table.csv'))
   )
 )
 
