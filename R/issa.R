@@ -56,36 +56,6 @@ calc_distribution_parameters <- function(steps) {
   )
 }
 
-# rename mergelc column
-# TODO: remove, not used
-make_good_names <- function(DT, old, new){
-  if (is.null(DT)) return()
-  if (nrow(DT) == 0) return()
-  
-  setnames(DT, old, new)
-  
-  return(DT)
-}
-
-# iSSA ------------------------------------------------------
-# TODO: remove, not used
-make_iSSA <- function(DT, resp, expl) {
-  if (is.null(DT)) return()
-  if (nrow(DT) == 0) return()
-  
-  mod.tmp <- glmmTMB(
-    formula = reformulate(expl, resp),
-    data = DT,
-    family = Poisson(),
-    doFit = FALSE
-  )
-  
-  mod.tmp$parameters$theta[1] <- log(1e3)
-  nvarparm <- length(mod.tmp$parameters$theta)
-  mod.tmp$mapArg <- list(theta = factor(c(NA, 1:(nvarparm - 1))))
-  fitTMB(mod.tmp)
-}
-
 
 
 # Merge steps onto prep data ----------------------------------------------
