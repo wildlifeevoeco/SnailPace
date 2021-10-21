@@ -2,24 +2,6 @@
 
 
 
-# TODO: clean -------------------------------------------------------------
-# TODO: necessary?
-# speed <- coefs[,.(bdist = unlist(bdist), 
-#                   bd.spd.before = unlist(bd.spd.before), bd.spd.after = unlist(bd.spd.after),
-#                   edist = unlist(edist),
-#                   ed.spd.before = unlist(ed.spd.before), ed.spd.after = unlist(ed.spd.after),
-#                   disturbance = ifelse(brick %like% 'g', 'undisturbed', 'disturbed')), by = .(id, brick)]
-
-# TODO: add in
-# speed[,'brick2'] <-gsub("[^0-9.-]", "", speed.1hr$brick)
-# speed[, id_treat := paste(id, brick, sep = '_')]
-# speed[bd.spd.before <0, bd.spd.before:=0]
-# speed[bd.spd.after <0, bd.spd.after:=0]
-# speed[ed.spd.before <0, ed.spd.before:=0]
-# speed[ed.spd.after <0, ed.spd.after:=0]
-
-
-
 # Plot speed: brick -------------------------------------------------------
 # input: speed
 plot_speed_brick <- function(DT) {
