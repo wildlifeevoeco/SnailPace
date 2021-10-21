@@ -282,17 +282,6 @@ targets_plots <- c(
   tar_target(
     fig_speed_edge,
     plot_speed_edge(predicted_speed)
-  ),
-  
-  tar_target(
-    write_figs,
-    {figs <- c('fig_rss_edge' = fig_rss_edge, 'fig_rss_brick' = fig_rss_brick,
-               'fig_binomial' = fig_binomial,
-               'fig_speed_brick' = fig_speed_brick, 'fig_speed_edge' = fig_speed_edge)
-    lapply(seq_along(figs), function(x) {
-        ggsave(file.path('figures', names(figs[x])), figs[[x]])
-      }
-    )}
   )
 )
 
