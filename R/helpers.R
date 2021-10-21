@@ -87,6 +87,7 @@ tidy_model_tables <- function(model) {
   tidied[, term := gsub('I(log(edgedist_end + 1))', 'log(edge distance)', term, fixed = TRUE)]
   tidied[, term := gsub('ghostbricksg', 'control ', term, fixed = TRUE)]
   tidied[, term := gsub('ghostbricks', 'brick ', term, fixed = TRUE)]
+  tidied[, term := gsub('treatment', 'bricks ', term, fixed = TRUE)]
   
   tidied
 }
