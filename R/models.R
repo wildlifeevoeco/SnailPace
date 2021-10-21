@@ -54,7 +54,31 @@ model_movement <- function(DT) {
 
 
 # Model binomial ----------------------------------------------------------
-model_binomial <- function(DT) {
+prep_model_binomial <- function(DT) {
+  # Cast as data.table
+  setDT(DT)
   
+  # Drop acclimation stage
+  subDT <- DT[stage != 'Acc']
+  
+  # Set factors on treatment
+  set_factors(subDT)
+  
+  # If else moved step > 0
+  subDT[, moved := ifelse(sl_ == 0, 0, 1)]
+  
+  # Count if both in before and after stages, by individual
+  subDT[, BnA := uniqueN(stage) == 2, by = id]
+  
+  # Drop if not both in before and after
+  subsubDT <- subDT[(BnA)]
+  
+  return(subsubDT)
+}
+
+model_binomial <- function(DT) {
+  glmer(moved ~ (stage) * (treatment) + temp + (1 | id),
+        data = dat.obs[id %in% dups$id],
+        family = 'binomial')
 }
 

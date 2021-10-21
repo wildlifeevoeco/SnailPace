@@ -51,6 +51,7 @@ rate <- hours(1)
 tolerance <- minutes(2)
 
 # Levels
+treatment_levels <- c('C', '1', '2', '4')
 stage_levels <- c('B', 'A')
 ghostbrick_levels <- c('g1', 'g2', 'g3', '1', '2', '3')
 
@@ -164,6 +165,12 @@ targets_issa <- c(
     binomial_merge_prep,
     merge_steps(binomial_resamples, splits, limit_edge = FALSE),
     pattern = map(binomial_resamples, splits)
+  ),
+  
+  # Prep binomial for model
+  tar_target(
+    prep_binomial,
+    prep_model_binomial(binomial_merge_prep)
   )
 )
 
@@ -215,7 +222,7 @@ targets_models <- c(
   
   tar_target(
     model_binom,
-    model_binomial(binomial_merge_prep),
+    model_binomial(prep_binomial),
     iteration = 'list'
   )
 )
