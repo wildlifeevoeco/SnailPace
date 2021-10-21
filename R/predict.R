@@ -117,14 +117,14 @@ predict_speed <- function(coefs, seqs) {
   repcoef[, bd.spd.after := 
             (1 + logsl_ + logsl_after + (logsltemp * meantemp) + logsltod +
                (brickdist_logsl_after * bdist) + 
-               (edgedist_logsl_before * meanedge)) * (1 / rate), 
+               (edgedist_logsl_after * meanedge)) * (1 / rate), 
           by = .(id, brick)]
   repcoef[, bdist := seq(0, maxbrick, length.out = 100), 
           by = .(id, brick)]
   repcoef[, ed.spd.before := 
             (1 + logsl_ + logsl_before + (logsltemp * meantemp) + logsltod +
                (edgedist_logsl_before * edist) + 
-               (brickdist_logsl_after * meanbrick)) * (1 / rate), 
+               (brickdist_logsl_before * meanbrick)) * (1 / rate), 
           by = .(id, brick)]
   repcoef[, ed.spd.after := 
             (1 + logsl_ + logsl_after + (logsltemp * meantemp) + logsltod +
