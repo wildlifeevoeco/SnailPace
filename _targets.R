@@ -300,7 +300,7 @@ targets_tables <- c(
   tar_target(
     write_move_tab,
     fwrite(move_model_table, 
-           file.path('output', 'movel_model_table.csv'))
+           file.path('output', 'move_model_table.csv'))
   ),
   tar_target(
     select_model_table,
