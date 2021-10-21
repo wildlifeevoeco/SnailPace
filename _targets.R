@@ -306,6 +306,10 @@ targets_plots <- c(
   tar_target(
     fig_rss_brick,
     plot_rss_brick(rss)
+  ),
+  tar_target(
+    fig_binomial,
+    plot_binomial(model_binom)
   )
 )
 
