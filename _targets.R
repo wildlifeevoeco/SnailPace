@@ -151,12 +151,7 @@ targets_issa <- c(
     make_step_id(randsteps),
     pattern = map(randsteps)
   ),
-  # Binomial
-  tar_target(
-    binomial_step_id,
-    make_step_id(binomial_randsteps),
-    pattern = map(binomial_randsteps)
-  ),
+
   
   ## Merge prep data back
   # Regular
