@@ -233,7 +233,7 @@ targets_models <- c(
 targets_speed <- c(
   tar_target(
     cleaned_names,
-    clean_model_names(tidymodelp3)
+    clean_model_names(tidy_model_move)
   ),
   
   tar_target(
@@ -244,7 +244,7 @@ targets_speed <- c(
   
   tar_target(
     predict_seq,
-    make_predict_seq(combined_treatments, tidy(modelp3))
+    make_predict_seq(combined_treatments, tidy(model_move))
   ),
   
   tar_target(
@@ -270,8 +270,8 @@ targets_speed <- c(
 targets_rss <- c(
   tar_target(
     predictmeans,
-    predict_means(combined_treatments, modelp1)
-    # predict_means(combined_treatments[subset with i?], modelp1)
+    predict_means(combined_treatments, model_select)
+    # predict_means(combined_treatments[subset with i?], model_select)
   ),
   
   # TODO: need to fix error of mismatching lengths
@@ -280,13 +280,13 @@ targets_rss <- c(
   #       within these functions
   tar_target(
     predictbricks,
-    predict_brickdist(combined_treatments, modelp1)
-    # predict_brickdist(combined_treatments[subset with i?], modelp1)
+    predict_brickdist(combined_treatments, model_select)
+    # predict_brickdist(combined_treatments[subset with i?], model_select)
   ),
   tar_target(
     predictedges,
-    predict_edgedist(combined_treatments, modelp1)
-    # predict_edgedist(combined_treatments[subset with i?], modelp1)
+    predict_edgedist(combined_treatments, model_select)
+    # predict_edgedist(combined_treatments[subset with i?], model_select)
   ),
   tar_target(
     rss,
