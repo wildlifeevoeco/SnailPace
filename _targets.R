@@ -271,22 +271,14 @@ targets_rss <- c(
   tar_target(
     predictmeans,
     predict_means(combined_treatments, model_select)
-    # predict_means(combined_treatments[subset with i?], model_select)
   ),
-  
-  # TODO: need to fix error of mismatching lengths
-  #       id_treat seems to have length of 11
-  #       this is possibly fixed by adjusting what the by= is
-  #       within these functions
   tar_target(
     predictbricks,
     predict_brickdist(combined_treatments, model_select)
-    # predict_brickdist(combined_treatments[subset with i?], model_select)
   ),
   tar_target(
     predictedges,
     predict_edgedist(combined_treatments, model_select)
-    # predict_edgedist(combined_treatments[subset with i?], model_select)
   ),
   tar_target(
     rss,
