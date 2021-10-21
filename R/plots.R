@@ -10,9 +10,9 @@ theme_rss <- theme_bw() + theme(
   panel.grid.minor = element_blank(),
   axis.line = element_line(colour = 'black', size = .7),
   plot.title = element_text(size = 12, hjust = 0.05),
-  axis.text.x = element_text(size = 12),
+  axis.text.x = element_text(size = 12, margin = margin(10, 10, 10, 10, 'pt')),
   axis.title = element_text(size = 15),
-  axis.text.y = element_text(size = 12),
+  axis.text.y = element_text(size = 12, margin = margin(10, 10, 10, 10, 'pt')),
   axis.ticks.length = unit(-0.25, 'cm'),
   legend.key = element_blank(),
   legend.position = 'right', 
@@ -31,27 +31,23 @@ prep_rss <- function(rss) {
 }
 
 plot_rss_edge <- function(rss) {
-  rss[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
-  
-  ggplot(data = rss[var == 'edge' & ghostbricks != 'g2' & ghostbricks != 'g3'],
-         aes(x, rss, colour = ghostbricks)) +
-    geom_line(aes(group = id_treat, alpha = .0001), 
+  ggplot(data = rss[var == 'edge'], aes(x, rss, colour = treatment)) +
+    geom_line(aes(group = id_treat, alpha = .0001),
               linetype = 'twodash',
-              show.legend = FALSE) +
-    geom_smooth(
-      size = 1.5,
-      aes(fill = ghostbricks),
-      se = TRUE,
-      method = 'glm'
-    ) +
+              show.legend = F) +
+    geom_smooth(size = 1.5,
+                aes(fill = treatment),
+                se = F,
+                method = 'glm') +
     geom_hline(
       yintercept = 0,
       colour = 'black',
       lty = 2,
       size = .7
     ) +
-    labs(x = 'Distance from edge (cm)', y = 'logRSS') +
-    facet_wrap('stage') +
+    ylab('logRSS') + xlab('Distance from edge (cm)') +
+    facet_wrap(~stage) +
+    scale_color_colorblind() +
     theme_rss
 }
 
@@ -96,12 +92,12 @@ todo <- function(variables) {
     theme(text = element_text(size=15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(axis.text.x =  element_text(size = 15)) + 
-    #  theme(legend.position = "none") +
-    theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
+    #  theme(legend.position = 'none') +
+    theme(plot.margin = margin(0.1, 1, .1, .1, 'cm')) +
     scale_color_colorblind() +
-    ggtitle("before ") +
+    ggtitle('before ') +
     ylim(0,7000) +
-    xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)")
+    xlab('Distance from brick (cm)') + ylab('Speed (cm per hour)')
   brick.spd.before
   
   brick.spd.after <- ggplot(data=speed[id != 'O24b'], aes(x=bdist, y=bd.spd.after, color = brick)) + 
@@ -112,12 +108,12 @@ todo <- function(variables) {
     theme(text = element_text(size=15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(axis.text.x =  element_text(size = 15)) + 
-    #  theme(legend.position = "none") +
-    theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-    ggtitle("after ") +
+    #  theme(legend.position = 'none') +
+    theme(plot.margin = margin(0.1, 1, .1, .1, 'cm')) +
+    ggtitle('after ') +
     ylim(0,7000) +
     scale_color_colorblind() +
-    xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)")
+    xlab('Distance from brick (cm)') + ylab('Speed (cm per hour)')
   
   brick.spd.before + brick.spd.after
   
@@ -131,12 +127,12 @@ todo <- function(variables) {
     theme(text = element_text(size=15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(axis.text.x =  element_text(size = 15)) + 
-    #  theme(legend.position = "none") +
-    theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-    ggtitle("before") +
+    #  theme(legend.position = 'none') +
+    theme(plot.margin = margin(0.1, 1, .1, .1, 'cm')) +
+    ggtitle('before') +
     ylim(0,5000) +
     scale_color_colorblind() +
-    xlab("Distance from edge (cm)") + ylab("Speed (cm per hour)")
+    xlab('Distance from edge (cm)') + ylab('Speed (cm per hour)')
   
   edge.spd.before
   
@@ -148,12 +144,12 @@ todo <- function(variables) {
     theme(text = element_text(size=15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(axis.text.x =  element_text(size = 15)) + 
-    #  theme(legend.position = "none") +
-    theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
-    ggtitle("after ") +
+    #  theme(legend.position = 'none') +
+    theme(plot.margin = margin(0.1, 1, .1, .1, 'cm')) +
+    ggtitle('after ') +
     ylim(0,5000) +
     scale_color_colorblind() +
-    xlab("Distance from edge (cm)") + ylab("Speed (cm per hour)")
+    xlab('Distance from edge (cm)') + ylab('Speed (cm per hour)')
   
   edge.spd.before + edge.spd.after
   
