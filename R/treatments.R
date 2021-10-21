@@ -4,7 +4,8 @@
 
 # Brick treatments --------------------------------------------------------
 brick_treatments <- function(DT) {
-  # TODO: check
+  # Treatment: C is control
+  # Treatment: 3 is four bricks
   subDT <- DT[treatment != 'C']
   subDT[, treatment := ifelse(treatment == "4", "3", treatment)]
   
@@ -34,7 +35,7 @@ brick_treatments <- function(DT) {
 
 # Control treatments ------------------------------------------------------
 control_treatments <- function(DT) {
-  # TODO: check
+  # Treatment: C is control
   subDT <- DT[treatment == 'C']
   
   m1 <- melt(
@@ -68,7 +69,7 @@ bind_treatments <- function(bricktreats, controltreats) {
   DT[, indiv_treat_step_id := paste(indiv_step_id, ghostbricks, sep = '_')]
   DT[, id_treat := paste(id, ghostbricks, sep = '_')]
   
-  # TODO: check
+  # Stage: Acc is acclimation
   subDT <- DT[stage != 'Acc']
   set_factors(subDT)
   
