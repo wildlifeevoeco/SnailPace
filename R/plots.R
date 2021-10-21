@@ -19,6 +19,17 @@ theme_rss <- theme_bw() + theme(
   legend.text = element_text(size = 10)
 )
 
+prep_rss <- function(rss) {
+  rss[, treatment := factor(
+    ghostbricks,
+    levels = c('g1', '1', '2', '3'),
+    labels = c('control', '1', '2', '4')
+  )]
+  rss[stage == 'B', stage := 'before']
+  rss[stage == 'A', stage := 'after']
+  rss[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
+}
+
 plot_rss_edge <- function(rss) {
   rss[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
   
