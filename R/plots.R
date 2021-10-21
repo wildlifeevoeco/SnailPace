@@ -19,28 +19,30 @@ theme_rss <- theme_bw() + theme(
   legend.text = element_text(size = 10)
 )
 
-prep_rss <- function(rss) {
-  rss[, treatment := factor(
+prep_rss <- function(DT) {
+  setDT(DT)
+  DT[, treatment := factor(
     ghostbricks,
     levels = c('g1', '1', '2', '3'),
     labels = c('control', '1', '2', '4')
   )]
-  rss[stage == 'B', stage := 'before']
-  rss[stage == 'A', stage := 'after']
-  rss[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
-  return(rss)
+  DT[, id_treat := paste(id, treatment, sep = '_')]
+  DT[stage == 'B', stage := 'before']
+  DT[stage == 'A', stage := 'after']
+  DT[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
+  DT
 }
 
-plot_rss_edge <- function(rss) {
-  prep_rss(rss)
+plot_rss_edge <- function(DT) {
+  DT <- prep_rss(DT)
   
-  ggplot(data = rss[var == 'edge'], aes(x, rss, colour = treatment)) +
+  g <- ggplot(data = DT[var == 'edge'], aes(x, rss, colour = treatment)) +
     geom_line(aes(group = id_treat, alpha = .0001),
               linetype = 'twodash',
               show.legend = F) +
     geom_smooth(size = 1.5,
                 aes(fill = treatment),
-                se = F,
+                se = FALSE,
                 method = 'glm') +
     geom_hline(
       yintercept = 0,
@@ -52,13 +54,18 @@ plot_rss_edge <- function(rss) {
     facet_wrap(~stage) +
     scale_color_colorblind() +
     theme_rss
+  
+  ggsave(filename = file.path('figures', 'plot_rss_edge'),
+         plot = g, 
+         device = 'png')
+  g
 }
 
 
-plot_rss_brick <- function(rss) {
-  prep_rss(rss)
+plot_rss_brick <- function(DT) {
+  DT <- prep_rss(DT)
   
-  ggplot(data = rss[var == 'brick'],
+  g <- ggplot(data = DT[var == 'brick'],
          aes(x, rss, colour = treatment)) +
     geom_line(aes(group = id_treat, alpha = .0001),
               linetype = 'twodash',
@@ -78,6 +85,10 @@ plot_rss_brick <- function(rss) {
     ylim(-50,50) +
     scale_color_colorblind() +
     theme_rss
+  ggsave(filename = file.path('figures', 'plot_rss_brick'),
+         plot = g,
+         device = 'png')
+  g
 }
 
 
@@ -90,7 +101,25 @@ theme_speed <- theme_bw() +
   theme(axis.text.x =  element_text(size = 15)) +
   theme(plot.margin = margin(0.1, 1, .1, .1, 'cm'))
 
+prep_speed <- function(speed) {
+  alloc.col(speed)
+  
+  speed[bd.spd.before < 0, bd.spd.before := 0]
+  speed[bd.spd.after < 0, bd.spd.after := 0]
+  speed[ed.spd.before < 0, ed.spd.before := 0]
+  speed[ed.spd.after < 0, ed.spd.after := 0]
+  
+  speed[, brick := factor(
+    brick,
+    levels = c('g3', '1', '2', '3'),
+    labels = c('control', '1', '2', '4')
+  )]
+  speed[, id_treat := paste(id, brick, sep = '_')]
+  return(speed)
+}
+
 plot_speed_brick <- function(speed) {
+  prep_speed(speed)
   brick_speed_before <- 
     ggplot(data = speed,
            aes(x = bdist, y = bd.spd.before, color = brick)) +
@@ -123,10 +152,17 @@ plot_speed_brick <- function(speed) {
     xlab('Distance from brick (cm)') + ylab('Speed (cm per hour)') + 
     theme_speed
   
-  brick_speed_before + brick_speed_after
+  g <- brick_speed_before + brick_speed_after
+  
+  ggsave(filename = file.path('figures', 'plot_speed_brick'),
+         plot = g, 
+         width = 10,
+         device = 'png')
+  g
 }
 
 plot_speed_edge <- function(speed) {
+  prep_speed(speed)
   edge_speed_before <- 
     ggplot(data = speed[id != 'O24b'], 
            aes(x = edist, y = ed.spd.before, color = brick)) + 
@@ -159,7 +195,13 @@ plot_speed_edge <- function(speed) {
     xlab('Distance from edge (cm)') + ylab('Speed (cm per hour)') + 
     theme_speed
   
-  edge_speed_before + edge_speed_after
+  g <- edge_speed_before + edge_speed_after
+  
+  ggsave(filename = file.path('figures', 'plot_speed_edge'),
+         plot = g,
+         width = 10,
+         device = 'png')
+  g
 }
 
 
@@ -169,8 +211,13 @@ plot_binomial <- function(model) {
   pred.intx <-
     ggpredict(model, terms = c('temp', 'stage', 'treatment'))
   
-  plot(pred.intx) + 
+  g <- plot(pred.intx) + 
     scale_color_colorblind() + 
     scale_fill_colorblind() + 
     theme_bw()
+  
+  ggsave(filename = file.path('figures', 'plot_binomial'),
+         plot = g, 
+         device = 'png')
+  g
 }
