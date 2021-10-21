@@ -14,20 +14,17 @@ tar_option_set(format = 'qs',
 
 
 # Data --------------------------------------------------------------------
-# Path to raw, derived directories
-raw <- file.path('Data', 'raw')
-derived <- file.path('Data', 'derived')
-
+if(!dir.exists('input')) dir.create('input')
+if(!dir.exists('output')) dir.create('output')
 
 # Snail movement
-path <- file.path(raw, 'SnailDataUTM.csv')
-
+path <- file.path('input', 'SnailDataUTM.csv')
 
 # Proximity rasters
-edge <- raster(file.path(raw, 'edgedist.tif'))
-brickedge1 <- raster(file.path(raw, 'brickedge1.tif'))
-brickedge2 <- raster(file.path(raw, 'brickedge2.tif'))
-brickedge3 <- raster(file.path(raw, 'brickedge3.tif'))
+edge <- raster(file.path('input', 'edgedist.tif'))
+brickedge1 <- raster(file.path('input', 'brickedge1.tif'))
+brickedge2 <- raster(file.path('input', 'brickedge2.tif'))
+brickedge3 <- raster(file.path('input', 'brickedge3.tif'))
 
 
 
