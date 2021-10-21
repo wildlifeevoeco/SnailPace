@@ -194,24 +194,29 @@ targets_treatments <- c(
 # Targets: model ----------------------------------------------------------
 targets_models <- c(
   tar_target(
-    modelp1,
-    model_p1(combined_treatments),
+    model_select,
+    model_selection(combined_treatments),
     iteration = 'list'
   ),
   tar_target(
-    tidy_model_p1,
-    tidy_model(modelp1, effect = 'ran_vals')
+    tidy_model_select,
+    tidy_model(model_select, effect = 'ran_vals')
   ),
   
   tar_target(
-    modelp3,
-    model_p3(combined_treatments),
+    model_move,
+    model_movement(combined_treatments),
     iteration = 'list'
   ),
+  tar_target(
+    tidy_model_move,
+    tidy_model(model_move, effect = 'ran_vals')
+  ),
   
   tar_target(
-    tidymodelp3,
-    tidy_model(modelp3, effect = 'ran_vals')
+    model_binom,
+    model_binomial(binomial_merge_prep),
+    iteration = 'list'
   )
 )
 
