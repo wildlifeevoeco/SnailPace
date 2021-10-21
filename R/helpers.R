@@ -17,6 +17,7 @@ tidy_coefs <- function(model, distparams) {
 
 # Tidy model --------------------------------------------------------------
 tidy_model <- function(model, effect) {
+  # Get random effects for id * treatment
   ran_vals <- tidy(model, effect = effect)
   indiv.se <- setDT(ran_vals)[group == 'id_treat']
   
