@@ -33,13 +33,11 @@ plot_speed_brick <- function(DT) {
     geom_line(aes(group = id_treat, linetype = brick),
               size = 1,
               alpha = .5) +
-    #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
     geom_smooth(size = 2, se = FALSE, method = 'glm') +
     theme_classic() +
     theme(text = element_text(size = 15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(axis.text.x =  element_text(size = 15)) +
-    #  theme(legend.position = "none") +
     theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
     ggtitle("before ") +
     scale_color_colorblind() +
@@ -49,16 +47,13 @@ plot_speed_brick <- function(DT) {
     geom_line(aes(group = id_treat, linetype = brick),
               size = 1,
               alpha = .5) +
-    #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
     geom_smooth(size = 2, se = FALSE, method = 'glm') +
     theme_classic() +
     theme(text = element_text(size = 15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(axis.text.x =  element_text(size = 15)) +
-    #  theme(legend.position = "none") +
     theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
     ggtitle("after ") +
-    #ylim(0,1200) +
     scale_color_colorblind() +
     xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)")
   
@@ -73,13 +68,11 @@ plot_speed_edge <- function(DT) {
     geom_line(aes(group = id_treat, linetype = brick),
               size = 1,
               alpha = .5) +
-    #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
     geom_smooth(size = 2, se = FALSE, method = 'glm') +
     theme_classic() +
     theme(text = element_text(size = 15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(axis.text.x =  element_text(size = 15)) +
-    #  theme(legend.position = "none") +
     theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
     ggtitle("before ") +
     ylim(0, 5000) +
@@ -90,13 +83,11 @@ plot_speed_edge <- function(DT) {
     geom_line(aes(group = id_treat, linetype = brick),
               size = 1,
               alpha = .5) +
-    #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
     geom_smooth(size = 2, se = FALSE, method = 'glm') +
     theme_classic() +
     theme(text = element_text(size = 15)) +
     theme(plot.title = element_text(hjust = 0.5)) +
     theme(axis.text.x =  element_text(size = 15)) +
-    #  theme(legend.position = "none") +
     theme(plot.margin = margin(0.1, 1, .1, .1, "cm")) +
     ggtitle("after ") +
     ylim(0, 5000) +
