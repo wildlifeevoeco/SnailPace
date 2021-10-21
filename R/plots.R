@@ -84,77 +84,46 @@ plot_rss_brick <- function(rss) {
 
 
 # Speed -------------------------------------------------------------------
-todo <- function(variables) {
-  # TODO: see speed.R, delete after
-  brick.spd.before <- ggplot(data=speed, aes(x=bdist, y=bd.spd.before, color = brick)) + 
-    geom_line(aes(group= id_treat, linetype = 'dashed'), linetype = 'dashed', size=1, alpha=.5) +
-    #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-    geom_smooth(size = 2, se = F, method = 'glm')+
-    theme_classic() +
-    theme(text = element_text(size=15)) +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    theme(axis.text.x =  element_text(size = 15)) + 
-    #  theme(legend.position = 'none') +
-    theme(plot.margin = margin(0.1, 1, .1, .1, 'cm')) +
+theme_speed <- theme_bw() + 
+  theme(text = element_text(size = 15)) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(axis.text.x =  element_text(size = 15)) +
+  theme(plot.margin = margin(0.1, 1, .1, .1, "cm"))
+
+plot_speed_brick <- function(speed) {
+  brick_speed_before <- 
+    ggplot(data = speed,
+           aes(x = bdist, y = bd.spd.before, color = brick)) +
+    geom_line(
+      aes(group = id_treat, linetype = 'dashed'),
+      linetype = 'dashed',
+      size = 1,
+      alpha = .5
+    ) +
+    geom_smooth(size = 2, se = F, method = 'glm') +
     scale_color_colorblind() +
-    ggtitle('before ') +
-    ylim(0,7000) +
-    xlab('Distance from brick (cm)') + ylab('Speed (cm per hour)')
-  brick.spd.before
+    ggtitle("before ") +
+    ylim(0, 7000) +
+    xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)") + 
+    theme_speed
   
-  brick.spd.after <- ggplot(data=speed[id != 'O24b'], aes(x=bdist, y=bd.spd.after, color = brick)) + 
-    geom_line(aes(group= id_treat), linetype = 'dashed', size=1, alpha=.5) +
-    #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-    geom_smooth(size = 2, se = F, method = 'glm')+
-    theme_classic() +
-    theme(text = element_text(size=15)) +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    theme(axis.text.x =  element_text(size = 15)) + 
-    #  theme(legend.position = 'none') +
-    theme(plot.margin = margin(0.1, 1, .1, .1, 'cm')) +
-    ggtitle('after ') +
-    ylim(0,7000) +
+  brick_speed_after <-
+    ggplot(data = speed[id != 'O24b'], 
+           aes(x = bdist, y = bd.spd.after, color = brick)) +
+    geom_line(
+      aes(group = id_treat),
+      linetype = 'dashed',
+      size = 1,
+      alpha = .5
+    ) +
+    geom_smooth(size = 2, se = F, method = 'glm') +
+    ggtitle("after ") +
+    ylim(0, 7000) +
     scale_color_colorblind() +
-    xlab('Distance from brick (cm)') + ylab('Speed (cm per hour)')
+    xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)") + 
+    theme_speed
   
-  brick.spd.before + brick.spd.after
-  
-  
-  
-  edge.spd.before <- ggplot(data=speed[id != 'O24b'], aes(x=edist, y=ed.spd.before, color = brick)) + 
-    geom_line(aes(group= id_treat), linetype = 'dashed', size=1, alpha=.5) +
-    #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-    geom_smooth(size = 2, se = F, method = 'glm')+
-    theme_classic() +
-    theme(text = element_text(size=15)) +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    theme(axis.text.x =  element_text(size = 15)) + 
-    #  theme(legend.position = 'none') +
-    theme(plot.margin = margin(0.1, 1, .1, .1, 'cm')) +
-    ggtitle('before') +
-    ylim(0,5000) +
-    scale_color_colorblind() +
-    xlab('Distance from edge (cm)') + ylab('Speed (cm per hour)')
-  
-  edge.spd.before
-  
-  edge.spd.after <- ggplot(data=speed[id != 'O24b'], aes(x=edist, y=ed.spd.after, color = brick)) + 
-    geom_line(aes(group= id_treat), linetype = 'dashed', size=1, alpha=.5) +
-    #geom_hline(yintercept=790.9842, linetype='dashed', size = 1) +
-    geom_smooth(size = 2, se = F, method = 'glm')+
-    theme_classic() +
-    theme(text = element_text(size=15)) +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    theme(axis.text.x =  element_text(size = 15)) + 
-    #  theme(legend.position = 'none') +
-    theme(plot.margin = margin(0.1, 1, .1, .1, 'cm')) +
-    ggtitle('after ') +
-    ylim(0,5000) +
-    scale_color_colorblind() +
-    xlab('Distance from edge (cm)') + ylab('Speed (cm per hour)')
-  
-  edge.spd.before + edge.spd.after
-  
+  brick_speed_before + brick_speed_after
 }
 
 
