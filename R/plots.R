@@ -88,7 +88,7 @@ theme_speed <- theme_bw() +
   theme(text = element_text(size = 15)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   theme(axis.text.x =  element_text(size = 15)) +
-  theme(plot.margin = margin(0.1, 1, .1, .1, "cm"))
+  theme(plot.margin = margin(0.1, 1, .1, .1, 'cm'))
 
 plot_speed_brick <- function(speed) {
   brick_speed_before <- 
@@ -102,9 +102,9 @@ plot_speed_brick <- function(speed) {
     ) +
     geom_smooth(size = 2, se = F, method = 'glm') +
     scale_color_colorblind() +
-    ggtitle("before ") +
+    ggtitle('before ') +
     ylim(0, 7000) +
-    xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)") + 
+    xlab('Distance from brick (cm)') + ylab('Speed (cm per hour)') + 
     theme_speed
   
   brick_speed_after <-
@@ -117,16 +117,50 @@ plot_speed_brick <- function(speed) {
       alpha = .5
     ) +
     geom_smooth(size = 2, se = F, method = 'glm') +
-    ggtitle("after ") +
+    ggtitle('after ') +
     ylim(0, 7000) +
     scale_color_colorblind() +
-    xlab("Distance from brick (cm)") + ylab("Speed (cm per hour)") + 
+    xlab('Distance from brick (cm)') + ylab('Speed (cm per hour)') + 
     theme_speed
   
   brick_speed_before + brick_speed_after
 }
 
-
+plot_speed_edge <- function(speed) {
+  edge_speed_before <- 
+    ggplot(data = speed[id != 'O24b'], 
+           aes(x = edist, y = ed.spd.before, color = brick)) + 
+    geom_line(
+      aes(group = id_treat),
+      linetype = 'dashed',
+      size = 1,
+      alpha = .5
+    ) +
+    geom_smooth(size = 2, se = F, method = 'glm') +
+    ggtitle('before') +
+    ylim(0, 5000) +
+    scale_color_colorblind() +
+    xlab('Distance from edge (cm)') + ylab('Speed (cm per hour)') + 
+    theme_speed
+  
+  edge_speed_after <-
+    ggplot(data = speed[id != 'O24b'],
+           aes(x = edist, y = ed.spd.after, color = brick)) +
+    geom_line(
+      aes(group = id_treat),
+      linetype = 'dashed',
+      size = 1,
+      alpha = .5
+    ) +
+    geom_smooth(size = 2, se = F, method = 'glm') +
+    ggtitle('after ') +
+    ylim(0, 5000) +
+    scale_color_colorblind() +
+    xlab('Distance from edge (cm)') + ylab('Speed (cm per hour)') + 
+    theme_speed
+  
+  edge_speed_before + edge_speed_after
+}
 
 
 
