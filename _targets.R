@@ -55,18 +55,6 @@ treatment_levels <- c('C', '1', '2', '4')
 stage_levels <- c('B', 'A')
 ghostbrick_levels <- c('g1', 'g2', 'g3', '1', '2', '3')
 
-# TODO: not needed?
-# longlat <- FALSE
-# columns to rename
-# oldname <- c('becomes')
-# newname <- c('lc_end')
-# build iSSA 
-# response <- 'case_'
-# explanatory <- 'I(log(sl_)) + I(log(sl_)):tod_start_ + 
-#   lc_end +lc_end:I(log(sl_)) +
-#   (1|indiv_step_id) +
-#   (0|I(log(sl_)):id) + (0:I(log(sl_)):tod_start_:id) +
-#   (0|lc_end:id) + (0|lc_end:I(log(sl_)):id)'
 
 
 
