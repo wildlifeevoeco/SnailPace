@@ -28,9 +28,12 @@ prep_rss <- function(rss) {
   rss[stage == 'B', stage := 'before']
   rss[stage == 'A', stage := 'after']
   rss[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
+  return(rss)
 }
 
 plot_rss_edge <- function(rss) {
+  prep_rss(rss)
+  
   ggplot(data = rss[var == 'edge'], aes(x, rss, colour = treatment)) +
     geom_line(aes(group = id_treat, alpha = .0001),
               linetype = 'twodash',
@@ -53,28 +56,27 @@ plot_rss_edge <- function(rss) {
 
 
 plot_rss_brick <- function(rss) {
-  rss[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
+  prep_rss(rss)
   
-  ggplot(data = rss[var == 'brick' &
-                      ghostbricks != 'g2' & ghostbricks != 'g3'],
-         aes(x, rss, colour = ghostbricks)) +
+  ggplot(data = rss[var == 'brick'],
+         aes(x, rss, colour = treatment)) +
     geom_line(aes(group = id_treat, alpha = .0001),
               linetype = 'twodash',
-              show.legend = FALSE) +
-    geom_smooth(
-      size = 1.5,
-      aes(fill = ghostbricks),
-      se = TRUE,
-      method = 'glm'
-    ) +
+              show.legend = F) +
+    geom_smooth(size = 1.5,
+                aes(fill = treatment),
+                se = F,
+                method = 'glm') +
     geom_hline(
       yintercept = 0,
       colour = 'black',
       lty = 2,
       size = .7
     ) +
-    labs(x = 'Distance from edge (cm)', y = 'logRSS') +
+    ylab('logRSS') + xlab('Distance from brick (cm)') +
     facet_wrap('stage') +
+    ylim(-50,50) +
+    scale_color_colorblind() +
     theme_rss
 }
 
