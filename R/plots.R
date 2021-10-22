@@ -27,7 +27,6 @@ prep_rss <- function(DT) {
     levels = c('g1', '1', '2', '3'),
     labels = c('control', '1', '2', '4')
   )]
-  # subDT[, id_treat := paste(id, treatment, sep = '_')]
   subDT[stage == 'B', stage := 'before']
   subDT[stage == 'A', stage := 'after']
   subDT[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
@@ -40,11 +39,11 @@ plot_rss_edge <- function(DT) {
   g <- ggplot(data = DT[var == 'edge'], aes(x, rss, colour = treatment)) +
     geom_line(aes(group = id_treat, alpha = .0001),
               linetype = 'twodash',
-              show.legend = F) +
+              show.legend = FALSE) +
     geom_smooth(size = 1.5,
-                aes(fill = treatment),
-                se = FALSE,
-                method = 'glm') +
+              aes(fill = treatment),
+              se = FALSE,
+              method = 'glm') +
     geom_hline(
       yintercept = 0,
       colour = 'black',
@@ -56,10 +55,12 @@ plot_rss_edge <- function(DT) {
     scale_color_colorblind() +
     theme_rss
   
-  ggsave(filename = file.path('figures', 'plot_rss_edge.png'),
+  file_name <- file.path('figures', 'plot_rss_edge.png')
+  ggsave(filename = file_name,
          plot = g, 
+         width = 10,
          device = 'png')
-  g
+  return(file_name)
 }
 
 
@@ -73,7 +74,7 @@ plot_rss_brick <- function(DT) {
               show.legend = F) +
     geom_smooth(size = 1.5,
                 aes(fill = treatment),
-                se = F,
+                se = FALSE,
                 method = 'glm') +
     geom_hline(
       yintercept = 0,
@@ -86,10 +87,13 @@ plot_rss_brick <- function(DT) {
     ylim(-50,50) +
     scale_color_colorblind() +
     theme_rss
-  ggsave(filename = file.path('figures', 'plot_rss_brick.png'),
+  
+  file_name <- file.path('figures', 'plot_rss_brick.png')
+  ggsave(filename = file_name,
          plot = g,
+         width = 10,
          device = 'png')
-  g
+  return(file_name)
 }
 
 
@@ -102,27 +106,27 @@ theme_speed <- theme_bw() +
   theme(axis.text.x =  element_text(size = 15)) +
   theme(plot.margin = margin(0.1, 1, .1, .1, 'cm'))
 
-prep_speed <- function(speed) {
-  alloc.col(speed)
+prep_speed <- function(DT) {
+  setDT(DT)
   
-  speed[bd.spd.before < 0, bd.spd.before := 0]
-  speed[bd.spd.after < 0, bd.spd.after := 0]
-  speed[ed.spd.before < 0, ed.spd.before := 0]
-  speed[ed.spd.after < 0, ed.spd.after := 0]
+  DT[bd.spd.before < 0, bd.spd.before := 0]
+  DT[bd.spd.after < 0, bd.spd.after := 0]
+  DT[ed.spd.before < 0, ed.spd.before := 0]
+  DT[ed.spd.after < 0, ed.spd.after := 0]
   
-  speed[, brick := factor(
+  DT[, brick := factor(
     brick,
     levels = c('g3', '1', '2', '3'),
     labels = c('control', '1', '2', '4')
   )]
-  speed[, id_treat := paste(id, brick, sep = '_')]
-  return(speed)
+  DT[, id_treat := paste(id, brick, sep = '_')]
+  return(DT)
 }
 
-plot_speed_brick <- function(speed) {
-  prep_speed(speed)
+plot_speed_brick <- function(DT) {
+  DT <- prep_speed(DT)
   brick_speed_before <- 
-    ggplot(data = speed,
+    ggplot(data = DT,
            aes(x = bdist, y = bd.spd.before, color = brick)) +
     geom_line(
       aes(group = id_treat, linetype = 'dashed'),
@@ -138,7 +142,7 @@ plot_speed_brick <- function(speed) {
     theme_speed
   
   brick_speed_after <-
-    ggplot(data = speed[id != 'O24b'], 
+    ggplot(data = DT[id != 'O24b'], 
            aes(x = bdist, y = bd.spd.after, color = brick)) +
     geom_line(
       aes(group = id_treat),
@@ -153,19 +157,21 @@ plot_speed_brick <- function(speed) {
     xlab('Distance from brick (cm)') + ylab('Speed (cm per hour)') + 
     theme_speed
   
-  g <- brick_speed_before + brick_speed_after
+  g <- brick_speed_before + brick_speed_after +
+    plot_layout(guides = 'collect')
   
-  ggsave(filename = file.path('figures', 'plot_speed_brick.png'),
+  file_name <- file.path('figures', 'plot_speed_brick.png')
+  ggsave(filename = file_name,
          plot = g, 
          width = 10,
          device = 'png')
-  g
+  return(file_name)
 }
 
-plot_speed_edge <- function(speed) {
-  prep_speed(speed)
+plot_speed_edge <- function(DT) {
+  DT <- prep_speed(DT)
   edge_speed_before <- 
-    ggplot(data = speed[id != 'O24b'], 
+    ggplot(data = DT[id != 'O24b'], 
            aes(x = edist, y = ed.spd.before, color = brick)) + 
     geom_line(
       aes(group = id_treat),
@@ -181,7 +187,7 @@ plot_speed_edge <- function(speed) {
     theme_speed
   
   edge_speed_after <-
-    ggplot(data = speed[id != 'O24b'],
+    ggplot(data = DT[id != 'O24b'],
            aes(x = edist, y = ed.spd.after, color = brick)) +
     geom_line(
       aes(group = id_treat),
@@ -196,13 +202,15 @@ plot_speed_edge <- function(speed) {
     xlab('Distance from edge (cm)') + ylab('Speed (cm per hour)') + 
     theme_speed
   
-  g <- edge_speed_before + edge_speed_after
+  g <- edge_speed_before + edge_speed_after +
+    plot_layout(guides = 'collect')
   
-  ggsave(filename = file.path('figures', 'plot_speed_edge.png'),
+  file_name <- file.path('figures', 'plot_speed_edge.png')
+  ggsave(filename = file_name,
          plot = g,
          width = 10,
          device = 'png')
-  g
+  return(file_name)
 }
 
 
@@ -218,8 +226,9 @@ plot_binomial <- function(model) {
     labs(x = 'Temperature (°C)', y = 'Moved') + 
     theme_bw()
   
-  ggsave(filename = file.path('figures', 'plot_binomial.png'),
+  file_name <- file.path('figures', 'plot_binomial.png')
+  ggsave(filename = file_name,
          plot = g, 
          device = 'png')
-  g
+  return(file_name)
 }
