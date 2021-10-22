@@ -4,3 +4,7 @@
 .Ruserdata
 .DS_Store
 _targets/
+
+Data/derived/OLD/
+
+R/oldMethod/
