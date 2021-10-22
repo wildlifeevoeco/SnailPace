@@ -17,7 +17,7 @@ using experimentally manipulated mesocosms”.
 This project depends on some incredible R packages. We use
 [`targets`](https://github.com/ropensci/targets) for declaring the
 workflow and [`renv`](https://github.com/rstudio/renv) for a
-reproducible environment. General processing uses
+reproducible environment. General processing using
 [`data.table`](https://github.com/Rdatatable/data.table) and plotting
 with [`ggplot2`](https://github.com/tidyverse/ggplot2) and
 [`patchwork`](https://github.com/thomasp85/patchwork). iSSA methods with
