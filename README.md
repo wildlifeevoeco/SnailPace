@@ -1,7 +1,5 @@
 
-# At a snail’s pace: the influence of habitat disturbance on terrestrial snail
-
-movement using experimentally manipulated mesocosms
+# At a snail’s pace: the influence of habitat disturbance on terrestrial snail movement using experimentally manipulated mesocosms
 
 TODO: fix numbers
 [![DOI](https://zenodo.org/badge/ZZZ.svg)](https://zenodo.org/badge/latestdoi/ZZZ)
