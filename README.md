@@ -1,8 +1,7 @@
 
 # At a snail’s pace: the influence of habitat disturbance on terrestrial snail movement using experimentally manipulated mesocosms
 
-TODO: fix numbers
-[![DOI](https://zenodo.org/badge/ZZZ.svg)](https://zenodo.org/badge/latestdoi/ZZZ)
+[![DOI](https://zenodo.org/badge/420157151.svg)](https://zenodo.org/badge/latestdoi/420157151)
 
 -   Authors:
     -   Emily Denief
@@ -33,8 +32,8 @@ in which animals interact with their environments, such as moving and
 selecting habitats. To test how animals might respond to changing
 disturbance regimes, we employ an experimental approach to movement
 ecology. We used integrated step selection analysis (iSSA) to test the
-behavioural responses of individually-marked grove snails (**Cepaea
-nemoralis**) exposed to a gradient of physical disturbance in their
+behavioural responses of individually-marked grove snails (*Cepaea
+nemoralis*) exposed to a gradient of physical disturbance in their
 habitat. We used a before-after control-impact (BACI) experimental
 design within semi-controlled mesocosms to manipulate edge and
 disturbance variables by altering the area of the mesocosm covered by
