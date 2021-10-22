@@ -2,9 +2,8 @@
 output: github_document
 ---
 
-# At a snail’s pace: the influence of habitat disturbance on 
-terrestrial snail movement using experimentally 
-manipulated mesocosms
+# At a snail’s pace: the influence of habitat disturbance on terrestrial snail
+movement using experimentally manipulated mesocosms
 
 
 TODO: fix numbers
@@ -43,9 +42,3 @@ disturbance. Furthermore, individuals tended to modulate their behavioural
 response to the degree of risk. Our study highlights the usefulness of
 experimental mesocosms in movement ecology and in determining the effects of
 habitat alteration and human-imposed risk on movement behaviour.
-
-## TODOs
-
-```{bash}
-grep --include=\*.{Rmd,R} -rnw '.' -e 'TODO'
-```
