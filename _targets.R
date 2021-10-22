@@ -13,6 +13,8 @@ lapply(dir('R', '*.R', full.names = TRUE), source)
 tar_option_set(format = 'qs', 
                workspace_on_error = TRUE)
 
+set.seed(53)
+
 
 
 # Data --------------------------------------------------------------------
@@ -44,10 +46,10 @@ crs <- CRS(st_crs(32621)$wkt)
 # Column to split analysis by
 splitBy <- id
 
-## resample_tracks(): 
-# resampling rate 
+# Resampling rate 
 rate <- hours(1)
-# tolerance rate 
+
+# Tolerance rate 
 tolerance <- minutes(2)
 
 # Levels
