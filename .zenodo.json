@@ -1,0 +1,37 @@
+{
+  "metadata": {
+    "description": "<p>This repository contains the code accompanying the paper &ldquo;At a snail&rsquo;s pace: the influence of habitat disturbance on terrestrial snail movement using experimentally manipulated mesocosms&rdquo;.</p>\n\n<p>This project depends on some incredible R packages. We use <a href=\"https://github.com/ropensci/targets\"><code>targets</code></a> for declaring the workflow and <a href=\"https://github.com/rstudio/renv\"><code>renv</code></a> for a reproducible environment. General processing uses <a href=\"https://github.com/Rdatatable/data.table\"><code>data.table</code></a> and plotting with <a href=\"https://github.com/tidyverse/ggplot2\"><code>ggplot2</code></a> and <a href=\"https://github.com/thomasp85/patchwork\"><code>patchwork</code></a>. iSSA methods with <a href=\"https://github.com/jmsigner/amt\"><code>amt</code></a>, <code>raster</code> and <code>sf</code>, modeling with <a href=\"https://github.com/glmmTMB/glmmTMB/\"><code>glmmTMB</code></a> and <code>lme4</code>.</p>", 
+    "title": "Code accompanying - At a snail's pace: the influence of habitat disturbance on terrestrial snail movement using experimentally manipulated mesocosms", 
+    "creators": [
+      {
+        "affiliation": "Memorial University", 
+        "name": "Emily Denief"
+      }, 
+      {
+        "orcid": "0000-0001-5449-5449", 
+        "affiliation": "Memorial University", 
+        "name": "Julie W. Turner"
+      }, 
+      {
+        "orcid": "0000-0002-5622-4973", 
+        "affiliation": "Memorial University", 
+        "name": "Christina M. Prokopenko"
+      }, 
+      {
+        "orcid": "0000-0002-4706-1762", 
+        "affiliation": "Memorial University", 
+        "name": "Alec L. Robitaille"
+      }, 
+      {
+        "orcid": "0000-0002-8534-4317", 
+        "affiliation": "Memorial University", 
+        "name": "Eric Vander Wal"
+      }
+    ], 
+    "access_right": "open", 
+    "resource_type": {
+      "type": "software", 
+      "title": "Software"
+    }
+  }
+}
