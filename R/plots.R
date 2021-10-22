@@ -55,7 +55,7 @@ plot_rss_edge <- function(DT) {
     scale_color_colorblind() +
     theme_rss
   
-  ggsave(filename = file.path('figures', 'plot_rss_edge'),
+  ggsave(filename = file.path('figures', 'plot_rss_edge.png'),
          plot = g, 
          device = 'png')
   g
@@ -85,7 +85,7 @@ plot_rss_brick <- function(DT) {
     ylim(-50,50) +
     scale_color_colorblind() +
     theme_rss
-  ggsave(filename = file.path('figures', 'plot_rss_brick'),
+  ggsave(filename = file.path('figures', 'plot_rss_brick.png'),
          plot = g,
          device = 'png')
   g
@@ -154,7 +154,7 @@ plot_speed_brick <- function(speed) {
   
   g <- brick_speed_before + brick_speed_after
   
-  ggsave(filename = file.path('figures', 'plot_speed_brick'),
+  ggsave(filename = file.path('figures', 'plot_speed_brick.png'),
          plot = g, 
          width = 10,
          device = 'png')
@@ -197,7 +197,7 @@ plot_speed_edge <- function(speed) {
   
   g <- edge_speed_before + edge_speed_after
   
-  ggsave(filename = file.path('figures', 'plot_speed_edge'),
+  ggsave(filename = file.path('figures', 'plot_speed_edge.png'),
          plot = g,
          width = 10,
          device = 'png')
@@ -216,7 +216,7 @@ plot_binomial <- function(model) {
     scale_fill_colorblind() + 
     theme_bw()
   
-  ggsave(filename = file.path('figures', 'plot_binomial'),
+  ggsave(filename = file.path('figures', 'plot_binomial.png'),
          plot = g, 
          device = 'png')
   g
