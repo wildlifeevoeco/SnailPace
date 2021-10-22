@@ -267,23 +267,28 @@ targets_rss <- c(
 targets_plots <- c(
   tar_target(
     fig_rss_edge,
-    plot_rss_edge(rss)
+    plot_rss_edge(rss),
+    format = 'file'
   ),
   tar_target(
     fig_rss_brick,
-    plot_rss_brick(rss)
+    plot_rss_brick(rss),
+    format = 'file'
   ),
   tar_target(
     fig_binomial,
-    plot_binomial(model_binom)
+    plot_binomial(model_binom),
+    format = 'file'
   ),
   tar_target(
     fig_speed_brick,
-    plot_speed_brick(predicted_speed)
+    plot_speed_brick(predicted_speed),
+    format = 'file'
   ),
   tar_target(
     fig_speed_edge,
-    plot_speed_edge(predicted_speed)
+    plot_speed_edge(predicted_speed),
+    format = 'file'
   )
 )
 
