@@ -2,8 +2,7 @@
 output: github_document
 ---
 
-# At a snail’s pace: the influence of habitat disturbance on terrestrial snail
-movement using experimentally manipulated mesocosms
+# At a snail’s pace: the influence of habitat disturbance on terrestrial snail movement using experimentally manipulated mesocosms
 
 
 TODO: fix numbers
