@@ -1,0 +1,36 @@
+---
+output: github_document
+---
+
+# At a snail’s pace: the influence of habitat disturbance on 
+terrestrial snail movement using experimentally 
+manipulated mesocosms
+
+
+TODO: fix numbers
+[![DOI](https://zenodo.org/badge/ZZZ.svg)](https://zenodo.org/badge/latestdoi/ZZZ)
+
+
+* Authors:
+  + Emily Denief
+  + Julie W. Turner
+  + Christina Prokopenko
+  + [Alec L. Robitaille](http://robitalec.ca)
+  + [Eric Vander Wal](http://weel.gitlab.io)
+
+This repository contains the code accompanying the paper "At a snail’s pace: the
+influence of habitat disturbance on terrestrial snail movement using
+experimentally manipulated mesocosms".
+
+TODO: describe pkgs etc
+
+## Abstract
+
+TODO: add abstract
+
+
+## TODOs
+
+```{bash}
+grep --include=\*.{Rmd,R} -rnw '.' -e 'TODO'
+```

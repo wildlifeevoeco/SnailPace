@@ -1,0 +1,27 @@
+term,estimate,std.error,statistic,p.value
+(Intercept),-4.81,16.33,-0.29,0.77
+log(SL):temperature,0.04,0.01,2.95,0
+log(brick distance):stageB:control 1,3.94,1.95,2.02,0.04
+log(brick distance):stageA:control 1,6.68,13,0.51,0.61
+log(brick distance):stageB:control 2,4.26,1.94,2.2,0.03
+log(brick distance):stageA:control 2,3.15,12.81,0.25,0.81
+log(brick distance):stageB:control 3,1,1.69,0.59,0.55
+log(brick distance):stageA:control 3,0.8,12.71,0.06,0.95
+log(brick distance):stageB:brick 1,-0.53,2.13,-0.25,0.8
+log(brick distance):stageA:brick 1,13.54,13.61,1,0.32
+log(brick distance):stageB:brick 2,0.94,1.73,0.54,0.59
+log(brick distance):stageA:brick 2,26.93,14.96,1.8,0.07
+log(brick distance):stageB:brick 3,-1.06,1.86,-0.57,0.57
+log(brick distance):stageA:brick 3,16.67,20.14,0.83,0.41
+stageB:control 1:log(edge distance),-1.86,0.98,-1.91,0.06
+stageA:control 1:log(edge distance),-31.32,26.36,-1.19,0.23
+stageB:control 2:log(edge distance),-1.94,0.98,-1.98,0.05
+stageA:control 2:log(edge distance),-30.08,26.21,-1.15,0.25
+stageB:control 3:log(edge distance),-1.78,0.97,-1.84,0.07
+stageA:control 3:log(edge distance),-29.05,26,-1.12,0.26
+stageB:brick 1:log(edge distance),0.31,1.15,0.27,0.79
+stageA:brick 1:log(edge distance),-37.11,23,-1.61,0.11
+stageB:brick 2:log(edge distance),-5.17,1.12,-4.6,0
+stageA:brick 2:log(edge distance),4.81,28.05,0.17,0.86
+stageB:brick 3:log(edge distance),-2.85,1.06,-2.69,0.01
+stageA:brick 3:log(edge distance),-108.7,35.99,-3.02,0
