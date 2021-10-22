@@ -21,7 +21,16 @@ This repository contains the code accompanying the paper "At a snail’s pace: t
 influence of habitat disturbance on terrestrial snail movement using
 experimentally manipulated mesocosms".
 
-TODO: describe pkgs etc
+This project depends on some incredible R packages. We use
+[`targets`](https://github.com/ropensci/targets) for declaring the workflow and
+[`renv`](https://github.com/rstudio/renv) for a reproducible environment.
+General processing uses [`data.table`](https://github.com/Rdatatable/data.table)
+and plotting with [`ggplot2`](https://github.com/tidyverse/ggplot2) and
+[`patchwork`](https://github.com/thomasp85/patchwork). iSSA methods with
+[`amt`](https://github.com/jmsigner/amt), `raster` and `sf`, modeling with
+[`glmmTMB`](https://github.com/glmmTMB/glmmTMB/) and `lme4`.
+
+
 
 ## Abstract
 
