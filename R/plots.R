@@ -215,6 +215,7 @@ plot_binomial <- function(model) {
   g <- plot(pred.intx) + 
     scale_color_colorblind() + 
     scale_fill_colorblind() + 
+    labs(x = 'Temperature (°C)', y = 'Moved') + 
     theme_bw()
   
   ggsave(filename = file.path('figures', 'plot_binomial.png'),
