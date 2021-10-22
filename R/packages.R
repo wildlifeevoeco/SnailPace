@@ -20,6 +20,8 @@ library(raster)
 library(sf)
 library(sp)
 
+library(markdown)
+
 library(conflicted)
 
 conflict_prefer('shift', 'data.table')

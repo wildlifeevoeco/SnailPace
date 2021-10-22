@@ -1,7 +1,7 @@
 
-# At a snail’s pace: the influence of habitat disturbance on
+# At a snail’s pace: the influence of habitat disturbance on terrestrial snail
 
-terrestrial snail movement using experimentally manipulated mesocosms
+movement using experimentally manipulated mesocosms
 
 TODO: fix numbers
 [![DOI](https://zenodo.org/badge/ZZZ.svg)](https://zenodo.org/badge/latestdoi/ZZZ)
@@ -17,7 +17,15 @@ This repository contains the code accompanying the paper “At a snail’s
 pace: the influence of habitat disturbance on terrestrial snail movement
 using experimentally manipulated mesocosms”.
 
-TODO: describe pkgs etc
+This project depends on some incredible R packages. We use
+[`targets`](https://github.com/ropensci/targets) for declaring the
+workflow and [`renv`](https://github.com/rstudio/renv) for a
+reproducible environment. General processing uses
+[`data.table`](https://github.com/Rdatatable/data.table) and plotting
+with [`ggplot2`](https://github.com/tidyverse/ggplot2) and
+[`patchwork`](https://github.com/thomasp85/patchwork). iSSA methods with
+[`amt`](https://github.com/jmsigner/amt), `raster` and `sf`, modeling
+with [`glmmTMB`](https://github.com/glmmTMB/glmmTMB/) and `lme4`.
 
 ## Abstract
 
@@ -27,8 +35,8 @@ in which animals interact with their environments, such as moving and
 selecting habitats. To test how animals might respond to changing
 disturbance regimes, we employ an experimental approach to movement
 ecology. We used integrated step selection analysis (iSSA) to test the
-behavioural responses of individually-marked grove snails (Cepaea
-nemoralis) exposed to a gradient of physical disturbance in their
+behavioural responses of individually-marked grove snails (**Cepaea
+nemoralis**) exposed to a gradient of physical disturbance in their
 habitat. We used a before-after control-impact (BACI) experimental
 design within semi-controlled mesocosms to manipulate edge and
 disturbance variables by altering the area of the mesocosm covered by
@@ -41,17 +49,3 @@ to the degree of risk. Our study highlights the usefulness of
 experimental mesocosms in movement ecology and in determining the
 effects of habitat alteration and human-imposed risk on movement
 behaviour.
-
-## TODOs
-
-``` bash
-grep --include=\*.{Rmd,R} -rnw '.' -e 'TODO'
-```
-
-    ## ./R/oldMethod/1.1_Enclosure_raster.R:7:# TODO: switch this to your proj4string
-    ## ./R/oldMethod/1.1_Enclosure_raster.R:48:# TODO: switch this to your proj4string
-    ## ./R/oldMethod/1.1_Enclosure_raster.R:89:# TODO: switch this to your proj4string
-    ## ./R/oldMethod/1.1_Enclosure_raster.R:129:# TODO: switch this to your proj4string
-    ## ./README.Rmd:10:TODO: fix numbers
-    ## ./README.Rmd:25:TODO: describe pkgs etc
-    ## ./README.Rmd:34:grep --include=\*.{Rmd,R} -rnw '.' -e 'TODO'
