@@ -21,16 +21,17 @@ theme_rss <- theme_bw() + theme(
 
 prep_rss <- function(DT) {
   setDT(DT)
-  DT[, treatment := factor(
+  subDT <- DT[!ghostbricks %in% c('g2', 'g3')]
+  subDT[, treatment := factor(
     ghostbricks,
     levels = c('g1', '1', '2', '3'),
     labels = c('control', '1', '2', '4')
   )]
-  DT[, id_treat := paste(id, treatment, sep = '_')]
-  DT[stage == 'B', stage := 'before']
-  DT[stage == 'A', stage := 'after']
-  DT[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
-  DT
+  # subDT[, id_treat := paste(id, treatment, sep = '_')]
+  subDT[stage == 'B', stage := 'before']
+  subDT[stage == 'A', stage := 'after']
+  subDT[, disturbance := ifelse(ghostbricks %like% 'g', 'undisturbed', 'disturbed')]
+  subDT
 }
 
 plot_rss_edge <- function(DT) {
